@@ -33,7 +33,10 @@
 
     <!-- Additional page-specific styles -->
     @yield('stylesheets')
-    
+
+    <!-- Cloudflare Turnstile -->
+    @turnstileScripts()
+
     <!-- Performance optimization for critical rendering path -->
     <style>
         /* Critical CSS for above-the-fold content */

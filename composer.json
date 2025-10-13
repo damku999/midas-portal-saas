@@ -15,6 +15,7 @@
         "maatwebsite/excel": "^3.1",
         "opcodesio/log-viewer": "^3.8",
         "pragmarx/google2fa-laravel": "^2.3",
+        "ryangjchandler/laravel-cloudflare-turnstile": "^1.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.5"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Validation\Rule;
 
 class ResetPasswordController extends Controller
 {
@@ -34,6 +35,7 @@ class ResetPasswordController extends Controller
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|confirmed|min:4',
+            'cf-turnstile-response' => ['required', Rule::turnstile()],
         ];
     }
 }

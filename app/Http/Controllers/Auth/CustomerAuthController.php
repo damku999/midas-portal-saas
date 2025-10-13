@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class CustomerAuthController extends Controller
 {
@@ -135,6 +136,7 @@ class CustomerAuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:6',
+            'cf-turnstile-response' => ['required', Rule::turnstile()],
         ]);
     }
 
@@ -495,7 +497,10 @@ class CustomerAuthController extends Controller
      */
     public function sendPasswordResetLink(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'email' => 'required|email',
+            'cf-turnstile-response' => ['required', Rule::turnstile()],
+        ]);
 
         $customer = Customer::query()->where('email', $request->email)->first();
 
@@ -554,6 +559,7 @@ class CustomerAuthController extends Controller
         $request->validate([
             'token' => 'required',
             'password' => 'required|string|min:8|confirmed',
+            'cf-turnstile-response' => ['required', Rule::turnstile()],
         ]);
 
         $customer = Customer::query()->where('password_reset_token', $request->token)->first();

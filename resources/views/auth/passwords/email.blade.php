@@ -53,6 +53,16 @@
                                 @enderror
                             </div>
 
+                            <!-- Cloudflare Turnstile -->
+                            <div class="form-group">
+                                <x-turnstile />
+                                @error('cf-turnstile-response')
+                                    <div class="text-danger mt-2">
+                                        <small><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</small>
+                                    </div>
+                                @enderror
+                            </div>
+
                             <button type="submit" class="btn btn-primary w-100 mb-4">
                                 <i class="fas fa-paper-plane me-2"></i>Send Reset Link
                             </button>

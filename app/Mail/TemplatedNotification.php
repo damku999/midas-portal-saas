@@ -105,12 +105,7 @@ class TemplatedNotification extends Mailable
      */
     protected function getEmailFromAddress(): string
     {
-        try {
-            return app(\App\Services\AppSettingService::class)
-                ->get('email_from_address', 'email', config('mail.from.address', 'noreply@example.com'));
-        } catch (\Exception $e) {
-            return config('mail.from.address', 'noreply@example.com');
-        }
+        return email_from_address();
     }
 
     /**
@@ -118,12 +113,7 @@ class TemplatedNotification extends Mailable
      */
     protected function getEmailFromName(): string
     {
-        try {
-            return app(\App\Services\AppSettingService::class)
-                ->get('email_from_name', 'email', company_name());
-        } catch (\Exception $e) {
-            return company_name();
-        }
+        return email_from_name();
     }
 
     /**
@@ -131,11 +121,6 @@ class TemplatedNotification extends Mailable
      */
     protected function getEmailReplyTo(): string
     {
-        try {
-            return app(\App\Services\AppSettingService::class)
-                ->get('email_reply_to', 'email', $this->getEmailFromAddress());
-        } catch (\Exception $e) {
-            return $this->getEmailFromAddress();
-        }
+        return email_reply_to();
     }
 }

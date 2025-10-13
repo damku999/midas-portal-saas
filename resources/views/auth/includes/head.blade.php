@@ -32,6 +32,9 @@
     <!-- Additional page-specific styles -->
     @yield('stylesheets')
 
+    <!-- Cloudflare Turnstile -->
+    @turnstileScripts()
+
     <!-- Modern Auth Styles - Exact Match with Customer Portal -->
     <style>
         body {

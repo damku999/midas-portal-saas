@@ -26,9 +26,9 @@
         <div class="content">
             <p><strong>Dear {{ $customer_name ?? 'Valued Customer' }},</strong></p>
             
-            <p>Welcome to <strong>Parth Rawal Insurance Advisory</strong> Customer Portal! We're thrilled to have you as part of our family of satisfied customers.</p>
-            
-            <p>Your account has been successfully created on <strong>{{ $registration_date ?? date('d/m/Y') }}</strong>. You now have access to our comprehensive customer portal where you can manage all your insurance needs in one convenient location.</p>
+            <p>Welcome to <strong>{{ company_name() }}</strong> Customer Portal! We're thrilled to have you as part of our family of satisfied customers.</p>
+
+            <p>Your account has been successfully created on <strong>{{ $registration_date ?? format_app_date(now()) }}</strong>. You now have access to our comprehensive customer portal where you can manage all your insurance needs in one convenient location.</p>
             
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{{ route('customer.login') }}" class="btn">Access Your Portal</a>
@@ -86,9 +86,9 @@
         <div class="footer">
             <div class="signature">
                 Best regards,<br>
-                <strong>Parth Rawal</strong><br>
+                <strong>{{ company_advisor_name() }}</strong><br>
                 Insurance Advisor<br>
-                Professional Insurance Solutions
+                {{ company_title() }}
             </div>
             <br>
             <p><small>This welcome email was sent because an account was created for {{ $customer_name ?? 'you' }} in our customer portal. If you believe this was sent in error, please contact our support team immediately.</small></p>

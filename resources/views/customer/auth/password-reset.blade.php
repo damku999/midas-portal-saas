@@ -45,6 +45,16 @@
                             @enderror
                         </div>
 
+                        <!-- Cloudflare Turnstile -->
+                        <div class="mb-3">
+                            <x-turnstile />
+                            @error('cf-turnstile-response')
+                                <div class="text-danger mt-2">
+                                    <small><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</small>
+                                </div>
+                            @enderror
+                        </div>
+
                         <button type="submit" class="btn btn-webmonks w-100 mb-3">
                             Send Password Reset Link
                         </button>
