@@ -11,10 +11,10 @@
 
     {{-- Scripts for Customer Auth --}}
     <!-- Modern Customer Portal JavaScript Bundle -->
-    <script src="{{ url('js/customer.js') }}"></script>
+    <script src="{{ versioned_asset('js/customer.js') }}"></script>
 
     <!-- Toastr for notifications -->
-    <script src="{{ asset('admin/toastr/toastr.min.js') }}"></script>
+    <script src="{{ versioned_asset('admin/toastr/toastr.min.js') }}"></script>
 
     @yield('scripts')
 

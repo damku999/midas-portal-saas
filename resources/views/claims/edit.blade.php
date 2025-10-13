@@ -247,14 +247,14 @@
 @endsection
 
 @push('styles')
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_bootstrap_datepicker_css') }}" rel="stylesheet" />
 @endpush
 
 @section('scripts')
     {{-- Include common claims functions --}}
     @include('claims.partials.common-functions')
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ cdn_url('cdn_bootstrap_datepicker_js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize date picker

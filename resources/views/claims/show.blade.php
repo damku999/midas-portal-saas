@@ -855,9 +855,9 @@
 @endsection
 
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_select2_css') }}" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_select2_bootstrap_theme_css') }}" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_bootstrap_datepicker_css') }}" rel="stylesheet" />
     <style>
         /* Policy Search Dropdown Styling */
         .policy-option {
@@ -1016,8 +1016,8 @@
     {{-- Include common claims functions --}}
     @include('claims.partials.common-functions')
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ cdn_url('cdn_select2_js') }}"></script>
+    <script src="{{ cdn_url('cdn_bootstrap_datepicker_js') }}"></script>
 
 <script>
     // Global variables

@@ -79,6 +79,7 @@ Route::middleware('auth')->prefix('app-settings')->name('app-settings.')->group(
     Route::get('/update/status/{id}/{status}', [App\Http\Controllers\AppSettingController::class, 'updateStatus'])->name('status');
     Route::delete('/delete/{id}', [App\Http\Controllers\AppSettingController::class, 'destroy'])->name('destroy');
     Route::get('/{id}/decrypt', [App\Http\Controllers\AppSettingController::class, 'getDecryptedValue'])->name('decrypt');
+    Route::post('/clear-cache', [App\Http\Controllers\AppSettingController::class, 'clearCache'])->name('clear-cache');
 });
 
 // Notification Templates

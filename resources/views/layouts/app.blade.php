@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"
-    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="{{ cdn_url('cdn_jquery_url') }}" crossorigin="anonymous"></script>
 {{-- Include Head --}}
 @include('common.head')
 
@@ -56,22 +55,22 @@
     @include('common.confirmation-modal')
 
     <!-- Modern Admin Portal JavaScript Bundle -->
-    <script src="{{ url('js/admin.js') }}"></script>
+    <script src="{{ versioned_asset('js/admin.js') }}"></script>
 
     <!-- Confirmation Modal Handler -->
-    <script src="{{ url('js/confirmation-modal.js') }}"></script>
-    
-    <!-- Form Validation Utility Library -->
-    <script src="{{ url('js/form-validation.js') }}"></script>
+    <script src="{{ versioned_asset('js/confirmation-modal.js') }}"></script>
 
-    <!-- Bootstrap 5 JS (explicit loading) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('admin/toastr/toastr.min.js') }}"></script>
-    <script src="{{ asset('js/admin-utils.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <!-- Modern Flatpickr Date Picker -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <!-- Form Validation Utility Library -->
+    <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
+
+    <!-- Bootstrap 5 JS (Dynamic) -->
+    <script src="{{ cdn_url('cdn_bootstrap_js') }}"></script>
+    <script src="{{ versioned_asset('admin/toastr/toastr.min.js') }}"></script>
+    <script src="{{ versioned_asset('js/admin-utils.js') }}"></script>
+    <script src="{{ cdn_url('cdn_select2_js') }}"></script>
+    <!-- Modern Flatpickr Date Picker (Dynamic) -->
+    <script src="{{ cdn_url('cdn_flatpickr_js') }}"></script>
+    <script src="{{ cdn_url('cdn_flatpickr_monthselect_js') }}"></script>
 
     @yield('scripts')
     <script>

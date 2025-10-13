@@ -235,7 +235,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ cdn_url('cdn_chartjs_url') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Event Category Chart

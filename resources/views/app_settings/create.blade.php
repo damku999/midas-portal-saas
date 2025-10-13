@@ -19,7 +19,7 @@
                     <span>Back</span>
                 </a>
             </div>
-            <form method="POST" action="{{ route('app-settings.store') }}">
+            <form method="POST" action="{{ route('app-settings.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body py-3">
                     <!-- Section: Basic Information -->
@@ -75,11 +75,89 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold"><span class="text-danger">*</span> Value</label>
-                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror"
-                                    name="value" rows="3" id="value" placeholder="Enter setting value">{{ old('value') }}</textarea>
-                                <small class="text-muted" id="value-hint">Enter the setting value</small>
+
+                                <!-- String Input -->
+                                <input type="text" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-string" placeholder="Enter text value"
+                                    value="{{ old('value') }}" data-type="string">
+
+                                <!-- Text/Textarea Input -->
+                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" rows="3" id="value-text" placeholder="Enter text content"
+                                    data-type="text" style="display: none;">{{ old('value') }}</textarea>
+
+                                <!-- JSON Input -->
+                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input font-monospace"
+                                    name="value" rows="4" id="value-json" placeholder='{"key": "value"}'
+                                    data-type="json" style="display: none;">{{ old('value') }}</textarea>
+
+                                <!-- Number Input -->
+                                <input type="number" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-numeric" placeholder="Enter number"
+                                    value="{{ old('value') }}" data-type="numeric" style="display: none;">
+
+                                <!-- Boolean Input -->
+                                <div class="value-input" id="value-boolean" data-type="boolean" style="display: none;">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="value" id="boolean-checkbox"
+                                            value="1" {{ old('value') == 'true' || old('value') == '1' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="boolean-checkbox">
+                                            <span class="badge bg-success" id="boolean-label-yes" {{ old('value') == 'true' || old('value') == '1' ? '' : 'style=display:none;' }}>Yes / Enabled</span>
+                                            <span class="badge bg-secondary" id="boolean-label-no" {{ old('value') == 'true' || old('value') == '1' ? 'style=display:none;' : '' }}>No / Disabled</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Color Input -->
+                                <div class="value-input" id="value-color" data-type="color" style="display: none;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="color" class="form-control form-control-sm form-control-color"
+                                            name="value" id="color-picker" value="{{ old('value', '#4e73df') }}">
+                                        <input type="text" class="form-control form-control-sm"
+                                            id="color-hex" placeholder="#4e73df" value="{{ old('value', '#4e73df') }}" readonly>
+                                    </div>
+                                    <small class="text-muted">Supports hex (#4e73df) and rgba (rgba(255,255,255,0.1))</small>
+                                </div>
+
+                                <!-- URL Input -->
+                                <input type="url" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-url" placeholder="https://example.com"
+                                    value="{{ old('value') }}" data-type="url" style="display: none;">
+
+                                <!-- Email Input -->
+                                <input type="email" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-email" placeholder="email@example.com"
+                                    value="{{ old('value') }}" data-type="email" style="display: none;">
+
+                                <!-- Image Upload Input -->
+                                <div class="value-input" id="value-image" data-type="image" style="display: none;">
+                                    <input type="file" class="form-control form-control-sm @error('image_file') is-invalid @enderror"
+                                        name="image_file" id="image-file-input" accept="image/*">
+                                    <small class="text-muted d-block mt-1">Max 2MB (JPG, PNG, GIF, SVG)</small>
+                                    <div id="image-preview" class="mt-2" style="display: none;">
+                                        <img src="" alt="Preview" class="img-thumbnail" style="max-height: 150px; max-width: 200px;">
+                                    </div>
+                                    @error('image_file')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- File Upload Input -->
+                                <div class="value-input" id="value-file" data-type="file" style="display: none;">
+                                    <input type="file" class="form-control form-control-sm @error('file_upload') is-invalid @enderror"
+                                        name="file_upload" id="file-upload-input">
+                                    <small class="text-muted d-block mt-1">Max 5MB</small>
+                                    <div id="file-preview" class="mt-2" style="display: none;">
+                                        <span class="badge bg-info"><i class="fas fa-file"></i> <span id="file-name"></span></span>
+                                    </div>
+                                    @error('file_upload')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <small class="text-muted" id="value-hint">Select a type to see the appropriate input field</small>
                                 @error('value')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -149,29 +227,120 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const typeSelect = document.getElementById('type');
-        const valueInput = document.getElementById('value');
+        const valueInputs = document.querySelectorAll('.value-input');
         const valueHint = document.getElementById('value-hint');
 
+        // Type hints
+        const typeHints = {
+            'string': 'Enter text value (single line)',
+            'text': 'Enter text content (multiple lines)',
+            'json': 'Enter valid JSON data (e.g., {"key": "value"})',
+            'boolean': 'Toggle to enable/disable',
+            'numeric': 'Enter numeric value (integer or decimal)',
+            'color': 'Pick a color or enter hex/rgba value',
+            'url': 'Enter a valid URL (e.g., https://example.com)',
+            'email': 'Enter a valid email address',
+            'image': 'Upload an image file (JPG, PNG, GIF, SVG)',
+            'file': 'Upload any file type'
+        };
+
+        // Toggle input fields based on type selection
         typeSelect.addEventListener('change', function() {
-            const type = this.value;
-            switch(type) {
-                case 'json':
-                    valueHint.textContent = 'Enter JSON data (e.g., {"key": "value"})';
-                    valueInput.placeholder = '{"key": "value"}';
-                    break;
-                case 'boolean':
-                    valueHint.textContent = 'Enter true or false (or 1/0)';
-                    valueInput.placeholder = 'true';
-                    break;
-                case 'numeric':
-                    valueHint.textContent = 'Enter numeric value (integer or decimal)';
-                    valueInput.placeholder = '123';
-                    break;
-                default:
-                    valueHint.textContent = 'Enter the setting value';
-                    valueInput.placeholder = 'Enter setting value';
+            const selectedType = this.value;
+
+            // Hide all inputs
+            valueInputs.forEach(input => {
+                input.style.display = 'none';
+                // Disable hidden inputs to prevent submission
+                const inputEl = input.querySelector('input, textarea');
+                if (inputEl && inputEl.name === 'value') {
+                    inputEl.disabled = true;
+                }
+            });
+
+            // Show selected input
+            if (selectedType) {
+                const activeInput = document.querySelector(`[data-type="${selectedType}"]`);
+                if (activeInput) {
+                    activeInput.style.display = 'block';
+                    // Enable the active input
+                    const inputEl = activeInput.querySelector('input, textarea');
+                    if (inputEl && inputEl.name === 'value') {
+                        inputEl.disabled = false;
+                    }
+                }
+
+                // Update hint
+                valueHint.textContent = typeHints[selectedType] || 'Enter the setting value';
+            } else {
+                valueHint.textContent = 'Select a type to see the appropriate input field';
             }
         });
+
+        // Boolean checkbox toggle
+        const booleanCheckbox = document.getElementById('boolean-checkbox');
+        if (booleanCheckbox) {
+            booleanCheckbox.addEventListener('change', function() {
+                const yesLabel = document.getElementById('boolean-label-yes');
+                const noLabel = document.getElementById('boolean-label-no');
+                if (this.checked) {
+                    yesLabel.style.display = 'inline';
+                    noLabel.style.display = 'none';
+                } else {
+                    yesLabel.style.display = 'none';
+                    noLabel.style.display = 'inline';
+                }
+            });
+        }
+
+        // Color picker sync
+        const colorPicker = document.getElementById('color-picker');
+        const colorHex = document.getElementById('color-hex');
+        if (colorPicker && colorHex) {
+            colorPicker.addEventListener('input', function() {
+                colorHex.value = this.value;
+            });
+        }
+
+        // Image preview
+        const imageInput = document.getElementById('image-file-input');
+        const imagePreview = document.getElementById('image-preview');
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.querySelector('img').src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+        }
+
+        // File preview
+        const fileInput = document.getElementById('file-upload-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        if (fileInput && filePreview && fileName) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    filePreview.style.display = 'block';
+                } else {
+                    filePreview.style.display = 'none';
+                }
+            });
+        }
+
+        // Trigger on page load if type is selected
+        if (typeSelect.value) {
+            typeSelect.dispatchEvent(new Event('change'));
+        }
     });
 </script>
 @endsection

@@ -12,20 +12,25 @@
         <div class="card shadow mt-3 mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold text-primary">App Settings Management</h6>
-                @if (auth()->user()->hasPermissionTo('app-setting-create'))
-                    <a href="{{ route('app-settings.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Add Setting
-                    </a>
-                @endif
+                <div class="d-flex" style="gap: 8px;">
+                    <button type="button" class="btn btn-warning btn-sm" onclick="clearCache()" title="Clear Settings Cache">
+                        <i class="fas fa-sync-alt"></i> Clear Cache
+                    </button>
+                    @if (auth()->user()->hasPermissionTo('app-setting-create'))
+                        <a href="{{ route('app-settings.create') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add Setting
+                        </a>
+                    @endif
+                </div>
             </div>
             <div class="card-body">
                 <form method="GET" action="{{ route('app-settings.index') }}" id="search_form">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="search">Search Settings</label>
                                 <input type="text" class="form-control" id="search" name="search"
-                                       placeholder="Key, description..."
+                                       placeholder="Key, value, description..."
                                        value="{{ request('search') }}">
                             </div>
                         </div>
@@ -36,6 +41,19 @@
                                     <option value="">All Categories</option>
                                     @foreach($categories as $key => $value)
                                         <option value="{{ $key }}" {{ request('category') == $key ? 'selected' : '' }}>
+                                            {{ ucfirst($value) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="type">Type</label>
+                                <select class="form-control" id="type" name="type">
+                                    <option value="">All Types</option>
+                                    @foreach($types as $key => $value)
+                                        <option value="{{ $key }}" {{ request('type') == $key ? 'selected' : '' }}>
                                             {{ $value }}
                                         </option>
                                     @endforeach
@@ -52,7 +70,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>&nbsp;</label><br>
                                 <button type="submit" class="btn btn-primary btn-sm">
@@ -143,15 +161,65 @@
                                                 <i class="fas fa-eye-slash"></i>
                                             </button>
                                         @else
-                                            @if($setting->type == 'json')
-                                                <code class="small">{{ Str::limit(json_encode($setting->value), 50) }}</code>
-                                            @elseif($setting->type == 'boolean')
-                                                <span class="badge {{ $setting->value ? 'bg-success' : 'bg-secondary' }}">
-                                                    {{ $setting->value ? 'True' : 'False' }}
-                                                </span>
-                                            @else
-                                                {{ Str::limit($setting->value, 50) }}
-                                            @endif
+                                            @switch($setting->type)
+                                                @case('image')
+                                                    @if($setting->value && Storage::disk('public')->exists($setting->value))
+                                                        <img src="{{ Storage::url($setting->value) }}"
+                                                             alt="{{ $setting->key }}"
+                                                             class="img-thumbnail"
+                                                             style="max-height: 50px; max-width: 100px; object-fit: contain;">
+                                                    @else
+                                                        <span class="text-muted small">No image</span>
+                                                    @endif
+                                                    @break
+
+                                                @case('color')
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="me-2"
+                                                              style="background: {{ $setting->value }}; width: 30px; height: 30px; display: inline-block; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                        </span>
+                                                        <code class="small">{{ $setting->value }}</code>
+                                                    </div>
+                                                    @break
+
+                                                @case('boolean')
+                                                    <span class="badge {{ $setting->value === 'true' ? 'bg-success' : 'bg-danger' }}">
+                                                        {{ $setting->value === 'true' ? 'Yes' : 'No' }}
+                                                    </span>
+                                                    @break
+
+                                                @case('url')
+                                                    <a href="{{ $setting->value }}" target="_blank" class="small text-decoration-none">
+                                                        {{ Str::limit($setting->value, 30) }}
+                                                        <i class="fas fa-external-link-alt ms-1"></i>
+                                                    </a>
+                                                    @break
+
+                                                @case('file')
+                                                    @if($setting->value && Storage::disk('public')->exists($setting->value))
+                                                        <a href="{{ Storage::url($setting->value) }}" target="_blank" class="small text-decoration-none">
+                                                            <i class="fas fa-file"></i> {{ basename($setting->value) }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted small">No file</span>
+                                                    @endif
+                                                    @break
+
+                                                @case('json')
+                                                    <code class="small d-block text-truncate" style="max-width: 250px;">
+                                                        {{ Str::limit($setting->value, 50) }}
+                                                    </code>
+                                                    @break
+
+                                                @case('text')
+                                                    <span class="small" style="display: block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                        {{ Str::limit($setting->value, 50) }}
+                                                    </span>
+                                                    @break
+
+                                                @default
+                                                    <span class="small">{{ Str::limit($setting->value, 50) }}</span>
+                                            @endswitch
                                         @endif
                                     </td>
                                     <td>
@@ -242,6 +310,38 @@
 
 @section('scripts')
 <script>
+    /**
+     * Clear app settings cache
+     */
+    function clearCache() {
+        if (!confirm('Are you sure you want to clear the app settings cache?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("app-settings.clear-cache") }}',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Cache cleared successfully!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toastr.error(response.message || 'Failed to clear cache');
+                }
+            },
+            error: function(xhr) {
+                const message = xhr.responseJSON?.message || 'Error clearing cache';
+                toastr.error(message);
+            }
+        });
+    }
+
+    /**
+     * View decrypted value for encrypted settings
+     */
     function viewDecryptedValue(settingId) {
         const valueEl = $('#encrypted-value-' + settingId);
         const decryptBtn = $('#decrypt-btn-' + settingId);
@@ -270,6 +370,9 @@
         });
     }
 
+    /**
+     * Hide decrypted value
+     */
     function hideDecryptedValue(settingId) {
         const valueEl = $('#encrypted-value-' + settingId);
         const decryptBtn = $('#decrypt-btn-' + settingId);

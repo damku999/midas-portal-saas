@@ -19,7 +19,7 @@
                     <span>Back</span>
                 </a>
             </div>
-            <form method="POST" action="{{ route('app-settings.update', $setting->id) }}">
+            <form method="POST" action="{{ route('app-settings.update', $setting->id) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="card-body py-3">
@@ -104,8 +104,110 @@
                                         <small class="text-muted d-block mt-1">Current encrypted value (click to view)</small>
                                     </div>
                                 @endif
-                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror"
-                                    name="value" rows="3" id="value" placeholder="{{ $setting->is_encrypted ? 'Enter new value to update (leave empty to keep current)' : 'Enter setting value' }}">{{ old('value', $setting->is_encrypted ? '' : (is_array($setting->value) ? json_encode($setting->value, JSON_PRETTY_PRINT) : $setting->value)) }}</textarea>
+
+                                @php
+                                    $currentValue = old('value', $setting->is_encrypted ? '' : (is_array($setting->value) ? json_encode($setting->value, JSON_PRETTY_PRINT) : $setting->value));
+                                @endphp
+
+                                <!-- String Input -->
+                                <input type="text" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-string" placeholder="Enter text value"
+                                    value="{{ $currentValue }}" data-type="string" style="{{ $setting->type === 'string' ? '' : 'display: none;' }}">
+
+                                <!-- Text/Textarea Input -->
+                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" rows="3" id="value-text" placeholder="Enter text content"
+                                    data-type="text" style="{{ $setting->type === 'text' ? '' : 'display: none;' }}">{{ $currentValue }}</textarea>
+
+                                <!-- JSON Input -->
+                                <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input font-monospace"
+                                    name="value" rows="4" id="value-json" placeholder='{"key": "value"}'
+                                    data-type="json" style="{{ $setting->type === 'json' ? '' : 'display: none;' }}">{{ $currentValue }}</textarea>
+
+                                <!-- Number Input -->
+                                <input type="number" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-numeric" placeholder="Enter number"
+                                    value="{{ $currentValue }}" data-type="numeric" style="{{ $setting->type === 'numeric' ? '' : 'display: none;' }}">
+
+                                <!-- Boolean Input -->
+                                <div class="value-input" id="value-boolean" data-type="boolean" style="{{ $setting->type === 'boolean' ? '' : 'display: none;' }}">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="value" id="boolean-checkbox"
+                                            value="1" {{ ($currentValue == 'true' || $currentValue == '1') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="boolean-checkbox">
+                                            <span class="badge bg-success" id="boolean-label-yes" {{ ($currentValue == 'true' || $currentValue == '1') ? '' : 'style=display:none;' }}>Yes / Enabled</span>
+                                            <span class="badge bg-secondary" id="boolean-label-no" {{ ($currentValue == 'true' || $currentValue == '1') ? 'style=display:none;' : '' }}>No / Disabled</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Color Input -->
+                                <div class="value-input" id="value-color" data-type="color" style="{{ $setting->type === 'color' ? '' : 'display: none;' }}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="color" class="form-control form-control-sm form-control-color"
+                                            name="value" id="color-picker" value="{{ $currentValue && str_starts_with($currentValue, '#') ? $currentValue : '#4e73df' }}">
+                                        <input type="text" class="form-control form-control-sm"
+                                            id="color-hex" placeholder="Enter color value" value="{{ $currentValue }}">
+                                    </div>
+                                    <small class="text-muted">Supports hex (#4e73df) and rgba (rgba(255,255,255,0.1))</small>
+                                </div>
+
+                                <!-- URL Input -->
+                                <input type="url" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-url" placeholder="https://example.com"
+                                    value="{{ $currentValue }}" data-type="url" style="{{ $setting->type === 'url' ? '' : 'display: none;' }}">
+
+                                <!-- Email Input -->
+                                <input type="email" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
+                                    name="value" id="value-email" placeholder="email@example.com"
+                                    value="{{ $currentValue }}" data-type="email" style="{{ $setting->type === 'email' ? '' : 'display: none;' }}">
+
+                                <!-- Image Upload Input -->
+                                <div class="value-input" id="value-image" data-type="image" style="{{ $setting->type === 'image' ? '' : 'display: none;' }}">
+                                    @if($setting->type === 'image' && $setting->value)
+                                        <div class="mb-2">
+                                            <label class="form-label fw-semibold small">Current Image:</label>
+                                            <div>
+                                                <img src="{{ Storage::url($setting->value) }}" alt="Current Image" class="img-thumbnail" style="max-height: 150px; max-width: 200px;">
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control form-control-sm @error('image_file') is-invalid @enderror"
+                                        name="image_file" id="image-file-input" accept="image/*">
+                                    <small class="text-muted d-block mt-1">Max 2MB (JPG, PNG, GIF, SVG) - Leave empty to keep current</small>
+                                    <div id="image-preview" class="mt-2" style="display: none;">
+                                        <label class="form-label fw-semibold small">New Preview:</label>
+                                        <img src="" alt="Preview" class="img-thumbnail" style="max-height: 150px; max-width: 200px;">
+                                    </div>
+                                    @error('image_file')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- File Upload Input -->
+                                <div class="value-input" id="value-file" data-type="file" style="{{ $setting->type === 'file' ? '' : 'display: none;' }}">
+                                    @if($setting->type === 'file' && $setting->value)
+                                        <div class="mb-2">
+                                            <label class="form-label fw-semibold small">Current File:</label>
+                                            <div>
+                                                <a href="{{ Storage::url($setting->value) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-file"></i> {{ basename($setting->value) }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control form-control-sm @error('file_upload') is-invalid @enderror"
+                                        name="file_upload" id="file-upload-input">
+                                    <small class="text-muted d-block mt-1">Max 5MB - Leave empty to keep current</small>
+                                    <div id="file-preview" class="mt-2" style="display: none;">
+                                        <label class="form-label fw-semibold small">New File:</label>
+                                        <span class="badge bg-info"><i class="fas fa-file"></i> <span id="file-name"></span></span>
+                                    </div>
+                                    @error('file_upload')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <small class="text-muted" id="value-hint">
                                     @if($setting->is_encrypted)
                                         Enter new value above to update the encrypted setting (leave empty to keep current)
@@ -114,7 +216,7 @@
                                     @endif
                                 </small>
                                 @error('value')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -184,28 +286,131 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const typeSelect = document.getElementById('type');
-        const valueInput = document.getElementById('value');
+        const valueInputs = document.querySelectorAll('.value-input');
         const valueHint = document.getElementById('value-hint');
         const isEncrypted = {{ $setting->is_encrypted ? 'true' : 'false' }};
 
+        // Type hints
+        const typeHints = {
+            'string': 'Enter text value (single line)',
+            'text': 'Enter text content (multiple lines)',
+            'json': 'Enter valid JSON data (e.g., {"key": "value"})',
+            'boolean': 'Toggle to enable/disable',
+            'numeric': 'Enter numeric value (integer or decimal)',
+            'color': 'Pick a color or enter hex/rgba value',
+            'url': 'Enter a valid URL (e.g., https://example.com)',
+            'email': 'Enter a valid email address',
+            'image': 'Upload an image file (JPG, PNG, GIF, SVG) - Leave empty to keep current',
+            'file': 'Upload any file type - Leave empty to keep current'
+        };
+
+        // Toggle input fields based on type selection
         typeSelect.addEventListener('change', function() {
-            const type = this.value;
-            if (!isEncrypted) {
-                switch(type) {
-                    case 'json':
-                        valueHint.textContent = 'Enter JSON data (e.g., {"key": "value"})';
-                        break;
-                    case 'boolean':
-                        valueHint.textContent = 'Enter true or false (or 1/0)';
-                        break;
-                    case 'numeric':
-                        valueHint.textContent = 'Enter numeric value (integer or decimal)';
-                        break;
-                    default:
-                        valueHint.textContent = 'Current value is displayed above';
+            const selectedType = this.value;
+
+            // Hide all inputs
+            valueInputs.forEach(input => {
+                input.style.display = 'none';
+                // Disable hidden inputs to prevent submission
+                const inputEl = input.querySelector('input, textarea');
+                if (inputEl && inputEl.name === 'value') {
+                    inputEl.disabled = true;
                 }
+            });
+
+            // Show selected input
+            if (selectedType) {
+                const activeInput = document.querySelector(`[data-type="${selectedType}"]`);
+                if (activeInput) {
+                    activeInput.style.display = 'block';
+                    // Enable the active input
+                    const inputEl = activeInput.querySelector('input, textarea');
+                    if (inputEl && inputEl.name === 'value') {
+                        inputEl.disabled = false;
+                    }
+                }
+
+                // Update hint
+                if (!isEncrypted) {
+                    valueHint.textContent = typeHints[selectedType] || 'Enter the setting value';
+                }
+            } else {
+                valueHint.textContent = 'Select a type to see the appropriate input field';
             }
         });
+
+        // Boolean checkbox toggle
+        const booleanCheckbox = document.getElementById('boolean-checkbox');
+        if (booleanCheckbox) {
+            booleanCheckbox.addEventListener('change', function() {
+                const yesLabel = document.getElementById('boolean-label-yes');
+                const noLabel = document.getElementById('boolean-label-no');
+                if (this.checked) {
+                    yesLabel.style.display = 'inline';
+                    noLabel.style.display = 'none';
+                } else {
+                    yesLabel.style.display = 'none';
+                    noLabel.style.display = 'inline';
+                }
+            });
+        }
+
+        // Color picker sync (only for hex colors)
+        const colorPicker = document.getElementById('color-picker');
+        const colorHex = document.getElementById('color-hex');
+        if (colorPicker && colorHex) {
+            colorPicker.addEventListener('input', function() {
+                colorHex.value = this.value;
+            });
+
+            // If color hex is changed manually and is valid hex, update picker
+            colorHex.addEventListener('input', function() {
+                const hexRegex = /^#[0-9A-F]{6}$/i;
+                if (hexRegex.test(this.value)) {
+                    colorPicker.value = this.value;
+                }
+            });
+        }
+
+        // Image preview
+        const imageInput = document.getElementById('image-file-input');
+        const imagePreview = document.getElementById('image-preview');
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.querySelector('img').src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+        }
+
+        // File preview
+        const fileInput = document.getElementById('file-upload-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        if (fileInput && filePreview && fileName) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    filePreview.style.display = 'block';
+                } else {
+                    filePreview.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize correct input on page load
+        if (typeSelect.value) {
+            typeSelect.dispatchEvent(new Event('change'));
+        }
     });
 
     // Decrypt functions

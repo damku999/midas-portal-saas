@@ -3,7 +3,7 @@
 
     <!-- Sidebar Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center py-4 text-decoration-none border-bottom border-light border-opacity-25" href="{{ route('home') }}">
-        <img src="{{ asset('images/parth_logo.png') }}" alt="Parth Rawal Insurance Advisor" class="img-fluid" style="max-height: 60px; width: auto;">
+        <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid" style="max-height: {{ app_setting('company_sidebar_logo_height', 'branding', '60px') }}; width: auto;">
     </a>
 
     <!-- Dashboard -->

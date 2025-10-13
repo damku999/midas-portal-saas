@@ -634,7 +634,7 @@
     </div>
 @endsection
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ cdn_url('cdn_chartjs_url') }}"></script>
     <script>
         const data = {!! $json_data !!};
 

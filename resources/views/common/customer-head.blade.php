@@ -11,31 +11,38 @@
     <title>{{ config('app.name', 'Laravel') }} | @yield('title')</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/icon.png') }}" />
-    
+    <link rel="shortcut icon" type="image/jpg" href="{{ company_favicon_asset() }}" />
+
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Google Fonts - Modern Inter font for customer portal -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Google Fonts - Modern Inter font for customer portal (Dynamic) -->
+    <link href="{{ cdn_url('cdn_google_fonts_inter') }}" rel="stylesheet">
 
     <!-- Customer Portal Compiled CSS (includes Bootstrap 5 + modern design) -->
-    <link href="{{ url('css/customer.css') }}" rel="stylesheet">
+    <link href="{{ versioned_asset('css/customer.css') }}" rel="stylesheet">
 
     <!-- Customer Portal Responsive Fixes -->
-    <link href="{{ asset('css/customer-responsive-fixes.css') }}" rel="stylesheet">
+    <link href="{{ versioned_asset('css/customer-responsive-fixes.css') }}" rel="stylesheet">
 
     <!-- Third-party CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/toastr/toastr.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <link href="{{ asset('datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ versioned_asset('admin/toastr/toastr.css') }}">
+    <link href="{{ cdn_url('cdn_select2_css') }}" rel="stylesheet">
+    <link href="{{ versioned_asset('datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 
     <!-- Additional page-specific styles -->
     @yield('stylesheets')
 
     <!-- Cloudflare Turnstile -->
     @turnstileScripts()
+
+    <!-- Dynamic Theme Styles -->
+    <style>
+        :root {
+            {{ theme_styles() }}
+        }
+    </style>
 
     <!-- Performance optimization for critical rendering path -->
     <style>

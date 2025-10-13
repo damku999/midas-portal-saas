@@ -7,6 +7,8 @@ use App\Services\AppSettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -27,10 +29,16 @@ class AppSettingController extends AbstractBaseCrudController
     ];
 
     protected array $types = [
-        'string' => 'String',
+        'string' => 'Text',
+        'text' => 'Textarea',
         'json' => 'JSON',
         'boolean' => 'Boolean',
-        'numeric' => 'Numeric',
+        'numeric' => 'Number',
+        'color' => 'Color Picker',
+        'url' => 'URL',
+        'email' => 'Email',
+        'image' => 'Image Upload',
+        'file' => 'File Upload',
     ];
 
     public function __construct(protected AppSettingService $appSettingService)
@@ -48,19 +56,31 @@ class AppSettingController extends AbstractBaseCrudController
         try {
             $query = AppSetting::query();
 
+            // Get all unique categories dynamically from database
+            $dynamicCategories = AppSetting::select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category', 'category');
+
             // Search filter
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(static function ($q) use ($search): void {
                     $q->where('key', 'LIKE', sprintf('%%%s%%', $search))
                         ->orWhere('description', 'LIKE', sprintf('%%%s%%', $search))
-                        ->orWhere('category', 'LIKE', sprintf('%%%s%%', $search));
+                        ->orWhere('category', 'LIKE', sprintf('%%%s%%', $search))
+                        ->orWhere('value', 'LIKE', sprintf('%%%s%%', $search));
                 });
             }
 
             // Category filter
             if ($request->filled('category')) {
                 $query->where('category', $request->category);
+            }
+
+            // Type filter
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
             }
 
             // Status filter
@@ -92,9 +112,14 @@ class AppSettingController extends AbstractBaseCrudController
 
             $settings->appends($request->except('page'));
 
+            // Group settings by category for display
+            $groupedSettings = $settings->getCollection()->groupBy('category');
+
             return view('app_settings.index', [
                 'settings' => $settings,
-                'categories' => $this->categories,
+                'groupedSettings' => $groupedSettings,
+                'categories' => $dynamicCategories,
+                'types' => $this->types,
             ]);
         } catch (\Throwable $throwable) {
             return $this->redirectWithError('Failed to load settings: '.$throwable->getMessage());
@@ -108,8 +133,14 @@ class AppSettingController extends AbstractBaseCrudController
      */
     public function create()
     {
+        // Get existing categories dynamically from database
+        $dynamicCategories = AppSetting::select('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category', 'category');
+
         return view('app_settings.create', [
-            'categories' => $this->categories,
+            'categories' => $dynamicCategories,
             'types' => $this->types,
         ]);
     }
@@ -123,32 +154,49 @@ class AppSettingController extends AbstractBaseCrudController
     {
         $request->validate([
             'key' => 'required|string|max:255|unique:app_settings,key',
-            'value' => 'required',
-            'type' => 'required|in:string,json,boolean,numeric',
-            'category' => 'required|in:application,company,whatsapp,mail,notifications,general',
+            'value' => 'nullable',
+            'type' => 'required|in:string,text,json,boolean,numeric,color,url,email,image,file',
+            'category' => 'required|string|max:100',
+            'new_category' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
             'is_encrypted' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
+            'image_file' => 'nullable|image|max:2048', // 2MB max
+            'file_upload' => 'nullable|file|max:5120', // 5MB max
         ]);
 
         try {
-            $data = [
-                'key' => $request->key,
-                'value' => $request->value,
-                'type' => $request->type,
-                'category' => $request->category,
-                'description' => $request->description,
-                'is_encrypted' => $request->has('is_encrypted') ? 1 : 0,
-                'is_active' => $request->has('is_active') ? 1 : 0,
-            ];
+            $value = $request->value;
+            $category = $request->filled('new_category') ? $request->new_category : $request->category;
+
+            // Handle image upload
+            if ($request->type === 'image' && $request->hasFile('image_file')) {
+                $file = $request->file('image_file');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->storeAs('app-settings', $filename, 'public');
+                $value = 'app-settings/' . $filename;
+            }
+
+            // Handle file upload
+            if ($request->type === 'file' && $request->hasFile('file_upload')) {
+                $file = $request->file('file_upload');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->storeAs('app-settings', $filename, 'public');
+                $value = 'app-settings/' . $filename;
+            }
+
+            // Handle boolean values
+            if ($request->type === 'boolean') {
+                $value = $request->has('value') ? 'true' : 'false';
+            }
 
             // Create using service
             $this->appSettingService->set(
                 $request->key,
-                $request->value,
+                $value,
                 [
                     'type' => $request->type,
-                    'category' => $request->category,
+                    'category' => $category,
                     'description' => $request->description,
                     'is_encrypted' => $request->has('is_encrypted'),
                     'is_active' => $request->has('is_active') ? 1 : 0,
@@ -198,9 +246,15 @@ class AppSettingController extends AbstractBaseCrudController
         try {
             $setting = AppSetting::query()->findOrFail($id);
 
+            // Get existing categories dynamically from database
+            $dynamicCategories = AppSetting::select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category', 'category');
+
             return view('app_settings.edit', [
                 'setting' => $setting,
-                'categories' => $this->categories,
+                'categories' => $dynamicCategories,
                 'types' => $this->types,
             ]);
         } catch (\Throwable $throwable) {
@@ -218,23 +272,65 @@ class AppSettingController extends AbstractBaseCrudController
     {
         $request->validate([
             'key' => 'required|string|max:255|unique:app_settings,key,'.$id,
-            'value' => 'required',
-            'type' => 'required|in:string,json,boolean,numeric',
-            'category' => 'required|in:application,company,whatsapp,mail,notifications,general',
+            'value' => 'nullable',
+            'type' => 'required|in:string,text,json,boolean,numeric,color,url,email,image,file',
+            'category' => 'required|string|max:100',
+            'new_category' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
             'is_encrypted' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
+            'image_file' => 'nullable|image|max:2048',
+            'file_upload' => 'nullable|file|max:5120',
         ]);
 
         try {
             $setting = AppSetting::query()->findOrFail($id);
+            $value = $request->value;
+            $category = $request->filled('new_category') ? $request->new_category : $request->category;
+
+            // Handle image upload
+            if ($request->type === 'image' && $request->hasFile('image_file')) {
+                // Delete old image if exists
+                if ($setting->type === 'image' && $setting->value && Storage::disk('public')->exists($setting->value)) {
+                    Storage::disk('public')->delete($setting->value);
+                }
+
+                $file = $request->file('image_file');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->storeAs('app-settings', $filename, 'public');
+                $value = 'app-settings/' . $filename;
+            } elseif ($request->type === 'image' && !$request->hasFile('image_file') && $setting->type === 'image') {
+                // Keep existing image if no new upload
+                $value = $setting->value;
+            }
+
+            // Handle file upload
+            if ($request->type === 'file' && $request->hasFile('file_upload')) {
+                // Delete old file if exists
+                if ($setting->type === 'file' && $setting->value && Storage::disk('public')->exists($setting->value)) {
+                    Storage::disk('public')->delete($setting->value);
+                }
+
+                $file = $request->file('file_upload');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->storeAs('app-settings', $filename, 'public');
+                $value = 'app-settings/' . $filename;
+            } elseif ($request->type === 'file' && !$request->hasFile('file_upload') && $setting->type === 'file') {
+                // Keep existing file if no new upload
+                $value = $setting->value;
+            }
+
+            // Handle boolean values
+            if ($request->type === 'boolean') {
+                $value = $request->has('value') ? 'true' : 'false';
+            }
 
             // Update the setting
             $setting->update([
                 'key' => $request->key,
-                'value' => $request->value,
+                'value' => $value,
                 'type' => $request->type,
-                'category' => $request->category,
+                'category' => $category,
                 'description' => $request->description,
                 'is_encrypted' => $request->has('is_encrypted') ? 1 : 0,
                 'is_active' => $request->has('is_active') ? 1 : 0,
@@ -355,6 +451,28 @@ class AppSettingController extends AbstractBaseCrudController
             return response()->json([
                 'success' => false,
                 'message' => 'Error decrypting value: '.$throwable->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear app settings cache (AJAX)
+     *
+     * @return JsonResponse
+     */
+    public function clearCache(): JsonResponse
+    {
+        try {
+            $this->appSettingService->clearCache();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'App settings cache cleared successfully.',
+            ]);
+        } catch (\Throwable $throwable) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error clearing cache: '.$throwable->getMessage(),
             ], 500);
         }
     }

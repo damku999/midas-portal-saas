@@ -37,7 +37,14 @@
       "Bash(then mv RECTOR_REFACTORING_COMPLETE.md claudedocs/)",
       "Bash(fi)",
       "Bash(if [ -f \"DOCUMENTATION_ORGANIZATION_SUMMARY.md\" ])",
-      "Bash(then mv DOCUMENTATION_ORGANIZATION_SUMMARY.md claudedocs/)"
+      "Bash(then mv DOCUMENTATION_ORGANIZATION_SUMMARY.md claudedocs/)",
+      "Bash(php artisan tinker:*)",
+      "Bash(php artisan db:seed:*)",
+      "Bash(/c/wamp64/bin/php/php8.2.26/php.exe artisan db:seed --class=AppSettingsSeeder)",
+      "Bash(/c/wamp64/bin/php/php8.2.26/php.exe artisan config:clear)",
+      "Bash(/c/wamp64/bin/php/php8.2.26/php.exe artisan cache:clear)",
+      "Bash(/c/wamp64/bin/php/php8.2.26/php.exe artisan view:clear)",
+      "Bash(/c/wamp64/bin/php/php8.2.26/php.exe -r \"\n$seeder = file_get_contents(''database/seeders/AppSettingsSeeder.php'');\npreg_match_all(''/''([a-z_]+)''\\s*=>\\s*\\[/'', $seeder, $matches);\n$keys = $matches[1];\n$counts = array_count_values($keys);\n$duplicates = array_filter($counts, function($count) { return $count > 1; });\nif (empty($duplicates)) {\n    echo \"\"✅ No duplicate keys found\\n\"\";\n} else {\n    echo \"\"❌ Duplicate keys found:\\n\"\";\n    foreach ($duplicates as $key => $count) {\n        echo \"\"  - ''$key'' appears $count times\\n\"\";\n    }\n}\n\")"
     ],
     "deny": [],
     "ask": []
