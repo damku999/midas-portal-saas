@@ -33,7 +33,7 @@ class FamilyGroupController extends AbstractBaseCrudController
      */
     public function index(Request $request)
     {
-        $this->familyGroupService->getFamilyGroups($request);
+        $familyGroups = $this->familyGroupService->getFamilyGroups($request);
 
         return view('admin.family_groups.index', ['familyGroups' => $familyGroups]);
     }
