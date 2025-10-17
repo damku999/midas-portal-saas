@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\UserServiceInterface;
 use App\Models\User;
+use App\Traits\ExportableTrait;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Contracts\Services\UserServiceInterface;
+use Illuminate\View\View;
 
 /**
  * User Controller
@@ -16,40 +18,47 @@ use App\Contracts\Services\UserServiceInterface;
  */
 class UserController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(
         private UserServiceInterface $userService
     ) {
         $this->setupPermissionMiddleware('user');
     }
 
-
     /**
      * List User
-     * @param Request $request
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
     public function index(Request $request)
     {
-        $users = $this->userService->getUsers($request);
-        return view('users.index', ['users' => $users]);
+        $lengthAwarePaginator = $this->userService->getUsers($request);
+
+        return view('users.index', ['users' => $lengthAwarePaginator]);
     }
 
     /**
      * Create User
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
     public function create()
     {
         $roles = $this->userService->getRoles();
+
         return view('users.add', ['roles' => $roles]);
     }
 
     /**
      * Store User
-     * @param Request $request
+     *
      * @return View Users
+     *
      * @author Darshan Baraiya
      */
     public function store(Request $request)
@@ -69,34 +78,34 @@ class UserController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('users.index',
                 $this->getSuccessMessage('User', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('User', 'create') . ': ' . $th->getMessage())
+                $this->getErrorMessage('User', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Update Status Of User
-     * @param Integer $user_id
-     * @param Integer $status
-     * @return List Page With Success
+     *
+     * @return RedirectResponse Page With Success
+     *
      * @author Darshan Baraiya
      */
-    public function updateStatus($user_id, $status)
+    public function updateStatus(int $user_id, int $status): RedirectResponse
     {
         // Validation
-        $validate = Validator::make([
-            'user_id'   => $user_id,
-            'status'    => $status
+        $validator = Validator::make([
+            'user_id' => $user_id,
+            'status' => $status,
         ], [
-            'user_id'   =>  'required|exists:users,id',
-            'status'    =>  'required|in:0,1',
+            'user_id' => 'required|exists:users,id',
+            'status' => 'required|in:0,1',
         ]);
 
         // If Validations Fails
-        if ($validate->fails()) {
-            return $this->redirectWithError($validate->errors()->first());
+        if ($validator->fails()) {
+            return $this->redirectWithError($validator->errors()->first());
         }
 
         try {
@@ -105,32 +114,34 @@ class UserController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('users.index',
                 $this->getSuccessMessage('User status', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('User status', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('User status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit User
-     * @param User $user
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
     public function edit(User $user)
     {
         $roles = $this->userService->getRoles();
+
         return view('users.edit')->with([
             'roles' => $roles,
-            'user'  => $user
+            'user' => $user,
         ]);
     }
 
     /**
      * Update User
-     * @param Request $request
-     * @param User $user
+     *
      * @return View Users
+     *
      * @author Darshan Baraiya
      */
     public function update(Request $request, User $user)
@@ -140,7 +151,7 @@ class UserController extends AbstractBaseCrudController
         $request->validate($validationRules);
 
         // Check if new password is not empty in the request
-        if (!empty($request->input('new_password'))) {
+        if (! empty($request->input('new_password'))) {
             $passwordRules = $this->userService->getPasswordValidationRules();
             $customMessages = [
                 'new_password.regex' => 'The new password format is invalid. It must contain at least one number, one special character, one uppercase letter, one lowercase letter, and be between 8 and 16 characters long.',
@@ -163,26 +174,27 @@ class UserController extends AbstractBaseCrudController
             $this->userService->assignRoles($user, [$request->role_id]);
 
             // Handle password change if provided
-            if (!empty($request->input('new_password'))) {
+            if (! empty($request->input('new_password'))) {
                 $this->userService->changePassword($user, $request->new_password);
             }
 
             return $this->redirectWithSuccess('users.index',
                 $this->getSuccessMessage('User', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('User', 'update') . ': ' . $th->getMessage())
+                $this->getErrorMessage('User', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete User
-     * @param User $user
-     * @return Index Users
+     *
+     * @return RedirectResponse Users
+     *
      * @author Darshan Baraiya
      */
-    public function delete(User $user)
+    public function delete(User $user): RedirectResponse
     {
         try {
             // Delete user through service
@@ -190,18 +202,43 @@ class UserController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('users.index',
                 $this->getSuccessMessage('User', 'deleted'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('User', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('User', 'delete').': '.$throwable->getMessage());
         }
     }
 
-    /**
-     * Export Users
-     * @return BinaryFileResponse
-     */
-    public function export()
+    protected function getExportRelations(): array
     {
-        return $this->userService->exportUsers();
+        return ['roles'];
+    }
+
+    protected function getSearchableFields(): array
+    {
+        return ['first_name', 'last_name', 'email', 'mobile_number'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'users',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => ['column' => 'created_at', 'direction' => 'desc'],
+            'headings' => ['ID', 'First Name', 'Last Name', 'Email', 'Mobile Number', 'Role', 'Status', 'Created Date'],
+            'mapping' => fn ($model): array => [
+                $model->id,
+                $model->first_name,
+                $model->last_name ?? 'N/A',
+                $model->email,
+                $model->mobile_number ?? 'N/A',
+                $model->roles->first()->name ?? 'N/A',
+                $model->status ? 'Active' : 'Inactive',
+                $model->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
     }
 }

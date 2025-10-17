@@ -176,6 +176,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Modules\ModuleServiceProvider::class,
+        App\Providers\DynamicConfigServiceProvider::class,
 
     ],
 

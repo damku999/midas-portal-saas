@@ -17,58 +17,36 @@ interface RoleRepositoryInterface extends BaseRepositoryInterface
 {
     /**
      * Get paginated list of roles with filtering and search
-     *
-     * @param Request $request
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getRolesWithFilters(Request $request, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Get role with permissions loaded
-     *
-     * @param int $roleId
-     * @return Role|null
      */
     public function getRoleWithPermissions(int $roleId): ?Role;
 
     /**
      * Get roles with permissions count
-     *
-     * @return Collection
      */
     public function getRolesWithPermissionsCount(): Collection;
 
     /**
      * Search roles by name
-     *
-     * @param string $searchTerm
-     * @param int $limit
-     * @return Collection
      */
     public function searchRoles(string $searchTerm, int $limit = 20): Collection;
 
     /**
      * Get roles for specific guard
-     *
-     * @param string $guardName
-     * @return Collection
      */
     public function getRolesByGuard(string $guardName = 'web'): Collection;
 
     /**
      * Get role statistics
-     *
-     * @return array
      */
     public function getRoleStatistics(): array;
 
     /**
      * Get roles assigned to specific model
-     *
-     * @param string $modelType
-     * @param int $modelId
-     * @return Collection
      */
     public function getRolesByModel(string $modelType, int $modelId): Collection;
 }

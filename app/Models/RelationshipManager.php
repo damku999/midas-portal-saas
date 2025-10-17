@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
-use App\Models\CustomerInsurance;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\TableRecordObserver;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Database\Factories\RelationshipManagerFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\Models\RelationshipManager
@@ -21,50 +31,62 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $email
  * @property string|null $mobile_number
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerInsurance> $customerInsurances
+ * @property-read Collection<int, CustomerInsurance> $customerInsurances
  * @property-read int|null $customer_insurances_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager query()
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereMobileNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RelationshipManager withoutTrashed()
- * @mixin \Eloquent
+ *
+ * @method static RelationshipManagerFactory factory($count = null, $state = [])
+ * @method static Builder|RelationshipManager newModelQuery()
+ * @method static Builder|RelationshipManager newQuery()
+ * @method static Builder|RelationshipManager onlyTrashed()
+ * @method static Builder|RelationshipManager permission($permissions)
+ * @method static Builder|RelationshipManager query()
+ * @method static Builder|RelationshipManager role($roles, $guard = null)
+ * @method static Builder|RelationshipManager whereCreatedAt($value)
+ * @method static Builder|RelationshipManager whereCreatedBy($value)
+ * @method static Builder|RelationshipManager whereDeletedAt($value)
+ * @method static Builder|RelationshipManager whereDeletedBy($value)
+ * @method static Builder|RelationshipManager whereEmail($value)
+ * @method static Builder|RelationshipManager whereId($value)
+ * @method static Builder|RelationshipManager whereMobileNumber($value)
+ * @method static Builder|RelationshipManager whereName($value)
+ * @method static Builder|RelationshipManager whereStatus($value)
+ * @method static Builder|RelationshipManager whereUpdatedAt($value)
+ * @method static Builder|RelationshipManager whereUpdatedBy($value)
+ * @method static Builder|RelationshipManager withTrashed()
+ * @method static Builder|RelationshipManager withoutTrashed()
+ *
+ * @mixin Model
  */
 class RelationshipManager extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes, TableRecordObserver, LogsActivity;
+    use HasApiTokens;
+    use HasFactory;
+    use HasRoles;
+    use LogsActivity;
+    use Notifiable;
+    use SoftDeletes;
+    use TableRecordObserver;
+
     protected static $logAttributes = ['*'];
+
     protected static $logOnlyDirty = true;
+
     /**
      * The attributes that are mass assignable.
      *

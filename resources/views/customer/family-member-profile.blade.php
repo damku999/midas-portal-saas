@@ -322,16 +322,22 @@
 @push('scripts')
 <script>
 function disableFamilyMember2FA(memberId, memberName) {
-    if (confirm(`Are you sure you want to disable Two-Factor Authentication for ${memberName}?\n\nThis will remove all their 2FA settings and trusted devices. They will need to set it up again if they want to re-enable it.`)) {
-        const button = document.getElementById(`disable-2fa-btn-${memberId}`);
-        const originalText = button.innerHTML;
+    // Use the reusable confirmation modal instead of JavaScript confirm()
+    showConfirmationModal({
+        title: 'Disable Two-Factor Authentication',
+        message: `Are you sure you want to disable Two-Factor Authentication for <strong>${memberName}</strong>?<br><small class='text-muted'>This will remove all their 2FA settings and trusted devices. They will need to set it up again if they want to re-enable it.</small>`,
+        confirmText: 'Yes, Disable 2FA',
+        confirmClass: 'btn-warning',
+        onConfirm: function() {
+            const button = document.getElementById(`disable-2fa-btn-${memberId}`);
+            const originalText = button.innerHTML;
 
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Disabling...';
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Disabling...';
 
-        fetch(`/customer/family-member/${memberId}/disable-2fa`, {
-            method: 'POST',
-            headers: {
+            fetch(`/customer/family-member/${memberId}/disable-2fa`, {
+                method: 'POST',
+                headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
@@ -356,7 +362,8 @@ function disableFamilyMember2FA(memberId, memberName) {
             button.disabled = false;
             button.innerHTML = originalText;
         });
-    }
+        }
+    });
 }
 </script>
 @endpush

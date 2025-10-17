@@ -18,20 +18,22 @@ use Illuminate\Support\Carbon;
 class PolicyRepository extends AbstractBaseRepository implements PolicyRepositoryInterface
 {
     protected string $modelClass = CustomerInsurance::class;
+
     protected array $searchableFields = ['policy_number'];
+
     public function getAll(array $filters = []): Collection
     {
         $query = CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType', 'premiumType']);
 
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
         }
 
-        if (!empty($filters['insurance_company_id'])) {
+        if (! empty($filters['insurance_company_id'])) {
             $query->where('insurance_company_id', $filters['insurance_company_id']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -47,24 +49,24 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
         $query = CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType', 'premiumType']);
 
         // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = '%' . trim($filters['search']) . '%';
+        if (! empty($filters['search'])) {
+            $searchTerm = '%'.trim($filters['search']).'%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('policy_number', 'LIKE', $searchTerm)
-                  ->orWhereHas('customer', function ($customerQuery) use ($searchTerm) {
-                      $customerQuery->where('name', 'LIKE', $searchTerm)
-                                   ->orWhere('mobile_number', 'LIKE', $searchTerm);
-                  });
+                    ->orWhereHas('customer', function ($customerQuery) use ($searchTerm) {
+                        $customerQuery->where('name', 'LIKE', $searchTerm)
+                            ->orWhere('mobile_number', 'LIKE', $searchTerm);
+                    });
             });
         }
 
         // Customer filter
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
         }
 
         // Insurance company filter
-        if (!empty($filters['insurance_company_id'])) {
+        if (! empty($filters['insurance_company_id'])) {
             $query->where('insurance_company_id', $filters['insurance_company_id']);
         }
 
@@ -74,12 +76,12 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
         }
 
         // Policy type filter
-        if (!empty($filters['policy_type_id'])) {
+        if (! empty($filters['policy_type_id'])) {
             $query->where('policy_type_id', $filters['policy_type_id']);
         }
 
         // Date range filter
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        if (! empty($filters['from_date']) && ! empty($filters['to_date'])) {
             $query->whereBetween('created_at', [$filters['from_date'], $filters['to_date']]);
         }
 
@@ -92,7 +94,7 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
     public function findById(int $id)
     {
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType', 'premiumType'])
-                                ->find($id);
+            ->find($id);
     }
 
     /**
@@ -103,6 +105,7 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
         if (is_int($entity)) {
             return CustomerInsurance::whereId($entity)->update($data);
         }
+
         return parent::update($entity, $data);
     }
 
@@ -114,23 +117,24 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
         if (is_int($entity)) {
             return CustomerInsurance::whereId($entity)->delete();
         }
+
         return parent::delete($entity);
     }
 
     public function getByCustomer(int $customerId): Collection
     {
         return CustomerInsurance::with(['insuranceCompany', 'policyType', 'premiumType'])
-                                ->where('customer_id', $customerId)
-                                ->latest()
-                                ->get();
+            ->where('customer_id', $customerId)
+            ->latest()
+            ->get();
     }
 
     public function getByInsuranceCompany(int $companyId): Collection
     {
         return CustomerInsurance::with(['customer', 'policyType', 'premiumType'])
-                                ->where('insurance_company_id', $companyId)
-                                ->latest()
-                                ->get();
+            ->where('insurance_company_id', $companyId)
+            ->latest()
+            ->get();
     }
 
     /**
@@ -139,76 +143,76 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
     public function getActive(): Collection
     {
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType'])
-                                ->where('status', 1)
-                                ->where('policy_end_date', '>', now())
-                                ->get();
+            ->where('status', 1)
+            ->where('policy_end_date', '>', now())
+            ->get();
     }
 
     public function getExpired(): Collection
     {
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType'])
-                                ->where('policy_end_date', '<=', now())
-                                ->get();
+            ->where('policy_end_date', '<=', now())
+            ->get();
     }
 
     public function getDueForRenewal(int $daysAhead = 30): Collection
     {
         $targetDate = Carbon::now()->addDays($daysAhead);
-        
+
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType'])
-                                ->where('status', 1)
-                                ->where('policy_end_date', '>', now())
-                                ->where('policy_end_date', '<=', $targetDate)
-                                ->orderBy('policy_end_date')
-                                ->get();
+            ->where('status', 1)
+            ->where('policy_end_date', '>', now())
+            ->where('policy_end_date', '<=', $targetDate)
+            ->orderBy('policy_end_date')
+            ->get();
     }
 
     public function getByFamilyGroup(int $familyGroupId): Collection
     {
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType'])
-                                ->whereHas('customer', function ($query) use ($familyGroupId) {
-                                    $query->where('family_group_id', $familyGroupId);
-                                })
-                                ->latest()
-                                ->get();
+            ->whereHas('customer', function ($query) use ($familyGroupId) {
+                $query->where('family_group_id', $familyGroupId);
+            })
+            ->latest()
+            ->get();
     }
 
     public function getByPolicyType(int $policyTypeId): Collection
     {
         return CustomerInsurance::with(['customer', 'insuranceCompany'])
-                                ->where('policy_type_id', $policyTypeId)
-                                ->latest()
-                                ->get();
+            ->where('policy_type_id', $policyTypeId)
+            ->latest()
+            ->get();
     }
 
     public function search(string $query): Collection
     {
-        $searchTerm = '%' . trim($query) . '%';
-        
+        $searchTerm = '%'.trim($query).'%';
+
         return CustomerInsurance::with(['customer', 'insuranceCompany', 'policyType'])
-                                ->where(function ($q) use ($searchTerm) {
-                                    $q->where('policy_number', 'LIKE', $searchTerm)
-                                      ->orWhereHas('customer', function ($customerQuery) use ($searchTerm) {
-                                          $customerQuery->where('name', 'LIKE', $searchTerm)
-                                                       ->orWhere('mobile_number', 'LIKE', $searchTerm);
-                                      });
-                                })
-                                ->latest()
-                                ->get();
+            ->where(function ($q) use ($searchTerm) {
+                $q->where('policy_number', 'LIKE', $searchTerm)
+                    ->orWhereHas('customer', function ($customerQuery) use ($searchTerm) {
+                        $customerQuery->where('name', 'LIKE', $searchTerm)
+                            ->orWhere('mobile_number', 'LIKE', $searchTerm);
+                    });
+            })
+            ->latest()
+            ->get();
     }
 
     public function getStatistics(): array
     {
         $totalPolicies = CustomerInsurance::count();
         $activePolicies = CustomerInsurance::where('status', 1)
-                                          ->where('policy_end_date', '>', now())
-                                          ->count();
+            ->where('policy_end_date', '>', now())
+            ->count();
         $expiredPolicies = CustomerInsurance::where('policy_end_date', '<=', now())
-                                           ->count();
+            ->count();
         $renewalsDue = CustomerInsurance::where('status', 1)
-                                       ->where('policy_end_date', '>', now())
-                                       ->where('policy_end_date', '<=', Carbon::now()->addDays(30))
-                                       ->count();
+            ->where('policy_end_date', '>', now())
+            ->where('policy_end_date', '<=', Carbon::now()->addDays(30))
+            ->count();
 
         return [
             'total' => $totalPolicies,
@@ -226,8 +230,8 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
     public function getCountByStatus(): array
     {
         return CustomerInsurance::selectRaw('status, COUNT(*) as count')
-                                ->groupBy('status')
-                                ->pluck('count', 'status')
-                                ->toArray();
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
     }
 }

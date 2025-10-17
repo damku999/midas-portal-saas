@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
-use App\Models\CustomerInsurance;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\TableRecordObserver;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Database\Factories\BrokerFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\Models\Broker
@@ -20,48 +29,59 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $email
  * @property string|null $mobile_number
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerInsurance> $customerInsurances
+ * @property-read Collection<int, CustomerInsurance> $customerInsurances
  * @property-read int|null $customer_insurances_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @method static \Illuminate\Database\Eloquent\Builder|Broker newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Broker newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Broker onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Broker permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker query()
- * @method static \Illuminate\Database\Eloquent\Builder|Broker role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereMobileNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Broker withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Broker withoutTrashed()
- * @mixin \Eloquent
+ *
+ * @method static BrokerFactory factory($count = null, $state = [])
+ * @method static Builder|Broker newModelQuery()
+ * @method static Builder|Broker newQuery()
+ * @method static Builder|Broker onlyTrashed()
+ * @method static Builder|Broker permission($permissions)
+ * @method static Builder|Broker query()
+ * @method static Builder|Broker role($roles, $guard = null)
+ * @method static Builder|Broker whereCreatedAt($value)
+ * @method static Builder|Broker whereCreatedBy($value)
+ * @method static Builder|Broker whereDeletedAt($value)
+ * @method static Builder|Broker whereDeletedBy($value)
+ * @method static Builder|Broker whereEmail($value)
+ * @method static Builder|Broker whereId($value)
+ * @method static Builder|Broker whereMobileNumber($value)
+ * @method static Builder|Broker whereName($value)
+ * @method static Builder|Broker whereStatus($value)
+ * @method static Builder|Broker whereUpdatedAt($value)
+ * @method static Builder|Broker whereUpdatedBy($value)
+ * @method static Builder|Broker withTrashed()
+ * @method static Builder|Broker withoutTrashed()
+ *
+ * @mixin Model
  */
 class Broker extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, SoftDeletes, TableRecordObserver, LogsActivity;
+    use HasFactory;
+    use HasRoles;
+    use LogsActivity;
+    use Notifiable;
+    use SoftDeletes;
+    use TableRecordObserver;
+
     protected static $logAttributes = ['*'];
+
     protected static $logOnlyDirty = true;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -71,12 +91,14 @@ class Broker extends Authenticatable
         'name',
         'email',
         'mobile_number',
+        'status',
     ];
 
     public function customerInsurances()
     {
         return $this->hasMany(CustomerInsurance::class, 'broker_id');
     }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults();

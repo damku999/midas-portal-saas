@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Customer;
 
-use App\Events\Customer\CustomerRegistered;
 use App\Events\Communication\EmailQueued;
+use App\Events\Customer\CustomerRegistered;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -14,7 +14,7 @@ class SendWelcomeEmail implements ShouldQueue
     public function handle(CustomerRegistered $event): void
     {
         $customer = $event->customer;
-        
+
         // Queue welcome email
         EmailQueued::dispatch(
             $customer->email,

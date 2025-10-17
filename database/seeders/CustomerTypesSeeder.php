@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +27,7 @@ class CustomerTypesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Retail',
@@ -40,8 +39,8 @@ class CustomerTypesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
-            ]
+                'deleted_at' => null,
+            ],
         ]);
     }
 }

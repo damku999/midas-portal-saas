@@ -14,5 +14,6 @@ use App\Models\InsuranceCompany;
 class InsuranceCompanyRepository extends AbstractBaseRepository implements InsuranceCompanyRepositoryInterface
 {
     protected string $modelClass = InsuranceCompany::class;
+
     protected array $searchableFields = ['name', 'email', 'mobile_number'];
 }

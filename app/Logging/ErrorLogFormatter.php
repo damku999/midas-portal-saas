@@ -11,7 +11,7 @@ class ErrorLogFormatter extends JsonFormatter
     public function format(LogRecord $record): string
     {
         $context = $record->context;
-        
+
         $formatted = [
             'timestamp' => $record->datetime->format('Y-m-d H:i:s.u'),
             'level' => $record->level->getName(),
@@ -30,14 +30,14 @@ class ErrorLogFormatter extends JsonFormatter
             'user_agent' => request()?->header('User-Agent'),
             'environment' => app()->environment(),
             'context' => array_diff_key($context, array_flip([
-                'exception', 'file', 'line', 'trace', 'fingerprint', 
-                'error_category', 'severity', 'user_id', 'url', 'method'
+                'exception', 'file', 'line', 'trace', 'fingerprint',
+                'error_category', 'severity', 'user_id', 'url', 'method',
             ])),
         ];
-        
-        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+
+        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n";
     }
-    
+
     /**
      * Customize the given logger instance.
      */

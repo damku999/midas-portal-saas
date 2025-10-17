@@ -20,7 +20,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'Yes',
             'selected_column' => 'Yes',
-            'display_name' => 'ID'
+            'display_name' => 'ID',
         ],
         [
             'table_column_name' => 'customer_id',
@@ -28,7 +28,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'Yes',
             'selected_column' => 'Yes',
-            'display_name' => 'Customer'
+            'display_name' => 'Customer',
         ],
         [
             'table_column_name' => 'branch_id',
@@ -36,7 +36,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Branch'
+            'display_name' => 'Branch',
         ],
         [
             'table_column_name' => 'broker_id',
@@ -44,7 +44,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Broker'
+            'display_name' => 'Broker',
         ],
         [
             'table_column_name' => 'relationship_manager_id',
@@ -52,7 +52,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Relationship Manager'
+            'display_name' => 'Relationship Manager',
         ],
         [
             'table_column_name' => 'premium_type_id',
@@ -60,7 +60,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Premium Type'
+            'display_name' => 'Premium Type',
         ],
         [
             'table_column_name' => 'policy_type_id',
@@ -68,7 +68,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Policy Type Name'
+            'display_name' => 'Policy Type Name',
         ],
         [
             'table_column_name' => 'insurance_company_id',
@@ -76,7 +76,7 @@ return [
             'relation_model_column' => 'name',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Insurance Company Name'
+            'display_name' => 'Insurance Company Name',
         ],
         [
             'table_column_name' => 'fuel_type_id',
@@ -84,7 +84,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Fuel Type'
+            'display_name' => 'Fuel Type',
         ],
         [
             'table_column_name' => 'reference_by',
@@ -92,7 +92,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Reference By'
+            'display_name' => 'Reference By',
         ],
         [
             'table_column_name' => 'actual_earnings',
@@ -100,7 +100,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'My Earning'
+            'display_name' => 'My Earning',
         ],
         [
             'table_column_name' => 'approx_maturity_amount',
@@ -108,7 +108,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Maturity Amount'
+            'display_name' => 'Maturity Amount',
         ],
         [
             'table_column_name' => 'gst',
@@ -116,7 +116,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'GST'
+            'display_name' => 'GST',
         ],
         [
             'table_column_name' => 'sgst1',
@@ -124,7 +124,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'SGST 1'
+            'display_name' => 'SGST 1',
         ],
         [
             'table_column_name' => 'cgst1',
@@ -132,7 +132,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'CGST 1'
+            'display_name' => 'CGST 1',
         ],
         [
             'table_column_name' => 'sgst2',
@@ -140,7 +140,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'SGST 2'
+            'display_name' => 'SGST 2',
         ],
         [
             'table_column_name' => 'cgst2',
@@ -148,7 +148,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'CGST2'
+            'display_name' => 'CGST2',
         ],
         [
             'table_column_name' => 'commission_on',
@@ -156,7 +156,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Commission Count On'
+            'display_name' => 'Commission Count On',
         ],
         [
             'table_column_name' => 'cheque_no',
@@ -164,7 +164,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Cheque Number'
+            'display_name' => 'Cheque Number',
         ],
 
         [
@@ -173,7 +173,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Expired Date'
+            'display_name' => 'Expired Date',
         ],
         [
             'table_column_name' => 'final_premium_with_gst',
@@ -181,7 +181,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Final Premium With GST'
+            'display_name' => 'Final Premium With GST',
         ],
         [
             'table_column_name' => 'gross_vehicle_weight',
@@ -189,7 +189,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Gross Vehicle Weight'
+            'display_name' => 'Gross Vehicle Weight',
         ],
         [
             'table_column_name' => 'insurance_status',
@@ -197,7 +197,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Insurance Status'
+            'display_name' => 'Insurance Status',
         ],
         [
             'table_column_name' => 'issue_date',
@@ -205,7 +205,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Issued On'
+            'display_name' => 'Issued On',
         ],
         [
             'table_column_name' => 'make_model',
@@ -213,7 +213,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Make & Model'
+            'display_name' => 'Make & Model',
         ],
         [
             'table_column_name' => 'mfg_year',
@@ -221,7 +221,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'MFG. Year'
+            'display_name' => 'MFG. Year',
         ],
         [
             'table_column_name' => 'mode_of_payment',
@@ -229,7 +229,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Mode of Payment'
+            'display_name' => 'Mode of Payment',
         ],
         [
             'table_column_name' => 'my_commission_amount',
@@ -237,7 +237,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'My Commission Amount'
+            'display_name' => 'My Commission Amount',
         ],
         [
             'table_column_name' => 'my_commission_percentage',
@@ -245,7 +245,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'My Commission Percentage'
+            'display_name' => 'My Commission Percentage',
         ],
         [
             'table_column_name' => 'ncb_percentage',
@@ -253,7 +253,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'NCB Percentage'
+            'display_name' => 'NCB Percentage',
         ],
         [
             'table_column_name' => 'net_premium',
@@ -261,7 +261,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Net Premium'
+            'display_name' => 'Net Premium',
         ],
         [
             'table_column_name' => 'od_premium',
@@ -269,7 +269,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'OD Premium'
+            'display_name' => 'OD Premium',
         ],
         [
             'table_column_name' => 'pension_amount_yearly',
@@ -277,7 +277,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Pension Amount Yearly'
+            'display_name' => 'Pension Amount Yearly',
         ],
         [
             'table_column_name' => 'plan_name',
@@ -285,7 +285,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Pane Name'
+            'display_name' => 'Pane Name',
         ],
         [
             'table_column_name' => 'policy_no',
@@ -293,7 +293,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Policy Number'
+            'display_name' => 'Policy Number',
         ],
         [
             'table_column_name' => 'policy_term',
@@ -301,7 +301,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Policy Term'
+            'display_name' => 'Policy Term',
         ],
         [
             'table_column_name' => 'premium_amount',
@@ -309,7 +309,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Premium Amount'
+            'display_name' => 'Premium Amount',
         ],
         [
             'table_column_name' => 'premium_paying_term',
@@ -317,7 +317,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Premium Paying Term'
+            'display_name' => 'Premium Paying Term',
         ],
         [
             'table_column_name' => 'reference_commission_amount',
@@ -325,7 +325,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Reference Commission Amount'
+            'display_name' => 'Reference Commission Amount',
         ],
         [
             'table_column_name' => 'reference_commission_percentage',
@@ -333,7 +333,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Reference Commission Percentage'
+            'display_name' => 'Reference Commission Percentage',
         ],
         [
             'table_column_name' => 'registration_no',
@@ -341,7 +341,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Registration No'
+            'display_name' => 'Registration No',
         ],
         [
             'table_column_name' => 'remarks',
@@ -349,7 +349,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Remarks'
+            'display_name' => 'Remarks',
         ],
         [
             'table_column_name' => 'rto',
@@ -357,7 +357,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'RTO'
+            'display_name' => 'RTO',
         ],
         [
             'table_column_name' => 'start_date',
@@ -365,7 +365,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Start Date'
+            'display_name' => 'Start Date',
         ],
         [
             'table_column_name' => 'sum_insured',
@@ -373,7 +373,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Sum Insured'
+            'display_name' => 'Sum Insured',
         ],
         [
             'table_column_name' => 'tp_expiry_date',
@@ -381,7 +381,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'TP EXpiry Date'
+            'display_name' => 'TP EXpiry Date',
         ],
         [
             'table_column_name' => 'tp_premium',
@@ -389,7 +389,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'TP Premium'
+            'display_name' => 'TP Premium',
         ],
         [
             'table_column_name' => 'transfer_commission_amount',
@@ -397,7 +397,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Transfer Commission Amount'
+            'display_name' => 'Transfer Commission Amount',
         ],
         [
             'table_column_name' => 'transfer_commission_percentage',
@@ -405,7 +405,7 @@ return [
             'relation_model_column' => '',
             'default_visible' => 'No',
             'selected_column' => '',
-            'display_name' => 'Transfer Commission Percentage'
+            'display_name' => 'Transfer Commission Percentage',
         ],
-    ]
+    ],
 ];

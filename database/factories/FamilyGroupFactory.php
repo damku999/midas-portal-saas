@@ -12,7 +12,7 @@ class FamilyGroupFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->words(2, true) . ' Family',
+            'name' => $this->faker->words(2, true).' Family',
             'family_head_id' => null, // Will be set after creating customers
             'status' => true,
             'created_at' => now(),

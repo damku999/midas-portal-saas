@@ -12,8 +12,11 @@ class CustomerProfileUpdated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Customer $customer;
+
     public array $changedFields;
+
     public array $originalValues;
+
     public ?int $updatedBy;
 
     public function __construct(Customer $customer, array $changedFields, array $originalValues, ?int $updatedBy = null)
@@ -39,7 +42,8 @@ class CustomerProfileUpdated
     public function hasSignificantChanges(): bool
     {
         $significantFields = ['email', 'mobile', 'name', 'family_group_id'];
-        return !empty(array_intersect($this->changedFields, $significantFields));
+
+        return ! empty(array_intersect($this->changedFields, $significantFields));
     }
 
     public function shouldQueue(): bool

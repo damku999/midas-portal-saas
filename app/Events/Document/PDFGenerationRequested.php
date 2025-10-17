@@ -11,14 +11,23 @@ class PDFGenerationRequested
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public string $documentType;
+
     public string $templateView;
+
     public array $templateData;
+
     public string $fileName;
+
     public ?string $storagePath;
+
     public array $pdfOptions;
+
     public int $priority;
+
     public ?string $referenceId;
+
     public ?int $customerId;
+
     public ?string $callbackEvent;
 
     public function __construct(
@@ -87,7 +96,7 @@ class PDFGenerationRequested
 
     public function getExpectedFilePath(): string
     {
-        return $this->storagePath . '/' . $this->fileName;
+        return $this->storagePath.'/'.$this->fileName;
     }
 
     public function shouldQueue(): bool

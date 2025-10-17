@@ -13,20 +13,22 @@ class EnhancedAuthorizationMiddleware
     /**
      * Handle an incoming request with enhanced authorization checks.
      */
-    public function handle(Request $request, Closure $next, string $permission = null): Response
+    public function handle(Request $request, Closure $next, ?string $permission = null): Response
     {
         // Basic authentication check
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->logSecurityEvent('unauthorized_access_attempt', $request);
+
             return redirect()->route('login')->with('error', 'Authentication required.');
         }
 
         $user = Auth::user();
 
         // Check if user account is active
-        if (!$user->status) {
+        if (! $user->status) {
             $this->logSecurityEvent('inactive_user_access_attempt', $request, $user);
             Auth::logout();
+
             return redirect()->route('login')->with('error', 'Your account has been deactivated.');
         }
 
@@ -38,38 +40,40 @@ class EnhancedAuthorizationMiddleware
             if (config('security.lock_suspicious_accounts', false)) {
                 $user->update(['status' => false]);
                 Auth::logout();
+
                 return redirect()->route('login')->with('error', 'Account locked due to suspicious activity.');
             }
         }
 
         // Permission-based authorization
-        if ($permission && !$user->can($permission)) {
+        if ($permission && ! $user->can($permission)) {
             $this->logSecurityEvent('permission_denied', $request, $user, ['permission' => $permission]);
 
             return response()->view('errors.403', [
-                'message' => 'You do not have permission to access this resource.'
+                'message' => 'You do not have permission to access this resource.',
             ], 403);
         }
 
         // Resource-based authorization (for edit/delete operations)
         if ($this->requiresResourceAuthorization($request)) {
-            if (!$this->authorizeResourceAccess($request, $user)) {
+            if (! $this->authorizeResourceAccess($request, $user)) {
                 $this->logSecurityEvent('resource_access_denied', $request, $user);
 
                 return response()->view('errors.403', [
-                    'message' => 'You do not have permission to access this specific resource.'
+                    'message' => 'You do not have permission to access this specific resource.',
                 ], 403);
             }
         }
 
         // IP address validation
         if (config('security.validate_ip_consistency', false)) {
-            if (!$this->validateIpConsistency($request, $user)) {
+            if (! $this->validateIpConsistency($request, $user)) {
                 $this->logSecurityEvent('ip_mismatch_detected', $request, $user);
 
                 // Optional: Force re-authentication
                 if (config('security.force_reauth_on_ip_change', false)) {
                     Auth::logout();
+
                     return redirect()->route('login')->with('warning', 'Please re-authenticate due to IP address change.');
                 }
             }
@@ -77,9 +81,10 @@ class EnhancedAuthorizationMiddleware
 
         // Session fingerprint validation
         if (config('security.session_security.fingerprint_validation', true)) {
-            if (!$this->validateSessionFingerprint($request)) {
+            if (! $this->validateSessionFingerprint($request)) {
                 $this->logSecurityEvent('session_fingerprint_mismatch', $request, $user);
                 Auth::logout();
+
                 return redirect()->route('login')->with('error', 'Session security validation failed.');
             }
         }
@@ -89,7 +94,7 @@ class EnhancedAuthorizationMiddleware
             $this->logSecurityEvent('rate_limit_exceeded', $request, $user);
 
             return response()->view('errors.429', [
-                'message' => 'Too many requests. Please slow down.'
+                'message' => 'Too many requests. Please slow down.',
             ], 429);
         }
 
@@ -109,7 +114,7 @@ class EnhancedAuthorizationMiddleware
         $currentTime = now()->timestamp;
 
         // Filter requests from last minute
-        $recentRequests = array_filter($recentRequests, function($timestamp) use ($currentTime) {
+        $recentRequests = array_filter($recentRequests, function ($timestamp) use ($currentTime) {
             return ($currentTime - $timestamp) < 60;
         });
 
@@ -129,6 +134,7 @@ class EnhancedAuthorizationMiddleware
         if ($lastUserAgent && $lastUserAgent !== $userAgent) {
             // Different user agent - could be suspicious
             cache()->put("user_agent_{$user->id}", $userAgent, 86400); // 24 hours
+
             return true;
         }
 
@@ -143,12 +149,14 @@ class EnhancedAuthorizationMiddleware
     private function requiresResourceAuthorization(Request $request): bool
     {
         $route = $request->route();
-        if (!$route) return false;
+        if (! $route) {
+            return false;
+        }
 
         $routeName = $route->getName();
         $resourceRoutes = ['edit', 'update', 'destroy', 'show'];
 
-        return collect($resourceRoutes)->contains(function($action) use ($routeName) {
+        return collect($resourceRoutes)->contains(function ($action) use ($routeName) {
             return str_contains($routeName, $action);
         });
     }
@@ -212,10 +220,12 @@ class EnhancedAuthorizationMiddleware
         if ($lastIp && $lastIp !== $currentIp) {
             // IP changed - potentially suspicious
             cache()->put("user_ip_{$user->id}", $currentIp, 86400);
+
             return false;
         }
 
         cache()->put("user_ip_{$user->id}", $currentIp, 86400);
+
         return true;
     }
 
@@ -231,7 +241,7 @@ class EnhancedAuthorizationMiddleware
             return false;
         }
 
-        if (!$sessionFingerprint) {
+        if (! $sessionFingerprint) {
             session(['security_fingerprint' => $currentFingerprint]);
         }
 
@@ -267,6 +277,7 @@ class EnhancedAuthorizationMiddleware
         }
 
         cache()->put($key, $attempts + 1, $window);
+
         return false;
     }
 

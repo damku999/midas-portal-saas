@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 class QuotationRepository extends AbstractBaseRepository implements QuotationRepositoryInterface
 {
     protected string $modelClass = Quotation::class;
+
     protected array $searchableFields = ['vehicle_number', 'make_model_variant'];
 
     /**
@@ -26,11 +27,11 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
     {
         $query = Quotation::with(['customer', 'quotationCompanies.insuranceCompany']);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
         }
 
@@ -46,25 +47,25 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
         $query = Quotation::with(['customer', 'quotationCompanies.insuranceCompany']);
 
         // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = '%' . trim($filters['search']) . '%';
+        if (! empty($filters['search'])) {
+            $searchTerm = '%'.trim($filters['search']).'%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->whereHas('customer', function ($customerQuery) use ($searchTerm) {
                     $customerQuery->where('name', 'LIKE', $searchTerm)
-                                 ->orWhere('mobile_number', 'LIKE', $searchTerm);
+                        ->orWhere('mobile_number', 'LIKE', $searchTerm);
                 })
-                ->orWhere('vehicle_number', 'LIKE', $searchTerm)
-                ->orWhere('make_model_variant', 'LIKE', $searchTerm);
+                    ->orWhere('vehicle_number', 'LIKE', $searchTerm)
+                    ->orWhere('make_model_variant', 'LIKE', $searchTerm);
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Customer filter
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
         }
 
@@ -77,7 +78,7 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
     public function findById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->find($id);
+            ->find($id);
     }
 
     /**
@@ -99,66 +100,67 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
     public function getByCustomer(int $customerId): Collection
     {
         return Quotation::with(['quotationCompanies.insuranceCompany'])
-                       ->where('customer_id', $customerId)
-                       ->latest()
-                       ->get();
+            ->where('customer_id', $customerId)
+            ->latest()
+            ->get();
     }
 
     public function getByStatus(string $status): Collection
     {
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->where('status', $status)
-                       ->get();
+            ->where('status', $status)
+            ->get();
     }
 
     public function getRecent(int $limit = 10): Collection
     {
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->latest()
-                       ->limit($limit)
-                       ->get();
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 
     public function search(string $query): Collection
     {
-        $searchTerm = '%' . trim($query) . '%';
+        $searchTerm = '%'.trim($query).'%';
+
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->where(function ($q) use ($searchTerm) {
-                           $q->whereHas('customer', function ($customerQuery) use ($searchTerm) {
-                               $customerQuery->where('name', 'LIKE', $searchTerm)
-                                            ->orWhere('mobile_number', 'LIKE', $searchTerm);
-                           })
-                           ->orWhere('vehicle_number', 'LIKE', $searchTerm)
-                           ->orWhere('make_model_variant', 'LIKE', $searchTerm);
-                       })
-                       ->latest()
-                       ->get();
+            ->where(function ($q) use ($searchTerm) {
+                $q->whereHas('customer', function ($customerQuery) use ($searchTerm) {
+                    $customerQuery->where('name', 'LIKE', $searchTerm)
+                        ->orWhere('mobile_number', 'LIKE', $searchTerm);
+                })
+                    ->orWhere('vehicle_number', 'LIKE', $searchTerm)
+                    ->orWhere('make_model_variant', 'LIKE', $searchTerm);
+            })
+            ->latest()
+            ->get();
     }
 
     public function getSentQuotations(): Collection
     {
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->where('status', 'Sent')
-                       ->whereNotNull('sent_at')
-                       ->latest('sent_at')
-                       ->get();
+            ->where('status', 'Sent')
+            ->whereNotNull('sent_at')
+            ->latest('sent_at')
+            ->get();
     }
 
     public function getPendingQuotations(): Collection
     {
         return Quotation::with(['customer', 'quotationCompanies.insuranceCompany'])
-                       ->where('status', 'Draft')
-                       ->orWhere('status', 'Generated')
-                       ->latest()
-                       ->get();
+            ->where('status', 'Draft')
+            ->orWhere('status', 'Generated')
+            ->latest()
+            ->get();
     }
 
     public function getCountByStatus(): array
     {
         return Quotation::selectRaw('status, COUNT(*) as count')
-                       ->groupBy('status')
-                       ->pluck('count', 'status')
-                       ->toArray();
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
     }
 
     public function exists(int $id): bool
@@ -231,7 +233,7 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
                 'month_name' => $startDate->format('M Y'),
                 'quotations_count' => $count,
                 'total_value' => $value,
-                'average_value' => $count > 0 ? $value / $count : 0
+                'average_value' => $count > 0 ? $value / $count : 0,
             ];
         }
 
@@ -255,7 +257,7 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
             'rejected_count' => $rejectedCount,
             'conversion_rate' => $totalQuotations > 0 ? ($convertedCount / $totalQuotations) * 100 : 0,
             'pending_rate' => $totalQuotations > 0 ? ($pendingCount / $totalQuotations) * 100 : 0,
-            'rejection_rate' => $totalQuotations > 0 ? ($rejectedCount / $totalQuotations) * 100 : 0
+            'rejection_rate' => $totalQuotations > 0 ? ($rejectedCount / $totalQuotations) * 100 : 0,
         ];
     }
 

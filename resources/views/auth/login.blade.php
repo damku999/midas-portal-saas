@@ -11,8 +11,8 @@
                     <!-- Auth Header -->
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <img src="{{ asset('images/parth_logo.png') }}" alt="WebMonks" class="img-fluid mb-3" style="max-width: 120px;">
-                            <h4 class="text-dark fw-bold">Admin Portal</h4>
+                            <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid mb-3" style="max-width: 120px;">
+                            <h4 class="text-dark fw-bold">{{ company_name() }} - Admin</h4>
                             <p class="text-muted">Sign in to access the admin dashboard</p>
                         </div>
 
@@ -87,6 +87,16 @@
                         <i class="fas fa-key me-1"></i>Forgot Password?
                     </a>
                 </div>
+            </div>
+
+            <!-- Cloudflare Turnstile -->
+            <div class="form-group">
+                <x-turnstile />
+                @error('cf-turnstile-response')
+                    <div class="text-danger mt-2">
+                        <small><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</small>
+                    </div>
+                @enderror
             </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-4">

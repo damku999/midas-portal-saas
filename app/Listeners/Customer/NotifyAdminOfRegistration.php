@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Customer;
 
-use App\Events\Customer\CustomerRegistered;
 use App\Events\Communication\EmailQueued;
+use App\Events\Customer\CustomerRegistered;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,7 +15,7 @@ class NotifyAdminOfRegistration implements ShouldQueue
     public function handle(CustomerRegistered $event): void
     {
         $customer = $event->customer;
-        
+
         // Get admin users who should be notified
         $adminUsers = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['admin', 'manager']);

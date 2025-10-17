@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\TwoFactorAuthService;
+use App\Models\Customer;
+use App\Models\User;
 use App\Services\CustomerTwoFactorAuthService;
-use Illuminate\Http\Request;
+use App\Services\TwoFactorAuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class TwoFactorAuthController extends Controller
 {
     public function __construct(
-        private TwoFactorAuthService $twoFactorService,
-        private CustomerTwoFactorAuthService $customerTwoFactorService
+        private readonly TwoFactorAuthService $twoFactorAuthService,
+        private readonly CustomerTwoFactorAuthService $customerTwoFactorAuthService
     ) {
         // Support both web and customer guards
         $this->middleware(['auth:web,customer'])->except(['showVerification', 'verify']);
@@ -30,16 +33,16 @@ class TwoFactorAuthController extends Controller
         if (session()->has('2fa_guard')) {
             $guard = session('2fa_guard', 'web');
             if ($guard === 'customer') {
-                return $this->customerTwoFactorService;
+                return $this->customerTwoFactorAuthService;
             }
         }
 
         // For authenticated requests, check current guard
         if (Auth::guard('customer')->check()) {
-            return $this->customerTwoFactorService;
+            return $this->customerTwoFactorAuthService;
         }
 
-        return $this->twoFactorService;
+        return $this->twoFactorAuthService;
     }
 
     /**
@@ -77,15 +80,15 @@ class TwoFactorAuthController extends Controller
 
         // Use different views based on guard to ensure zero conflicts
         $guardName = $this->getGuardName();
-        $viewData = compact('status', 'trustedDevices');
+        $viewData = ['status' => $status, 'trustedDevices' => $trustedDevices];
 
         if ($guardName === 'customer') {
             // Customer portal uses separate view with customer layout
             return view('customer.two-factor', $viewData);
-        } else {
-            // Admin portal uses original view with admin layout
-            return view('profile.two-factor', $viewData);
         }
+
+        // Admin portal uses original view with admin layout
+        return view('profile.two-factor', $viewData);
     }
 
     /**
@@ -97,29 +100,29 @@ class TwoFactorAuthController extends Controller
             $user = $this->getAuthenticatedUser();
             $guardName = $this->getGuardName();
 
-            \Log::info('🔧 [2FA Enable Controller] Starting 2FA enable process', [
+            Log::info('🔧 [2FA Enable Controller] Starting 2FA enable process', [
                 'user_id' => $user->id,
-                'user_type' => get_class($user),
+                'user_type' => $user::class,
                 'guard' => $guardName,
                 'request_ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
-            \Log::info('🔧 [2FA Enable Controller] User loaded', [
+            Log::info('🔧 [2FA Enable Controller] User loaded', [
                 'user_id' => $user->id,
                 'user_email' => $user->email ?? 'N/A',
                 'guard' => $guardName,
-                'has_2fa_enabled' => $guardName === 'customer' ? $user->hasCustomerTwoFactorEnabled() : $user->hasTwoFactorEnabled()
+                'has_2fa_enabled' => $guardName === 'customer' ? $user->hasCustomerTwoFactorEnabled() : $user->hasTwoFactorEnabled(),
             ]);
 
             $service = $this->getTwoFactorService();
             $result = $service->enableTwoFactor($user);
 
-            \Log::info('✅ [2FA Enable Controller] Service call successful', [
+            Log::info('✅ [2FA Enable Controller] Service call successful', [
                 'user_id' => $user->id,
-                'qr_code_present' => isset($result['qr_code_svg']) && !empty($result['qr_code_svg']),
+                'qr_code_present' => isset($result['qr_code_svg']) && ! empty($result['qr_code_svg']),
                 'recovery_codes_count' => isset($result['recovery_codes']) ? count($result['recovery_codes']) : 0,
-                'setup_url_present' => isset($result['qr_code_url']) && !empty($result['qr_code_url'])
+                'setup_url_present' => isset($result['qr_code_url']) && ! empty($result['qr_code_url']),
             ]);
 
             return response()->json([
@@ -129,23 +132,23 @@ class TwoFactorAuthController extends Controller
                     'qr_code_svg' => $result['qr_code_svg'],
                     'recovery_codes' => $result['recovery_codes'],
                     'setup_url' => $result['qr_code_url'],
-                ]
+                ],
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $user = $this->getAuthenticatedUser();
-            \Log::error('🚨 [2FA Enable Controller] Exception occurred', [
+            Log::error('🚨 [2FA Enable Controller] Exception occurred', [
                 'user_id' => $user ? $user->id : null,
-                'user_type' => $user ? get_class($user) : null,
+                'user_type' => $user ? $user::class : null,
                 'guard' => $this->getGuardName(),
-                'error_message' => $e->getMessage(),
-                'error_file' => $e->getFile(),
-                'error_line' => $e->getLine(),
-                'stack_trace' => $e->getTraceAsString()
+                'error_message' => $exception->getMessage(),
+                'error_file' => $exception->getFile(),
+                'error_line' => $exception->getLine(),
+                'stack_trace' => $exception->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -163,7 +166,7 @@ class TwoFactorAuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Please enter a valid 6-digit verification code.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -177,12 +180,12 @@ class TwoFactorAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Two-factor authentication has been successfully enabled for your account.'
+                'message' => 'Two-factor authentication has been successfully enabled for your account.',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -201,7 +204,7 @@ class TwoFactorAuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide your current password and confirm the action.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -211,10 +214,10 @@ class TwoFactorAuthController extends Controller
 
             // Check current 2FA status first
             $status = $service->getStatus($user);
-            if (!$status['enabled']) {
+            if (! $status['enabled']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Two-factor authentication is already disabled for your account.'
+                    'message' => 'Two-factor authentication is already disabled for your account.',
                 ], 400);
             }
 
@@ -225,12 +228,12 @@ class TwoFactorAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Two-factor authentication has been disabled for your account.'
+                'message' => 'Two-factor authentication has been disabled for your account.',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -248,7 +251,7 @@ class TwoFactorAuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide your current password.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -256,10 +259,10 @@ class TwoFactorAuthController extends Controller
             $user = $this->getAuthenticatedUser();
 
             // Verify current password
-            if (!$user->checkPassword($request->current_password)) {
+            if (! $user->checkPassword($request->current_password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Current password is incorrect.'
+                    'message' => 'Current password is incorrect.',
                 ], 400);
             }
 
@@ -270,13 +273,13 @@ class TwoFactorAuthController extends Controller
                 'success' => true,
                 'message' => 'New recovery codes have been generated. Please store them safely.',
                 'data' => [
-                    'recovery_codes' => $codes
-                ]
+                    'recovery_codes' => $codes,
+                ],
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -294,7 +297,7 @@ class TwoFactorAuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide a valid device name.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -327,24 +330,24 @@ class TwoFactorAuthController extends Controller
                             'display_name' => $device->getDisplayName(),
                             'trusted_at' => $device->trusted_at->format('M j, Y g:i A'),
                         ],
-                        'was_already_trusted' => $wasAlreadyTrusted
-                    ]
-                ]);
-            } else {
-                // Customer service format
-                return response()->json([
-                    'success' => true,
-                    'message' => 'This device has been added to your trusted devices list.',
-                    'data' => [
-                        'device_name' => $result['device_name'],
-                        'expires_at' => $result['expires_at']
-                    ]
+                        'was_already_trusted' => $wasAlreadyTrusted,
+                    ],
                 ]);
             }
-        } catch (\Exception $e) {
+
+            // Customer service format
+            return response()->json([
+                'success' => true,
+                'message' => 'This device has been added to your trusted devices list.',
+                'data' => [
+                    'device_name' => $result['device_name'],
+                    'expires_at' => $result['expires_at'],
+                ],
+            ]);
+        } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -357,23 +360,23 @@ class TwoFactorAuthController extends Controller
         try {
             $user = $this->getAuthenticatedUser();
             $service = $this->getTwoFactorService();
-            $success = $service->revokeDeviceTrust($user, (string)$deviceId);
+            $success = $service->revokeDeviceTrust($user, (string) $deviceId);
 
-            if (!$success) {
+            if (! $success) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Device not found or already revoked.'
+                    'message' => 'Device not found or already revoked.',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Device trust has been revoked.'
+                'message' => 'Device trust has been revoked.',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $exception->getMessage(),
             ], 400);
         }
     }
@@ -394,7 +397,7 @@ class TwoFactorAuthController extends Controller
                 'status' => $status,
                 'trusted_devices' => $trustedDevices,
                 'current_device_trusted' => $service->isDeviceTrusted($user, request()),
-            ]
+            ],
         ]);
     }
 
@@ -403,13 +406,13 @@ class TwoFactorAuthController extends Controller
      */
     public function showVerification(Request $request): View
     {
-        \Log::info('🔐 [2FA Challenge] showVerification accessed', [
+        Log::info('🔐 [2FA Challenge] showVerification accessed', [
             'session_id' => session()->getId(),
             'session_2fa_user_id' => session('2fa_user_id'),
             'session_2fa_guard' => session('2fa_guard'),
             'session_2fa_remember' => session('2fa_remember'),
             'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent()
+            'user_agent' => $request->userAgent(),
         ]);
 
         // SIMPLIFIED 2FA CHECKS (SAME AS ADMIN)
@@ -417,34 +420,35 @@ class TwoFactorAuthController extends Controller
         $guard = session('2fa_guard', 'web');
 
         // Check if 2FA session exists (SIMPLE CHECK LIKE ADMIN)
-        if (!$userId) {
+        if (! $userId) {
             // Redirect based on guard (SIMPLE LIKE ADMIN)
             if ($guard === 'customer') {
                 return redirect()->route('customer.login')
                     ->with('error', 'Your 2FA session has expired. Please login again.');
-            } else {
-                return redirect()->route('login')
-                    ->with('error', 'Your 2FA session has expired. Please login again.');
             }
+
+            return redirect()->route('login')
+                ->with('error', 'Your 2FA session has expired. Please login again.');
         }
 
         // Get user from session (SIMPLE LIKE ADMIN)
         $user = $guard === 'customer'
-            ? \App\Models\Customer::find($userId)
-            : \App\Models\User::find($userId);
+            ? Customer::query()->find($userId)
+            : User::query()->find($userId);
 
-        if (!$user) {
+        if (! $user) {
             session()->forget(['2fa_user_id', '2fa_guard', '2fa_remember']);
             $loginRoute = $guard === 'customer' ? 'customer.login' : 'login';
+
             return redirect()->route($loginRoute)->with('error', 'User account not found. Please login again.');
         }
 
         // Use different views based on guard
         if ($guard === 'customer') {
             return view('customer.auth.two-factor-challenge');
-        } else {
-            return view('auth.two-factor-challenge');
         }
+
+        return view('auth.two-factor-challenge');
     }
 
     /**
@@ -460,11 +464,11 @@ class TwoFactorAuthController extends Controller
 
         if ($validator->fails()) {
             // Log failed validation attempt
-            \Log::warning('2FA verification validation failed', [
+            Log::warning('2FA verification validation failed', [
                 'errors' => $validator->errors(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'session_id' => session()->getId()
+                'session_id' => session()->getId(),
             ]);
 
             return back()->withErrors($validator)->withInput();
@@ -475,61 +479,64 @@ class TwoFactorAuthController extends Controller
             $guard = session('2fa_guard', 'web');
 
             // Enhanced session validation
-            if (!$userId || !session()->has('2fa_user_id')) {
-                \Log::warning('2FA verification attempt without valid session', [
+            if (! $userId || ! session()->has('2fa_user_id')) {
+                Log::warning('2FA verification attempt without valid session', [
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent(),
                     'session_id' => session()->getId(),
-                    'has_user_id' => !is_null($userId),
-                    'session_keys' => array_keys(session()->all())
+                    'has_user_id' => ! is_null($userId),
+                    'session_keys' => array_keys(session()->all()),
                 ]);
 
                 $loginRoute = $guard === 'customer' ? 'customer.login' : 'login';
+
                 return redirect()->route($loginRoute)->withErrors([
-                    'code' => 'Session expired. Please login again.'
+                    'code' => 'Session expired. Please login again.',
                 ]);
             }
 
             // Get user from appropriate guard with additional validation
             $user = $guard === 'customer'
-                ? \App\Models\Customer::find($userId)
-                : \App\Models\User::find($userId);
+                ? Customer::query()->find($userId)
+                : User::query()->find($userId);
 
-            if (!$user) {
-                \Log::error('2FA verification: User not found', [
+            if (! $user) {
+                Log::error('2FA verification: User not found', [
                     'user_id' => $userId,
                     'guard' => $guard,
                     'ip_address' => $request->ip(),
-                    'session_id' => session()->getId()
+                    'session_id' => session()->getId(),
                 ]);
 
                 $loginRoute = $guard === 'customer' ? 'customer.login' : 'login';
+
                 return redirect()->route($loginRoute)->withErrors([
-                    'code' => 'User not found. Please login again.'
+                    'code' => 'User not found. Please login again.',
                 ]);
             }
 
             // Additional security check: verify user is still active
-            if (method_exists($user, 'isActive') && !$user->isActive()) {
-                \Log::warning('2FA verification attempt for inactive user', [
+            if (method_exists($user, 'isActive') && ! $user->isActive()) {
+                Log::warning('2FA verification attempt for inactive user', [
                     'user_id' => $user->id,
                     'guard' => $guard,
-                    'ip_address' => $request->ip()
+                    'ip_address' => $request->ip(),
                 ]);
 
                 $loginRoute = $guard === 'customer' ? 'customer.login' : 'login';
+
                 return redirect()->route($loginRoute)->withErrors([
-                    'code' => 'Account is no longer active. Please contact support.'
+                    'code' => 'Account is no longer active. Please contact support.',
                 ]);
             }
 
             // Verify 2FA code with enhanced logging
-            \Log::info('2FA verification attempt', [
+            Log::info('2FA verification attempt', [
                 'user_id' => $user->id,
                 'guard' => $guard,
                 'code_type' => $request->code_type,
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             // Use the correct service based on guard
@@ -554,40 +561,41 @@ class TwoFactorAuthController extends Controller
             }
 
             // Log successful 2FA completion
-            \Log::info('2FA verification successful', [
+            Log::info('2FA verification successful', [
                 'user_id' => $user->id,
                 'guard' => $guard,
-                'trusted_device' => $request->has('trust_device')
+                'trusted_device' => $request->has('trust_device'),
             ]);
 
             // Redirect to intended location
             $redirectTo = $guard === 'customer' ? route('customer.dashboard') : route('home');
+
             return redirect()->intended($redirectTo);
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             // Enhanced error logging
-            \Log::error('2FA verification failed', [
+            Log::error('2FA verification failed', [
                 'user_id' => $userId ?? null,
                 'guard' => $guard ?? 'unknown',
-                'error_message' => $e->getMessage(),
-                'error_file' => $e->getFile(),
-                'error_line' => $e->getLine(),
+                'error_message' => $exception->getMessage(),
+                'error_file' => $exception->getFile(),
+                'error_line' => $exception->getLine(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'session_id' => session()->getId()
+                'session_id' => session()->getId(),
             ]);
 
             // For customer errors, use back() to preserve session state
             // For admin errors, redirect to the specific route
             if ($guard === 'customer') {
                 return back()->withErrors([
-                    'code' => $e->getMessage()
-                ])->withInput();
-            } else {
-                return redirect(route('two-factor.challenge'))->withErrors([
-                    'code' => $e->getMessage()
+                    'code' => $exception->getMessage(),
                 ])->withInput();
             }
+
+            return redirect(route('two-factor.challenge'))->withErrors([
+                'code' => $exception->getMessage(),
+            ])->withInput();
         }
     }
 }

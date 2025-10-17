@@ -24,7 +24,7 @@ trait SecureQueryTrait
             foreach ($searchableFields as $field) {
                 // Validate field name to prevent injection
                 if ($this->isValidFieldName($field)) {
-                    $q->orWhere($field, 'LIKE', '%' . $searchTerm . '%');
+                    $q->orWhere($field, 'LIKE', '%'.$searchTerm.'%');
                 }
             }
         });
@@ -36,14 +36,15 @@ trait SecureQueryTrait
     public function secureOrderBy(Builder $query, string $column, string $direction = 'asc'): Builder
     {
         // Validate column name
-        if (!$this->isValidFieldName($column)) {
+        if (! $this->isValidFieldName($column)) {
             $this->logSecurityWarning('Invalid order column attempted', ['column' => $column]);
+
             return $query;
         }
 
         // Validate direction
         $direction = strtolower($direction);
-        if (!in_array($direction, ['asc', 'desc'])) {
+        if (! in_array($direction, ['asc', 'desc'])) {
             $direction = 'asc';
         }
 
@@ -56,8 +57,9 @@ trait SecureQueryTrait
     public function secureFilter(Builder $query, array $filters): Builder
     {
         foreach ($filters as $field => $value) {
-            if (!$this->isValidFieldName($field)) {
+            if (! $this->isValidFieldName($field)) {
                 $this->logSecurityWarning('Invalid filter field attempted', ['field' => $field]);
+
                 continue;
             }
 
@@ -84,7 +86,7 @@ trait SecureQueryTrait
     public function secureBulkUpdate(array $ids, array $data): int
     {
         // Validate IDs
-        $validIds = array_filter($ids, function($id) {
+        $validIds = array_filter($ids, function ($id) {
             return is_numeric($id) && $id > 0;
         });
 
@@ -105,8 +107,9 @@ trait SecureQueryTrait
             $this->logSecurityWarning('Bulk update failed', [
                 'error' => $e->getMessage(),
                 'ids' => $validIds,
-                'data' => $sanitizedData
+                'data' => $sanitizedData,
             ]);
+
             return 0;
         }
     }
@@ -133,7 +136,7 @@ trait SecureQueryTrait
     private function isValidFieldName(string $fieldName): bool
     {
         // Only allow alphanumeric characters, underscores, and dots
-        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/', $fieldName)) {
+        if (! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/', $fieldName)) {
             return false;
         }
 
@@ -158,15 +161,17 @@ trait SecureQueryTrait
             // Handle dot notation for relationships
             if (strpos($fieldName, '.') !== false) {
                 $parts = explode('.', $fieldName);
-                return count($parts) === 2 && !empty($parts[0]) && !empty($parts[1]);
+
+                return count($parts) === 2 && ! empty($parts[0]) && ! empty($parts[1]);
             }
 
             return in_array($fieldName, $columns);
         } catch (\Exception $e) {
             $this->logSecurityWarning('Column validation failed', [
                 'field' => $fieldName,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -179,7 +184,7 @@ trait SecureQueryTrait
         $sanitized = [];
 
         foreach ($data as $key => $value) {
-            if (!$this->isValidFieldName($key)) {
+            if (! $this->isValidFieldName($key)) {
                 continue;
             }
 
@@ -216,7 +221,7 @@ trait SecureQueryTrait
         // Log raw query execution for security monitoring
         $this->logSecurityInfo('Raw query executed', [
             'sql' => $sql,
-            'bindings' => $bindings
+            'bindings' => $bindings,
         ]);
 
         try {
@@ -225,7 +230,7 @@ trait SecureQueryTrait
             $this->logSecurityWarning('Raw query failed', [
                 'sql' => $sql,
                 'bindings' => $bindings,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }

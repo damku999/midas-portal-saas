@@ -18,18 +18,14 @@ class BranchRepository extends AbstractBaseRepository implements BranchRepositor
 {
     /**
      * The model class name
-     *
-     * @var string
      */
     protected string $modelClass = Branch::class;
 
     /**
      * Searchable fields for the getPaginated method
-     *
-     * @var array
      */
     protected array $searchableFields = [
-        'name', 'email', 'mobile_number'
+        'name', 'email', 'mobile_number',
     ];
 
     /**
@@ -44,8 +40,8 @@ class BranchRepository extends AbstractBaseRepository implements BranchRepositor
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('mobile_number', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('mobile_number', 'like', "%{$search}%");
             });
         }
 
@@ -98,7 +94,7 @@ class BranchRepository extends AbstractBaseRepository implements BranchRepositor
         return Branch::where('status', true)
             ->where(function ($query) use ($searchTerm) {
                 $query->where('name', 'like', "%{$searchTerm}%")
-                      ->orWhere('email', 'like', "%{$searchTerm}%");
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
             })
             ->limit($limit)
             ->orderBy('name')

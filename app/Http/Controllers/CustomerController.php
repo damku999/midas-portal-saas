@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Services\CustomerServiceInterface;
-use App\Exports\CustomersExport;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
-use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * Customer Controller
@@ -20,6 +20,8 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class CustomerController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(private CustomerServiceInterface $customerService)
     {
         $this->setupPermissionMiddleware('customer');
@@ -27,24 +29,51 @@ class CustomerController extends AbstractBaseCrudController
 
     /**
      * List Customer
+     *
      * @param Nill
-     * @return Array $customer
+     * @return array $customer
+     *
      * @author Darshan Baraiya
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         try {
+            // Handle AJAX requests for Select2 autocomplete
+            if ($request->ajax() || $request->has('ajax')) {
+                $search = $request->input('q', $request->input('search', ''));
+
+                $query = Customer::query()->select('id', 'name');
+
+                if ($search) {
+                    $query->where('name', 'LIKE', sprintf('%%%s%%', $search))
+                        ->orWhere('email', 'LIKE', sprintf('%%%s%%', $search))
+                        ->orWhere('mobile', 'LIKE', sprintf('%%%s%%', $search));
+                }
+
+                $customers = $query->orderBy('name', 'asc')
+                    ->limit(20)
+                    ->get();
+
+                // Format for Select2
+                return response()->json([
+                    'results' => $customers->map(fn ($customer): array => [
+                        'id' => $customer->id,
+                        'text' => $customer->name,
+                    ]),
+                ]);
+            }
+
             $customers = $this->customerService->getCustomers($request);
 
             return view('customers.index', [
                 'customers' => $customers,
                 'sortField' => $request->input('sort_field', 'name'),
                 'sortOrder' => $request->input('sort_order', 'asc'),
-                'request' => $request->all()
+                'request' => $request->all(),
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             // Create empty paginated result to maintain view compatibility
-            $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $lengthAwarePaginator = new LengthAwarePaginator(
                 collect(), // empty collection
                 0, // total count
                 10, // per page (matches CustomerService default)
@@ -53,19 +82,21 @@ class CustomerController extends AbstractBaseCrudController
             );
 
             return view('customers.index', [
-                'customers' => $emptyPaginator,
+                'customers' => $lengthAwarePaginator,
                 'sortField' => 'name',
                 'sortOrder' => 'asc',
                 'request' => $request->all(),
-                'error' => 'Failed to load customers: ' . $th->getMessage()
+                'error' => 'Failed to load customers: '.$throwable->getMessage(),
             ]);
         }
     }
 
     /**
      * Create Customer
+     *
      * @param Nill
-     * @return Array $customer
+     * @return array $customer
+     *
      * @author Darshan Baraiya
      */
     public function create(): View
@@ -75,51 +106,56 @@ class CustomerController extends AbstractBaseCrudController
 
     /**
      * Store Customer
-     * @param Request $request
+     *
+     * @param  Request  $storeCustomerRequest
      * @return View Customers
+     *
      * @author Darshan Baraiya
      */
-    public function store(StoreCustomerRequest $request): RedirectResponse
+    public function store(StoreCustomerRequest $storeCustomerRequest): RedirectResponse
     {
         try {
-            $customer = $this->customerService->createCustomer($request);
+            $customer = $this->customerService->createCustomer($storeCustomerRequest);
+
             return $this->redirectWithSuccess('customers.index',
                 $this->getSuccessMessage('Customer', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Customer', 'create') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Customer', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
-
     /**
      * Update Status Of Customer
-     * @param Integer $status
+     *
      * @return List Page With Success
+     *
      * @author Darshan Baraiya
      */
     public function updateStatus(int $customer_id, int $status): RedirectResponse
     {
         try {
             $updated = $this->customerService->updateCustomerStatus($customer_id, $status);
-            
+
             if ($updated) {
                 return $this->redirectWithSuccess('customers.index',
                     $this->getSuccessMessage('Customer status', 'updated'));
             }
 
             return $this->redirectWithError('Failed to update customer status.');
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Customer status', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Customer status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit Customer
-     * @param Integer $customer
+     *
+     * @param  int  $customer
      * @return Collection $customer
+     *
      * @author Darshan Baraiya
      */
     public function edit(Customer $customer): View
@@ -132,54 +168,58 @@ class CustomerController extends AbstractBaseCrudController
 
     /**
      * Update Customer
-     * @param Request $request, Customer $customer
+     *
+     * @param  Request  $updateCustomerRequest  ,  Customer $customer
      * @return View Customers
+     *
      * @author Darshan Baraiya
      */
-    public function update(UpdateCustomerRequest $request, Customer $customer): RedirectResponse
+    public function update(UpdateCustomerRequest $updateCustomerRequest, Customer $customer): RedirectResponse
     {
         try {
-            $updated = $this->customerService->updateCustomer($request, $customer);
-            
+            $updated = $this->customerService->updateCustomer($updateCustomerRequest, $customer);
+
             if ($updated) {
                 return $this->redirectWithSuccess('customers.index',
                     $this->getSuccessMessage('Customer', 'updated'));
             }
 
             return $this->redirectWithError('Failed to update customer.');
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Customer', 'update') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Customer', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete Customer
-     * @param Customer $customer
+     *
      * @return Index Customers
+     *
      * @author Darshan Baraiya
      */
     public function delete(Customer $customer): RedirectResponse
     {
         try {
             $deleted = $this->customerService->deleteCustomer($customer);
-            
+
             if ($deleted) {
                 return $this->redirectWithSuccess('customers.index',
                     $this->getSuccessMessage('Customer', 'deleted'));
             }
 
             return $this->redirectWithError('Failed to delete customer.');
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Customer', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Customer', 'delete').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Import Customers
-     * @param Null
+     *
+     * @param null
      * @return View File
      */
     public function importCustomers(): View
@@ -187,15 +227,43 @@ class CustomerController extends AbstractBaseCrudController
         return view('customers.import');
     }
 
-    public function export()
+    protected function getExportRelations(): array
     {
-        return Excel::download(new CustomersExport, 'customers.xlsx');
+        return ['familyGroup'];
+    }
+
+    protected function getSearchableFields(): array
+    {
+        return ['name', 'email', 'mobile_number'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'customers',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => $this->getExportOrderBy(),
+            'headings' => ['ID', 'Name', 'Email', 'Mobile', 'Status', 'Family Group', 'Created Date'],
+            'mapping' => fn ($customer): array => [
+                $customer->id,
+                $customer->name,
+                $customer->email,
+                $customer->mobile_number,
+                ucfirst((string) $customer->status),
+                $customer->familyGroup ? $customer->familyGroup->name : 'Individual',
+                $customer->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
     }
 
     public function resendOnBoardingWA(Customer $customer): RedirectResponse
     {
         $sent = $this->customerService->sendOnboardingMessage($customer);
-        
+
         if ($sent) {
             return $this->redirectWithSuccess('customers.index',
                 $this->getSuccessMessage('Onboarding message', 'sent'));
@@ -203,5 +271,4 @@ class CustomerController extends AbstractBaseCrudController
 
         return $this->redirectWithError('Failed to send onboarding message.');
     }
-
 }

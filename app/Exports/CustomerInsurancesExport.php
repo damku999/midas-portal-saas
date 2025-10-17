@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CustomerInsurancesExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
+class CustomerInsurancesExport implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -71,9 +71,6 @@ class CustomerInsurancesExport implements FromCollection, WithHeadings, ShouldAu
         });
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -116,10 +113,6 @@ class CustomerInsurancesExport implements FromCollection, WithHeadings, ShouldAu
         ];
     }
 
-    /**
-     * @param Worksheet $sheet
-     * @return array
-     */
     public function styles(Worksheet $sheet): array
     {
         return [
@@ -129,18 +122,12 @@ class CustomerInsurancesExport implements FromCollection, WithHeadings, ShouldAu
             ],
         ];
     }
-    /**
-     * @param Worksheet $sheet
-     * @param string $filterRange
-     */
+
     public function applyFilter(Worksheet $sheet, string $filterRange)
     {
         $sheet->setAutoFilter($filterRange);
     }
 
-    /**
-     * @return array
-     */
     public function registerEvents(): array
     {
         return [

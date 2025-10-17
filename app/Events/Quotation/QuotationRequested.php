@@ -13,9 +13,13 @@ class QuotationRequested
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Customer $customer;
+
     public PolicyType $policyType;
+
     public array $quotationData;
+
     public string $requestChannel;
+
     public ?int $requestedBy;
 
     public function __construct(
@@ -51,6 +55,7 @@ class QuotationRequested
     public function isHighValue(): bool
     {
         $sumAssured = $this->quotationData['sum_assured'] ?? 0;
+
         return $sumAssured > 1000000; // 10 lakhs
     }
 

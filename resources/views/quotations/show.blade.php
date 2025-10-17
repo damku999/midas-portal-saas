@@ -86,24 +86,24 @@
                                 <div class="mt-2">
                                     <strong>IDV Breakdown:</strong><br>
                                     <div class="ml-2">
-                                        Vehicle: ₹{{ number_format($quotation->idv_vehicle ?? 0) }}<br>
+                                        Vehicle: {{ format_indian_currency($quotation->idv_vehicle ?? 0) }}<br>
                                         @if ($quotation->idv_trailer > 0)
-                                            Trailer: ₹{{ number_format($quotation->idv_trailer) }}<br>
+                                            Trailer: {{ format_indian_currency($quotation->idv_trailer) }}<br>
                                         @endif
                                         @if ($quotation->idv_cng_lpg_kit > 0)
-                                            CNG/LPG Kit: ₹{{ number_format($quotation->idv_cng_lpg_kit) }}<br>
+                                            CNG/LPG Kit: {{ format_indian_currency($quotation->idv_cng_lpg_kit) }}<br>
                                         @endif
                                         @if ($quotation->idv_electrical_accessories > 0)
                                             Electrical Accessories:
-                                            ₹{{ number_format($quotation->idv_electrical_accessories) }}<br>
+                                            {{ format_indian_currency($quotation->idv_electrical_accessories) }}<br>
                                         @endif
                                         @if ($quotation->idv_non_electrical_accessories > 0)
                                             Non-Electrical Accessories:
-                                            ₹{{ number_format($quotation->idv_non_electrical_accessories) }}<br>
+                                            {{ format_indian_currency($quotation->idv_non_electrical_accessories) }}<br>
                                         @endif
                                     </div>
                                     <strong class="text-success">Total IDV:
-                                        ₹{{ number_format($quotation->total_idv) }}</strong>
+                                        {{ format_indian_currency($quotation->total_idv) }}</strong>
                                 </div>
                             </small>
                         </div>
@@ -265,12 +265,12 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $company->plan_name ?? 'Standard Plan' }}</td>
-                                                <td>₹{{ number_format($company->basic_od_premium) }}</td>
-                                                <td>₹{{ number_format($company->tp_premium ?? 0) }}</td>
-                                                <td>₹{{ number_format($company->total_addon_premium) }}</td>
-                                                <td>₹{{ number_format($company->cng_lpg_premium ?? 0) }}</td>
-                                                <td>₹{{ number_format($company->net_premium) }}</td>
-                                                <td>₹{{ number_format($company->sgst_amount + $company->cgst_amount) }}
+                                                <td>{{ format_indian_currency($company->basic_od_premium) }}</td>
+                                                <td>{{ format_indian_currency($company->tp_premium ?? 0) }}</td>
+                                                <td>{{ format_indian_currency($company->total_addon_premium) }}</td>
+                                                <td>{{ format_indian_currency($company->cng_lpg_premium ?? 0) }}</td>
+                                                <td>{{ format_indian_currency($company->net_premium) }}</td>
+                                                <td>{{ format_indian_currency($company->sgst_amount + $company->cgst_amount) }}
                                                 </td>
                                                 <td>
                                                     <strong
@@ -308,7 +308,7 @@
                                                                     class="ml-2">({{ $company->quote_number }})</small>
                                                             @endif
                                                             <span class="float-right">Total:
-                                                                ₹{{ number_format($company->total_addon_premium) }}</span>
+                                                                {{ format_indian_currency($company->total_addon_premium) }}</span>
                                                         </h6>
                                                     </div>
                                                     <div class="card-body py-2">
@@ -331,7 +331,7 @@
                                                                                     <strong
                                                                                         class="small">
                                                                                         @if(isset($data['price']) && $data['price'] > 0)
-                                                                                            ₹{{ number_format($data['price']) }}
+                                                                                            {{ format_indian_currency($data['price']) }}
                                                                                         @else
                                                                                             <span class="badge badge-success">Covered</span>
                                                                                         @endif

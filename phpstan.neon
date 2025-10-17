@@ -1,0 +1,19 @@
+parameters:
+    paths:
+        - app
+    level: 5
+    ignoreErrors:
+        # Laravel Eloquent dynamic properties
+        - '#Unsafe usage of new static#'
+        - '#Property .* does not accept default value of type#'
+        # Laravel Request form validation
+        - '#Access to an undefined property Illuminate\\Http\\Request::\$#'
+        # Intelephense false positives
+        - '#Undefined property: Illuminate\\Database\\Eloquent\\Model::\$#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
+    excludePaths:
+        - app/Console/Kernel.php
+        - app/Exceptions/Handler.php
+        - bootstrap
+        - storage
+        - vendor

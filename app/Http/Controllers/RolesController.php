@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Repositories\PermissionRepositoryInterface;
+use App\Contracts\Repositories\RoleRepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 /**
  * Roles Controller
@@ -15,68 +19,61 @@ use Illuminate\Support\Facades\DB;
  */
 class RolesController extends AbstractBaseCrudController
 {
-    /**
-     * Role Repository instance
-     */
-    private RoleRepositoryInterface $roleRepository;
-
-    /**
-     * Permission Repository instance
-     */
-    private PermissionRepositoryInterface $permissionRepository;
-
     public function __construct(
-        RoleRepositoryInterface $roleRepository,
-        PermissionRepositoryInterface $permissionRepository
+        /**
+         * Role Repository instance
+         */
+        private readonly RoleRepositoryInterface $roleRepository,
+        /**
+         * Permission Repository instance
+         */
+        private readonly PermissionRepositoryInterface $permissionRepository
     ) {
-        $this->roleRepository = $roleRepository;
-        $this->permissionRepository = $permissionRepository;
         $this->setupCustomPermissionMiddleware([
             ['permission' => 'role-list|role-create|role-edit|role-delete', 'only' => ['index']],
-            ['permission' => 'role-create', 'only' => ['create','store']],
-            ['permission' => 'role-edit', 'only' => ['edit','update']],
-            ['permission' => 'role-delete', 'only' => ['destroy']]
+            ['permission' => 'role-create', 'only' => ['create', 'store']],
+            ['permission' => 'role-edit', 'only' => ['edit', 'update']],
+            ['permission' => 'role-delete', 'only' => ['destroy']],
         ]);
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
-        $roles = $this->roleRepository->getRolesWithFilters($request, 10);
+        $lengthAwarePaginator = $this->roleRepository->getRolesWithFilters($request, 10);
 
         return view('roles.index', [
-            'roles' => $roles
+            'roles' => $lengthAwarePaginator,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
-        $permissions = $this->permissionRepository->getPermissionsByGuard();
+        $permissionsByGuard = $this->permissionRepository->getPermissionsByGuard();
 
-        return view('roles.add', ['permissions' => $permissions]);
+        return view('roles.add', ['permissions' => $permissionsByGuard]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         try {
             $request->validate([
                 'name' => 'required',
-                'guard_name' => 'required'
+                'guard_name' => 'required',
             ]);
 
             DB::beginTransaction();
@@ -85,24 +82,24 @@ class RolesController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('roles.index',
                 $this->getSuccessMessage('Role', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Role', 'create') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Role', 'create').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         $role = $this->roleRepository->getRoleWithPermissions($id);
 
-        if (!$role) {
+        if (! $role instanceof Role) {
             return $this->redirectWithError('Role not found.');
         }
 
@@ -112,14 +109,13 @@ class RolesController extends AbstractBaseCrudController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         $role = $this->roleRepository->getRoleWithPermissions($id);
 
-        if (!$role) {
+        if (! $role instanceof Role) {
             return $this->redirectWithError('Role not found.');
         }
 
@@ -131,30 +127,29 @@ class RolesController extends AbstractBaseCrudController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         try {
             $request->validate([
                 'name' => 'required',
-                'guard_name' => 'required'
+                'guard_name' => 'required',
             ]);
 
             DB::beginTransaction();
             $role = $this->roleRepository->findById($id);
 
-            if (!$role) {
+            if (! $role instanceof Model) {
                 DB::rollback();
+
                 return $this->redirectWithError('Role not found.');
             }
 
             // Update role data
             $roleData = [
                 'name' => $request->name,
-                'guard_name' => $request->guard_name
+                'guard_name' => $request->guard_name,
             ];
             $this->roleRepository->update($role, $roleData);
 
@@ -165,27 +160,28 @@ class RolesController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('roles.index',
                 $this->getSuccessMessage('Role', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Role', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Role', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
             DB::beginTransaction();
             $role = $this->roleRepository->findById($id);
 
-            if (!$role) {
+            if (! $role instanceof Model) {
                 DB::rollback();
+
                 return $this->redirectWithError('Role not found.');
             }
 
@@ -194,10 +190,11 @@ class RolesController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('roles.index',
                 $this->getSuccessMessage('Role', 'deleted'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Role', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Role', 'delete').': '.$throwable->getMessage());
         }
     }
 }

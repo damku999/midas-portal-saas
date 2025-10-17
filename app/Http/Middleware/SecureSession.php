@@ -44,22 +44,22 @@ class SecureSession
     protected function enforceSecureSession(Request $request): void
     {
         // Regenerate session ID periodically for security (but NOT during 2FA challenge)
-        if (!$request->session()->has('last_regenerated') ||
+        if (! $request->session()->has('last_regenerated') ||
             now()->diffInMinutes($request->session()->get('last_regenerated')) > 30) {
 
             // Don't regenerate session if we're in 2FA challenge state
-            if (!$request->session()->has('2fa_user_id')) {
+            if (! $request->session()->has('2fa_user_id')) {
                 $request->session()->regenerate();
                 $request->session()->put('last_regenerated', now());
 
                 Log::info('Customer session regenerated for security', [
                     'customer_id' => Auth::guard('customer')->id(),
-                    'session_id' => $request->session()->getId()
+                    'session_id' => $request->session()->getId(),
                 ]);
             } else {
                 Log::info('Skipping session regeneration during 2FA challenge', [
                     '2fa_user_id' => $request->session()->get('2fa_user_id'),
-                    'session_id' => $request->session()->getId()
+                    'session_id' => $request->session()->getId(),
                 ]);
             }
         }
@@ -80,7 +80,7 @@ class SecureSession
             Log::warning('Customer session timed out', [
                 'customer_id' => $customer->id,
                 'last_activity' => $lastActivity,
-                'timeout_minutes' => $timeoutMinutes
+                'timeout_minutes' => $timeoutMinutes,
             ]);
 
             Auth::guard('customer')->logout();
@@ -103,10 +103,10 @@ class SecureSession
         $customer = Auth::guard('customer')->user();
 
         // Check if customer status changed
-        if (!$customer->status) {
+        if (! $customer->status) {
             Log::warning('Inactive customer session terminated', [
                 'customer_id' => $customer->id,
-                'customer_email' => $customer->email
+                'customer_email' => $customer->email,
             ]);
 
             Auth::guard('customer')->logout();
@@ -118,10 +118,10 @@ class SecureSession
         }
 
         // Check if family group became inactive
-        if ($customer->familyGroup && !$customer->familyGroup->status) {
+        if ($customer->familyGroup && ! $customer->familyGroup->status) {
             Log::warning('Customer session terminated due to inactive family group', [
                 'customer_id' => $customer->id,
-                'family_group_id' => $customer->familyGroup->id
+                'family_group_id' => $customer->familyGroup->id,
             ]);
 
             Auth::guard('customer')->logout();

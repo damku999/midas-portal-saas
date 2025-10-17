@@ -2,10 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\{Customer, CustomerInsurance, Broker, InsuranceCompany};
-use App\Observers\CacheInvalidationObserver;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\{Schema, URL};
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,10 +28,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
         Schema::defaultStringLength(125);
-        
+
         // Configure asset URL for subdirectory installation
         if (env('ASSET_URL')) {
             URL::forceRootUrl(env('ASSET_URL'));
-        }      
+        }
     }
 }

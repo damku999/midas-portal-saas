@@ -9,9 +9,9 @@
                 <div class="login-card">
                     <!-- Logo Section -->
                     <div class="text-center mb-4">
-                        <img src="{{ asset('images/parth_logo.png') }}" alt="WebMonks" class="img-fluid mb-3"
+                        <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid mb-3"
                             style="max-height: 50px;">
-                        <h4 class="fw-bold text-dark mb-1">Customer Portal</h4>
+                        <h4 class="fw-bold text-dark mb-1">{{ company_name() }}</h4>
                         <p class="text-muted small mb-0">Set new password</p>
                     </div>
 
@@ -54,8 +54,18 @@
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label small">Confirm New Password</label>
                             <input type="password" class="form-control"
-                                id="password_confirmation" name="password_confirmation" 
+                                id="password_confirmation" name="password_confirmation"
                                 placeholder="Confirm new password" required>
+                        </div>
+
+                        <!-- Cloudflare Turnstile -->
+                        <div class="mb-3">
+                            <x-turnstile />
+                            @error('cf-turnstile-response')
+                                <div class="text-danger mt-2">
+                                    <small><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</small>
+                                </div>
+                            @enderror
                         </div>
 
                         <button type="submit" class="btn btn-webmonks w-100 mb-3">

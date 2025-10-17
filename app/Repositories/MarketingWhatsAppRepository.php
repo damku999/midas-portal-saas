@@ -17,7 +17,7 @@ class MarketingWhatsAppRepository extends AbstractBaseRepository implements Mark
         'message',
         'status',
         'message_type',
-        'whatsapp_message_id'
+        'whatsapp_message_id',
     ];
 
     public function getMarketingMessagesWithFilters(Request $request, int $perPage = 15): LengthAwarePaginator
@@ -104,16 +104,16 @@ class MarketingWhatsAppRepository extends AbstractBaseRepository implements Mark
             'failed_messages' => $model->where('status', false)->count(),
             'today_messages' => $model->whereDate('created_at', today())->count(),
             'this_month_messages' => $model->whereMonth('created_at', now()->month)
-                                          ->whereYear('created_at', now()->year)
-                                          ->count(),
+                ->whereYear('created_at', now()->year)
+                ->count(),
             'message_types' => $model->select('message_type')
-                                   ->selectRaw('COUNT(*) as count')
-                                   ->groupBy('message_type')
-                                   ->pluck('count', 'message_type')
-                                   ->toArray(),
+                ->selectRaw('COUNT(*) as count')
+                ->groupBy('message_type')
+                ->pluck('count', 'message_type')
+                ->toArray(),
             'recent_activity' => $model->orderBy('created_at', 'desc')
-                                     ->limit(5)
-                                     ->get(['phone_number', 'message_type', 'status', 'created_at'])
+                ->limit(5)
+                ->get(['phone_number', 'message_type', 'status', 'created_at']),
         ];
     }
 
@@ -128,8 +128,8 @@ class MarketingWhatsAppRepository extends AbstractBaseRepository implements Mark
         });
 
         return $query->orderBy('created_at', 'desc')
-                    ->limit($limit)
-                    ->get();
+            ->limit($limit)
+            ->get();
     }
 
     public function getMarketingMessagesByPhoneNumber(string $phoneNumber): Collection
@@ -161,7 +161,7 @@ class MarketingWhatsAppRepository extends AbstractBaseRepository implements Mark
             'status' => true,
             'whatsapp_message_id' => $messageId,
             'sent_at' => now(),
-            'error_message' => null
+            'error_message' => null,
         ]);
     }
 
@@ -170,7 +170,7 @@ class MarketingWhatsAppRepository extends AbstractBaseRepository implements Mark
         return $marketingMessage->update([
             'status' => false,
             'error_message' => $errorMessage,
-            'sent_at' => null
+            'sent_at' => null,
         ]);
     }
 }

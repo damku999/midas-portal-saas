@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 
 class AuditService
 {
@@ -38,7 +38,7 @@ class AuditService
             ->get();
     }
 
-    public function getActivityByUser($userId, string $userType = 'App\\Models\\User', int $days = 30): Collection
+    public function getActivityByUser($userId, string $userType = User::class, int $days = 30): Collection
     {
         return AuditLog::with(['auditable'])
             ->where('actor_type', $userType)
@@ -63,11 +63,11 @@ class AuditService
         $startDate = now()->subDays($days);
 
         return [
-            'total_events' => AuditLog::where('occurred_at', '>=', $startDate)->count(),
+            'total_events' => AuditLog::query()->where('occurred_at', '>=', $startDate)->count(),
             'suspicious_events' => AuditLog::suspicious()->where('occurred_at', '>=', $startDate)->count(),
             'high_risk_events' => AuditLog::highRisk()->where('occurred_at', '>=', $startDate)->count(),
-            'failed_logins' => AuditLog::where('event', 'login_failed')->where('occurred_at', '>=', $startDate)->count(),
-            'unique_ips' => AuditLog::where('occurred_at', '>=', $startDate)->distinct('ip_address')->count(),
+            'failed_logins' => AuditLog::query()->where('event', 'login_failed')->where('occurred_at', '>=', $startDate)->count(),
+            'unique_ips' => AuditLog::query()->where('occurred_at', '>=', $startDate)->distinct('ip_address')->count(),
             'events_by_category' => $this->getEventsByCategory($startDate),
             'risk_distribution' => $this->getRiskDistribution($startDate),
             'hourly_activity' => $this->getHourlyActivity($startDate),
@@ -77,52 +77,52 @@ class AuditService
 
     public function searchLogs(array $filters = [], int $perPage = 25): LengthAwarePaginator
     {
-        $query = AuditLog::with(['auditable', 'actor']);
+        $builder = AuditLog::with(['auditable', 'actor']);
 
-        if (!empty($filters['event'])) {
-            $query->where('event', $filters['event']);
+        if (! empty($filters['event'])) {
+            $builder->where('event', $filters['event']);
         }
 
-        if (!empty($filters['event_category'])) {
-            $query->where('event_category', $filters['event_category']);
+        if (! empty($filters['event_category'])) {
+            $builder->where('event_category', $filters['event_category']);
         }
 
-        if (!empty($filters['risk_level'])) {
-            $query->where('risk_level', $filters['risk_level']);
+        if (! empty($filters['risk_level'])) {
+            $builder->where('risk_level', $filters['risk_level']);
         }
 
-        if (!empty($filters['is_suspicious'])) {
-            $query->where('is_suspicious', $filters['is_suspicious']);
+        if (! empty($filters['is_suspicious'])) {
+            $builder->where('is_suspicious', $filters['is_suspicious']);
         }
 
-        if (!empty($filters['ip_address'])) {
-            $query->where('ip_address', $filters['ip_address']);
+        if (! empty($filters['ip_address'])) {
+            $builder->where('ip_address', $filters['ip_address']);
         }
 
-        if (!empty($filters['actor_id']) && !empty($filters['actor_type'])) {
-            $query->where('actor_id', $filters['actor_id'])
-                  ->where('actor_type', $filters['actor_type']);
+        if (! empty($filters['actor_id']) && ! empty($filters['actor_type'])) {
+            $builder->where('actor_id', $filters['actor_id'])
+                ->where('actor_type', $filters['actor_type']);
         }
 
-        if (!empty($filters['date_from'])) {
-            $query->where('occurred_at', '>=', Carbon::parse($filters['date_from']));
+        if (! empty($filters['date_from'])) {
+            $builder->where('occurred_at', '>=', Carbon::parse($filters['date_from']));
         }
 
-        if (!empty($filters['date_to'])) {
-            $query->where('occurred_at', '<=', Carbon::parse($filters['date_to'])->endOfDay());
+        if (! empty($filters['date_to'])) {
+            $builder->where('occurred_at', '<=', Carbon::parse($filters['date_to'])->endOfDay());
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('event', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhere('user_agent', 'like', "%{$search}%")
-                  ->orWhereJsonContains('metadata', $search);
+            $builder->where(static function ($q) use ($search): void {
+                $q->where('event', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('ip_address', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('user_agent', 'like', sprintf('%%%s%%', $search))
+                    ->orWhereJsonContains('metadata', $search);
             });
         }
 
-        return $query->orderBy('occurred_at', 'desc')->paginate($perPage);
+        return $builder->orderBy('occurred_at', 'desc')->paginate($perPage);
     }
 
     public function generateSecurityReport(int $days = 30): array
@@ -152,13 +152,13 @@ class AuditService
         return match ($format) {
             'csv' => $this->exportToCsv($logs),
             'json' => $this->exportToJson($logs),
-            default => throw new \InvalidArgumentException("Unsupported export format: {$format}"),
+            default => throw new \InvalidArgumentException('Unsupported export format: '.$format),
         };
     }
 
     protected function getEventsByCategory(Carbon $startDate): array
     {
-        return AuditLog::where('occurred_at', '>=', $startDate)
+        return AuditLog::query()->where('occurred_at', '>=', $startDate)
             ->groupBy('event_category')
             ->selectRaw('event_category, count(*) as count')
             ->pluck('count', 'event_category')
@@ -167,7 +167,7 @@ class AuditService
 
     protected function getRiskDistribution(Carbon $startDate): array
     {
-        return AuditLog::where('occurred_at', '>=', $startDate)
+        return AuditLog::query()->where('occurred_at', '>=', $startDate)
             ->groupBy('risk_level')
             ->selectRaw('risk_level, count(*) as count')
             ->pluck('count', 'risk_level')
@@ -176,7 +176,7 @@ class AuditService
 
     protected function getHourlyActivity(Carbon $startDate): array
     {
-        return AuditLog::where('occurred_at', '>=', $startDate)
+        return AuditLog::query()->where('occurred_at', '>=', $startDate)
             ->selectRaw('HOUR(occurred_at) as hour, count(*) as count')
             ->groupBy('hour')
             ->pluck('count', 'hour')
@@ -185,18 +185,19 @@ class AuditService
 
     protected function getTopRiskFactors(Carbon $startDate): array
     {
-        $logs = AuditLog::where('occurred_at', '>=', $startDate)
+        $logs = AuditLog::query()->where('occurred_at', '>=', $startDate)
             ->whereNotNull('risk_factors')
             ->pluck('risk_factors');
 
         $factors = [];
-        foreach ($logs as $logFactors) {
-            foreach ($logFactors as $factor) {
+        foreach ($logs as $log) {
+            foreach ($log as $factor) {
                 $factors[$factor] = ($factors[$factor] ?? 0) + 1;
             }
         }
 
         arsort($factors);
+
         return array_slice($factors, 0, 10);
     }
 
@@ -244,8 +245,8 @@ class AuditService
                 $log->id,
                 $log->event,
                 $log->event_category,
-                $log->actor_type ? class_basename($log->actor_type) . '#' . $log->actor_id : 'System',
-                $log->auditable_type ? class_basename($log->auditable_type) . '#' . $log->auditable_id : 'N/A',
+                $log->actor_type ? class_basename($log->actor_type).'#'.$log->actor_id : 'System',
+                $log->auditable_type ? class_basename($log->auditable_type).'#'.$log->auditable_id : 'N/A',
                 $log->ip_address,
                 $log->risk_level,
                 $log->risk_score,

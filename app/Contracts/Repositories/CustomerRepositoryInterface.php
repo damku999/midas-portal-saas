@@ -55,23 +55,16 @@ interface CustomerRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Get active customers
-     *
-     * @return Collection
      */
     public function getActiveCustomers(): Collection;
 
     /**
      * Get customers with valid mobile numbers
-     *
-     * @return Collection
      */
     public function getCustomersWithValidMobileNumbers(): Collection;
 
     /**
      * Get customers by array of IDs
-     *
-     * @param array $ids
-     * @return Collection
      */
     public function getCustomersByIds(array $ids): Collection;
 }

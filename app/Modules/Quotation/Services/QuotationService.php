@@ -2,19 +2,19 @@
 
 namespace App\Modules\Quotation\Services;
 
-use App\Modules\Quotation\Contracts\QuotationServiceInterface;
 use App\Contracts\Repositories\QuotationRepositoryInterface;
-use App\Events\Quotation\QuotationRequested;
 use App\Events\Quotation\QuotationGenerated;
-use App\Models\Customer;
-use App\Models\InsuranceCompany;
-use App\Models\Quotation;
-use App\Models\QuotationCompany;
-use App\Models\PolicyType;
-use App\Services\PdfGenerationService;
-use App\Traits\WhatsAppApiTrait;
+use App\Events\Quotation\QuotationRequested;
 use App\Http\Requests\StoreQuotationRequest;
 use App\Http\Requests\UpdateQuotationRequest;
+use App\Models\Customer;
+use App\Models\InsuranceCompany;
+use App\Models\PolicyType;
+use App\Models\Quotation;
+use App\Models\QuotationCompany;
+use App\Modules\Quotation\Contracts\QuotationServiceInterface;
+use App\Services\PdfGenerationService;
+use App\Traits\WhatsAppApiTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -27,8 +27,7 @@ class QuotationService implements QuotationServiceInterface
     public function __construct(
         private PdfGenerationService $pdfService,
         private QuotationRepositoryInterface $quotationRepository
-    ) {
-    }
+    ) {}
 
     public function getQuotations(Request $request): LengthAwarePaginator
     {
@@ -46,17 +45,17 @@ class QuotationService implements QuotationServiceInterface
     public function createQuotation(StoreQuotationRequest $request): Quotation
     {
         DB::beginTransaction();
-        
+
         try {
             $data = $request->validated();
-            
+
             // Calculate total IDV
             $data['total_idv'] = $this->calculateTotalIdv($data);
 
             // Fire QuotationRequested event
             $customer = Customer::find($data['customer_id']);
             $policyType = PolicyType::find($data['policy_type_id']);
-            
+
             if ($customer && $policyType) {
                 QuotationRequested::dispatch(
                     $customer,
@@ -73,7 +72,7 @@ class QuotationService implements QuotationServiceInterface
             $quotation = $this->quotationRepository->create($data);
 
             // Create company quotes if provided
-            if (!empty($companies)) {
+            if (! empty($companies)) {
                 $this->createManualCompanyQuotes($quotation, $companies);
             }
 
@@ -106,15 +105,17 @@ class QuotationService implements QuotationServiceInterface
             if ($updated) {
                 // Update company quotes
                 $quotation->quotationCompanies()->delete();
-                if (!empty($companies)) {
+                if (! empty($companies)) {
                     $this->createManualCompanyQuotes($quotation, $companies);
                 }
 
                 DB::commit();
+
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -128,13 +129,15 @@ class QuotationService implements QuotationServiceInterface
 
         try {
             $deleted = $this->quotationRepository->delete($quotation->id);
-            
+
             if ($deleted) {
                 DB::commit();
+
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -342,8 +345,8 @@ class QuotationService implements QuotationServiceInterface
         $uniqueId = str_replace('.', '', $microtime);
         $uniqueId = substr($uniqueId, -8);
 
-        return 'QT/' . date('y') . '/' . str_pad($quotation->id, 4, '0', STR_PAD_LEFT) .
-               str_pad($companyId, 2, '0', STR_PAD_LEFT) .
+        return 'QT/'.date('y').'/'.str_pad($quotation->id, 4, '0', STR_PAD_LEFT).
+               str_pad($companyId, 2, '0', STR_PAD_LEFT).
                $uniqueId;
     }
 
@@ -363,9 +366,16 @@ class QuotationService implements QuotationServiceInterface
     {
         $vehicleAge = date('Y') - $quotation->manufacturing_year;
 
-        if ($vehicleAge <= 1) return 1.2;
-        if ($vehicleAge <= 3) return 1.8;
-        if ($vehicleAge <= 5) return 2.4;
+        if ($vehicleAge <= 1) {
+            return 1.2;
+        }
+        if ($vehicleAge <= 3) {
+            return 1.8;
+        }
+        if ($vehicleAge <= 5) {
+            return 2.4;
+        }
+
         return 3.0;
     }
 
@@ -387,11 +397,11 @@ class QuotationService implements QuotationServiceInterface
 
     private function getCompanyBenefits(InsuranceCompany $company): string
     {
-        return "Comprehensive coverage with add-on benefits, 24/7 customer support, quick claim settlement, nationwide network of garages.";
+        return 'Comprehensive coverage with add-on benefits, 24/7 customer support, quick claim settlement, nationwide network of garages.';
     }
 
     private function getCompanyExclusions(InsuranceCompany $company): string
     {
-        return "Pre-existing damages, wear and tear, consequential damages, driving under influence, use for commercial purposes.";
+        return 'Pre-existing damages, wear and tear, consequential damages, driving under influence, use for commercial purposes.';
     }
 }

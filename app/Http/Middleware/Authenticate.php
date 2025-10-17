@@ -19,7 +19,7 @@ class Authenticate extends Middleware
             if ($request->is('customer/*')) {
                 return route('customer.login');
             }
-            
+
             return route('login');
         }
     }

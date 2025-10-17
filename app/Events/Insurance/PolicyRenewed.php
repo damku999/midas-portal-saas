@@ -12,9 +12,13 @@ class PolicyRenewed
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public CustomerInsurance $originalPolicy;
+
     public CustomerInsurance $renewedPolicy;
+
     public array $renewalChanges;
+
     public ?int $renewedBy;
+
     public string $renewalType;
 
     public function __construct(
@@ -66,10 +70,10 @@ class PolicyRenewed
 
     public function getDaysBeforeExpiry(): int
     {
-        if (!$this->originalPolicy->policy_end_date) {
+        if (! $this->originalPolicy->policy_end_date) {
             return 0;
         }
-        
+
         return $this->originalPolicy->policy_end_date->diffInDays($this->renewedPolicy->created_at, false);
     }
 

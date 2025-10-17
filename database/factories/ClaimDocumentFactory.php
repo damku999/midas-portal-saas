@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\ClaimDocument;
 use App\Models\Claim;
+use App\Models\ClaimDocument;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClaimDocumentFactory extends Factory
@@ -22,7 +22,7 @@ class ClaimDocumentFactory extends Factory
                 'Police FIR',
                 'Insurance Policy Copy',
                 'Estimate Bills',
-                'Photo Identity Proof'
+                'Photo Identity Proof',
             ]),
             'is_required' => $this->faker->boolean(70), // 70% chance of being required
             'is_submitted' => $this->faker->boolean(40), // 40% chance of being submitted

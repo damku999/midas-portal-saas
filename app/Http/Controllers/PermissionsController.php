@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Repositories\PermissionRepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
 
 /**
  * Permissions Controller
@@ -14,40 +18,37 @@ use Illuminate\Support\Facades\DB;
  */
 class PermissionsController extends AbstractBaseCrudController
 {
-    /**
+    public function __construct(/**
      * Permission Repository instance
      */
-    private PermissionRepositoryInterface $permissionRepository;
-
-    public function __construct(PermissionRepositoryInterface $permissionRepository)
+        private readonly PermissionRepositoryInterface $permissionRepository)
     {
-        $this->permissionRepository = $permissionRepository;
         $this->setupCustomPermissionMiddleware([
             ['permission' => 'permission-list|permission-create|permission-edit|permission-delete', 'only' => ['index']],
             ['permission' => 'permission-create', 'only' => ['create', 'store']],
             ['permission' => 'permission-edit', 'only' => ['edit', 'update']],
-            ['permission' => 'permission-delete', 'only' => ['destroy']]
+            ['permission' => 'permission-delete', 'only' => ['destroy']],
         ]);
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
-        $permissions = $this->permissionRepository->getPermissionsWithFilters($request, 10);
+        $lengthAwarePaginator = $this->permissionRepository->getPermissionsWithFilters($request, 10);
 
         return view('permissions.index', [
-            'permissions' => $permissions
+            'permissions' => $lengthAwarePaginator,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -57,15 +58,14 @@ class PermissionsController extends AbstractBaseCrudController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         try {
             $request->validate([
                 'name' => 'required',
-                'guard_name' => 'required'
+                'guard_name' => 'required',
             ]);
 
             DB::beginTransaction();
@@ -74,24 +74,24 @@ class PermissionsController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('permissions.index',
                 $this->getSuccessMessage('Permission', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Permission', 'create') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Permission', 'create').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         $permission = $this->permissionRepository->getPermissionWithRoles($id);
 
-        if (!$permission) {
+        if (! $permission instanceof Permission) {
             return $this->redirectWithError(
                 $this->getErrorMessage('Permission', 'find'));
         }
@@ -102,14 +102,13 @@ class PermissionsController extends AbstractBaseCrudController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         $permission = $this->permissionRepository->findById($id);
 
-        if (!$permission) {
+        if (! $permission instanceof Model) {
             return $this->redirectWithError(
                 $this->getErrorMessage('Permission', 'find'));
         }
@@ -120,20 +119,18 @@ class PermissionsController extends AbstractBaseCrudController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         try {
             $request->validate([
                 'name' => 'required',
-                'guard_name' => 'required'
+                'guard_name' => 'required',
             ]);
 
             $permission = $this->permissionRepository->findById($id);
-            if (!$permission) {
+            if (! $permission instanceof Model) {
                 return $this->redirectWithError(
                     $this->getErrorMessage('Permission', 'find'));
             }
@@ -144,24 +141,24 @@ class PermissionsController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('permissions.index',
                 $this->getSuccessMessage('Permission', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Permission', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Permission', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
             $permission = $this->permissionRepository->findById($id);
-            if (!$permission) {
+            if (! $permission instanceof Model) {
                 return $this->redirectWithError(
                     $this->getErrorMessage('Permission', 'find'));
             }
@@ -172,10 +169,11 @@ class PermissionsController extends AbstractBaseCrudController
 
             return $this->redirectWithSuccess('permissions.index',
                 $this->getSuccessMessage('Permission', 'deleted'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             DB::rollback();
+
             return $this->redirectWithError(
-                $this->getErrorMessage('Permission', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Permission', 'delete').': '.$throwable->getMessage());
         }
     }
 }

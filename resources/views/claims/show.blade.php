@@ -301,11 +301,11 @@
                                     </tr>
                                     <tr>
                                         <td class="fw-semibold">Created Date:</td>
-                                        <td>{{ $claim->created_at ? $claim->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                        <td>{{ format_app_datetime($claim->created_at) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-semibold">Last Updated:</td>
-                                        <td>{{ $claim->updated_at ? $claim->updated_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                        <td>{{ format_app_datetime($claim->updated_at) }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -405,7 +405,7 @@
                                             @if($stage->stage_date)
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar me-1"></i>
-                                                    {{ $stage->stage_date->format('d/m/Y H:i') }}
+                                                    {{ format_app_datetime($stage->stage_date) }}
                                                 </small>
                                             @endif
                                             @if($stage->notes)
@@ -498,7 +498,7 @@
                                         @if($document->submitted_date)
                                             <small class="text-muted d-block submitted-date-info">
                                                 <i class="fas fa-check me-1"></i>
-                                                Submitted: {{ $document->submitted_date->format('d/m/Y H:i') }}
+                                                Submitted: {{ format_app_datetime($document->submitted_date) }}
                                             </small>
                                         @endif
                                     </div>
@@ -855,9 +855,9 @@
 @endsection
 
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_select2_css') }}" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_select2_bootstrap_theme_css') }}" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_bootstrap_datepicker_css') }}" rel="stylesheet" />
     <style>
         /* Policy Search Dropdown Styling */
         .policy-option {
@@ -1016,8 +1016,8 @@
     {{-- Include common claims functions --}}
     @include('claims.partials.common-functions')
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ cdn_url('cdn_select2_js') }}"></script>
+    <script src="{{ cdn_url('cdn_bootstrap_datepicker_js') }}"></script>
 
 <script>
     // Global variables

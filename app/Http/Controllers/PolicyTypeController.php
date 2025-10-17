@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\PolicyType;
 use App\Services\PolicyTypeService;
+use App\Traits\ExportableTrait;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Exports\PolicyTypesExport;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -17,34 +17,40 @@ use Illuminate\Support\Facades\Validator;
  */
 class PolicyTypeController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(
         private PolicyTypeService $policyTypeService
     ) {
         $this->setupPermissionMiddleware('policy-type');
     }
 
-
     /**
-     * List PolicyType 
+     * List PolicyType
+     *
      * @param Nill
-     * @return Array $policy_type
+     * @return array $policy_type
+     *
      * @author Darshan Baraiya
      */
     public function index(Request $request)
     {
-        $policy_type_obj = PolicyType::select('*');
-        if (!empty($request->search)) {
-            $policy_type_obj->where('name', 'LIKE', '%' . trim($request->search) . '%');
+        $builder = PolicyType::query()->select('*');
+        if (! empty($request->search)) {
+            $builder->where('name', 'LIKE', '%'.trim((string) $request->search).'%');
         }
 
-        $policy_type = $policy_type_obj->paginate(10);
+        $policy_type = $builder->paginate(config('app.pagination_default', 15));
+
         return view('policy_type.index', ['policy_type' => $policy_type]);
     }
 
     /**
-     * Create PolicyType 
+     * Create PolicyType
+     *
      * @param Nill
-     * @return Array $policy_type
+     * @return array $policy_type
+     *
      * @author Darshan Baraiya
      */
     public function create()
@@ -54,8 +60,9 @@ class PolicyTypeController extends AbstractBaseCrudController
 
     /**
      * Store PolicyType
-     * @param Request $request
+     *
      * @return View PolicyTypes
+     *
      * @author Darshan Baraiya
      */
     public function store(Request $request)
@@ -69,63 +76,70 @@ class PolicyTypeController extends AbstractBaseCrudController
 
         try {
             $this->policyTypeService->createPolicyType($validated);
+
             return $this->redirectWithSuccess('policy_type.index', $this->getSuccessMessage('Policy Type', 'created'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'create') . ': ' . $th->getMessage())
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Update Status Of PolicyType
-     * @param Integer $status
+     *
      * @return List Page With Success
+     *
      * @author Darshan Baraiya
      */
-    public function updateStatus($policy_type_id, $status)
+    public function updateStatus(int $policy_type_id, int $status): RedirectResponse
     {
         // Validation
-        $validate = Validator::make([
-            'policy_type_id'   => $policy_type_id,
-            'status' => $status
+        $validator = Validator::make([
+            'policy_type_id' => $policy_type_id,
+            'status' => $status,
         ], [
-            'policy_type_id'   =>  'required|exists:policy_types,id',
-            'status' =>  'required|in:0,1',
+            'policy_type_id' => 'required|exists:policy_types,id',
+            'status' => 'required|in:0,1',
         ]);
 
         // If Validations Fails
-        if ($validate->fails()) {
-            return $this->redirectWithError($validate->errors()->first());
+        if ($validator->fails()) {
+            return $this->redirectWithError($validator->errors()->first());
         }
 
         try {
             $this->policyTypeService->updateStatus($policy_type_id, $status);
+
             return $this->redirectWithSuccess('policy_type.index', $this->getSuccessMessage('Policy Type Status', 'updated'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Policy Type Status', 'update') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Policy Type Status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit PolicyType
-     * @param Integer $policy_type
+     *
+     * @param  int  $policyType
      * @return Collection $policy_type
+     *
      * @author Darshan Baraiya
      */
-    public function edit(PolicyType $policy_type)
+    public function edit(PolicyType $policyType)
     {
         return view('policy_type.edit')->with([
-            'policy_type'  => $policy_type
+            'policy_type' => $policyType,
         ]);
     }
 
     /**
      * Update PolicyType
-     * @param Request $request, PolicyType $policy_type
+     *
+     * @param  Request  $request,  PolicyType $policy_type
      * @return View PolicyTypes
+     *
      * @author Darshan Baraiya
      */
-    public function update(Request $request, PolicyType $policy_type)
+    public function update(Request $request, PolicyType $policyType)
     {
         // Validations
         $validation_array = [
@@ -135,33 +149,37 @@ class PolicyTypeController extends AbstractBaseCrudController
         $validated = $request->validate($validation_array);
 
         try {
-            $this->policyTypeService->updatePolicyType($policy_type, $validated);
+            $this->policyTypeService->updatePolicyType($policyType, $validated);
+
             return $this->redirectWithSuccess('policy_type.index', $this->getSuccessMessage('Policy Type', 'updated'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'update') . ': ' . $th->getMessage())
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete PolicyType
-     * @param PolicyType $policy_type
+     *
      * @return Index PolicyTypes
+     *
      * @author Darshan Baraiya
      */
-    public function delete(PolicyType $policy_type)
+    public function delete(PolicyType $policyType): RedirectResponse
     {
         try {
-            $this->policyTypeService->deletePolicyType($policy_type);
+            $this->policyTypeService->deletePolicyType($policyType);
+
             return $this->redirectWithSuccess('policy_type.index', $this->getSuccessMessage('Policy Type', 'deleted'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'delete') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Policy Type', 'delete').': '.$throwable->getMessage());
         }
     }
 
     /**
-     * Import PolicyTypes 
-     * @param Null
+     * Import PolicyTypes
+     *
+     * @param null
      * @return View File
      */
     public function importPolicyTypes()
@@ -169,8 +187,33 @@ class PolicyTypeController extends AbstractBaseCrudController
         return view('policy_type.import');
     }
 
-    public function export()
+    protected function getExportRelations(): array
     {
-        return Excel::download(new PolicyTypesExport, 'policy_type.xlsx');
+        return [];
+    }
+
+    protected function getSearchableFields(): array
+    {
+        return ['name'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'policy_types',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => ['column' => 'created_at', 'direction' => 'desc'],
+            'headings' => ['ID', 'Name', 'Status', 'Created Date'],
+            'mapping' => fn ($model): array => [
+                $model->id,
+                $model->name,
+                $model->status ? 'Active' : 'Inactive',
+                $model->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
     }
 }

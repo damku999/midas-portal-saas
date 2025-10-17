@@ -12,12 +12,19 @@ class CustomerActionLogged
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Customer $customer;
+
     public string $action;
+
     public string $actionType;
+
     public array $actionData;
+
     public ?string $ipAddress;
+
     public ?string $userAgent;
+
     public ?int $performedBy;
+
     public string $context;
 
     public function __construct(
@@ -58,19 +65,21 @@ class CustomerActionLogged
     public function isSecurityRelevant(): bool
     {
         $securityActions = ['login', 'logout', 'password_change', 'email_change', 'failed_login'];
+
         return in_array($this->action, $securityActions);
     }
 
     public function isHighRisk(): bool
     {
         $highRiskActions = ['data_export', 'bulk_download', 'admin_access', 'suspicious_activity'];
+
         return in_array($this->action, $highRiskActions);
     }
 
     public function shouldAlertSecurity(): bool
     {
-        return $this->isHighRisk() || 
-               ($this->actionType === 'delete' && !empty($this->actionData)) ||
+        return $this->isHighRisk() ||
+               ($this->actionType === 'delete' && ! empty($this->actionData)) ||
                str_contains($this->userAgent ?: '', 'bot');
     }
 

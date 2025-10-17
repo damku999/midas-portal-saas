@@ -6,16 +6,16 @@ use App\Contracts\Repositories\PermissionRepositoryInterface;
 use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Services\PermissionServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class PermissionService extends BaseService implements PermissionServiceInterface
 {
     public function __construct(
-        private PermissionRepositoryInterface $permissionRepository,
-        private RoleRepositoryInterface $roleRepository
+        private readonly PermissionRepositoryInterface $permissionRepository,
+        private readonly RoleRepositoryInterface $roleRepository
     ) {}
 
     public function getPermissions(Request $request, int $perPage = 10): LengthAwarePaginator
@@ -25,21 +25,17 @@ class PermissionService extends BaseService implements PermissionServiceInterfac
 
     public function createPermission(array $data): Permission
     {
-        return $this->createInTransaction(function () use ($data) {
-            return $this->permissionRepository->create($data);
-        });
+        return $this->createInTransaction(fn (): Model => $this->permissionRepository->create($data));
     }
 
     public function updatePermission(Permission $permission, array $data): bool
     {
-        return $this->updateInTransaction(function () use ($permission, $data) {
-            return $this->permissionRepository->update($permission, $data);
-        });
+        return $this->updateInTransaction(fn (): Model => $this->permissionRepository->update($permission, $data));
     }
 
     public function deletePermission(Permission $permission): bool
     {
-        return $this->deleteInTransaction(function () use ($permission) {
+        return $this->deleteInTransaction(function () use ($permission): bool {
             // First remove the permission from all roles
             $permission->roles()->detach();
 
@@ -56,7 +52,7 @@ class PermissionService extends BaseService implements PermissionServiceInterfac
     public function getPermissionsByRole(int $roleId): Collection
     {
         $role = $this->roleRepository->findById($roleId);
-        if (!$role) {
+        if (! $role instanceof Model) {
             return collect();
         }
 
@@ -75,9 +71,9 @@ class PermissionService extends BaseService implements PermissionServiceInterfac
 
     public function syncRolePermissions(int $roleId, array $permissionIds): bool
     {
-        return $this->updateInTransaction(function () use ($roleId, $permissionIds) {
+        return $this->updateInTransaction(function () use ($roleId, $permissionIds): bool {
             $role = $this->roleRepository->findById($roleId);
-            if (!$role) {
+            if (! $role instanceof Model) {
                 return false;
             }
 

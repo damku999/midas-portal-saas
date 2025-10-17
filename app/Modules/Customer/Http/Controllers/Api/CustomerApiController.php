@@ -3,10 +3,10 @@
 namespace App\Modules\Customer\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Customer\Contracts\CustomerServiceInterface;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
+use App\Modules\Customer\Contracts\CustomerServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,7 +26,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customers = $this->customerService->getCustomers($request);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customers->items(),
@@ -44,13 +44,13 @@ class CustomerApiController extends Controller
                     'status' => $request->input('status'),
                     'from_date' => $request->input('from_date'),
                     'to_date' => $request->input('to_date'),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve customers',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -62,7 +62,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customer = $this->customerService->createCustomer($request);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Customer created successfully',
@@ -72,7 +72,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create customer',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -84,7 +84,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customer->load(['familyGroup', 'customerAuditLogs.user']);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customer,
@@ -93,7 +93,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve customer',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -105,7 +105,7 @@ class CustomerApiController extends Controller
     {
         try {
             $updated = $this->customerService->updateCustomer($request, $customer);
-            
+
             if ($updated) {
                 return response()->json([
                     'success' => true,
@@ -113,7 +113,7 @@ class CustomerApiController extends Controller
                     'data' => $customer->fresh()->load(['familyGroup']),
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update customer',
@@ -122,7 +122,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update customer',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -134,14 +134,14 @@ class CustomerApiController extends Controller
     {
         try {
             $deleted = $this->customerService->deleteCustomer($customer);
-            
+
             if ($deleted) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Customer deleted successfully',
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete customer',
@@ -150,7 +150,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete customer',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -169,7 +169,7 @@ class CustomerApiController extends Controller
                 $customer->id,
                 $request->input('status')
             );
-            
+
             if ($updated) {
                 return response()->json([
                     'success' => true,
@@ -177,10 +177,10 @@ class CustomerApiController extends Controller
                     'data' => [
                         'id' => $customer->id,
                         'status' => $request->input('status'),
-                    ]
+                    ],
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update customer status',
@@ -189,7 +189,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update customer status',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -201,7 +201,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customers = $this->customerService->searchCustomers($query);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customers,
@@ -212,7 +212,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to search customers',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -223,7 +223,7 @@ class CustomerApiController extends Controller
     public function getByType(string $type): JsonResponse
     {
         try {
-            if (!in_array($type, ['Retail', 'Corporate'])) {
+            if (! in_array($type, ['Retail', 'Corporate'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid customer type. Must be Retail or Corporate.',
@@ -231,7 +231,7 @@ class CustomerApiController extends Controller
             }
 
             $customers = $this->customerService->getCustomersByType($type);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customers,
@@ -242,7 +242,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve customers by type',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -254,7 +254,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customers = $this->customerService->getCustomersByFamily($familyGroupId);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customers,
@@ -265,7 +265,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve customers by family group',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -277,7 +277,7 @@ class CustomerApiController extends Controller
     {
         try {
             $statistics = $this->customerService->getCustomerStatistics();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $statistics,
@@ -287,7 +287,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve customer statistics',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -299,7 +299,7 @@ class CustomerApiController extends Controller
     {
         try {
             $sent = $this->customerService->sendOnboardingMessage($customer);
-            
+
             return response()->json([
                 'success' => $sent,
                 'message' => $sent ? 'Onboarding message sent successfully' : 'Failed to send onboarding message',
@@ -307,13 +307,13 @@ class CustomerApiController extends Controller
                     'customer_id' => $customer->id,
                     'customer_name' => $customer->name,
                     'mobile_number' => $customer->mobile_number,
-                ]
+                ],
             ], $sent ? Response::HTTP_OK : Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send onboarding message',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -325,7 +325,7 @@ class CustomerApiController extends Controller
     {
         try {
             $customers = $this->customerService->getActiveCustomersForSelection();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $customers->map(function ($customer) {
@@ -343,7 +343,7 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve active customers',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

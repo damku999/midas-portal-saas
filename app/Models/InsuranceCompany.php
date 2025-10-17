@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
-use App\Models\CustomerInsurance;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\TableRecordObserver;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Database\Factories\InsuranceCompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\Models\InsuranceCompany
@@ -21,50 +31,62 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $email
  * @property string|null $mobile_number
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerInsurance> $customerInsurances
+ * @property-read Collection<int, CustomerInsurance> $customerInsurances
  * @property-read int|null $customer_insurances_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany query()
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereMobileNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|InsuranceCompany withoutTrashed()
- * @mixin \Eloquent
+ *
+ * @method static InsuranceCompanyFactory factory($count = null, $state = [])
+ * @method static Builder|InsuranceCompany newModelQuery()
+ * @method static Builder|InsuranceCompany newQuery()
+ * @method static Builder|InsuranceCompany onlyTrashed()
+ * @method static Builder|InsuranceCompany permission($permissions)
+ * @method static Builder|InsuranceCompany query()
+ * @method static Builder|InsuranceCompany role($roles, $guard = null)
+ * @method static Builder|InsuranceCompany whereCreatedAt($value)
+ * @method static Builder|InsuranceCompany whereCreatedBy($value)
+ * @method static Builder|InsuranceCompany whereDeletedAt($value)
+ * @method static Builder|InsuranceCompany whereDeletedBy($value)
+ * @method static Builder|InsuranceCompany whereEmail($value)
+ * @method static Builder|InsuranceCompany whereId($value)
+ * @method static Builder|InsuranceCompany whereMobileNumber($value)
+ * @method static Builder|InsuranceCompany whereName($value)
+ * @method static Builder|InsuranceCompany whereStatus($value)
+ * @method static Builder|InsuranceCompany whereUpdatedAt($value)
+ * @method static Builder|InsuranceCompany whereUpdatedBy($value)
+ * @method static Builder|InsuranceCompany withTrashed()
+ * @method static Builder|InsuranceCompany withoutTrashed()
+ *
+ * @mixin Model
  */
 class InsuranceCompany extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes, TableRecordObserver, LogsActivity;
+    use HasApiTokens;
+    use HasFactory;
+    use HasRoles;
+    use LogsActivity;
+    use Notifiable;
+    use SoftDeletes;
+    use TableRecordObserver;
+
     protected static $logAttributes = ['*'];
+
     protected static $logOnlyDirty = true;
+
     /**
      * The attributes that are mass assignable.
      *

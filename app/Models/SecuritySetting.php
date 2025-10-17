@@ -2,11 +2,53 @@
 
 namespace App\Models;
 
+use Database\Factories\SecuritySettingFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * App\Models\SecuritySetting
+ *
+ * @property int $id
+ * @property string $settingable_type
+ * @property int $settingable_id
+ * @property bool $two_factor_enabled
+ * @property bool $device_tracking_enabled
+ * @property bool $login_notifications
+ * @property bool $security_alerts
+ * @property int $session_timeout
+ * @property int $device_trust_duration
+ * @property array|null $notification_preferences
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Model $settingable
+ *
+ * @method static SecuritySettingFactory factory($count = null, $state = [])
+ * @method static Builder|SecuritySetting newModelQuery()
+ * @method static Builder|SecuritySetting newQuery()
+ * @method static Builder|SecuritySetting query()
+ * @method static Builder|SecuritySetting whereCreatedAt($value)
+ * @method static Builder|SecuritySetting whereDeviceTrackingEnabled($value)
+ * @method static Builder|SecuritySetting whereDeviceTrustDuration($value)
+ * @method static Builder|SecuritySetting whereId($value)
+ * @method static Builder|SecuritySetting whereLoginNotifications($value)
+ * @method static Builder|SecuritySetting whereNotificationPreferences($value)
+ * @method static Builder|SecuritySetting whereSecurityAlerts($value)
+ * @method static Builder|SecuritySetting whereSessionTimeout($value)
+ * @method static Builder|SecuritySetting whereSettingableId($value)
+ * @method static Builder|SecuritySetting whereSettingableType($value)
+ * @method static Builder|SecuritySetting whereTwoFactorEnabled($value)
+ * @method static Builder|SecuritySetting whereUpdatedAt($value)
+ *
+ * @mixin Model
+ */
 class SecuritySetting extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'settingable_type',
         'settingable_id',

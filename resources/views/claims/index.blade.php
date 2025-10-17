@@ -185,9 +185,16 @@
                                     <td>
                                         @if ($claim->status)
                                             @can('claim-edit')
-                                                <a href="{{ route('claims.status', [$claim->id, 0]) }}"
+                                                <a href="#"
                                                    class="badge badge-success text-decoration-none"
-                                                   onclick="return confirm('Are you sure you want to deactivate this claim?')">
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#confirmationModal"
+                                                   data-title="Confirm Deactivation"
+                                                   data-message="Are you sure you want to deactivate claim <strong>#{{ $claim->claim_no }}</strong>?"
+                                                   data-confirm-text="Yes, Deactivate"
+                                                   data-confirm-class="btn-warning"
+                                                   data-action-url="{{ route('claims.status', [$claim->id, 0]) }}"
+                                                   data-method="GET">
                                                     Active
                                                 </a>
                                             @else
@@ -195,9 +202,16 @@
                                             @endcan
                                         @else
                                             @can('claim-edit')
-                                                <a href="{{ route('claims.status', [$claim->id, 1]) }}"
+                                                <a href="#"
                                                    class="badge badge-danger text-decoration-none"
-                                                   onclick="return confirm('Are you sure you want to activate this claim?')">
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#confirmationModal"
+                                                   data-title="Confirm Activation"
+                                                   data-message="Are you sure you want to activate claim <strong>#{{ $claim->claim_no }}</strong>?"
+                                                   data-confirm-text="Yes, Activate"
+                                                   data-confirm-class="btn-success"
+                                                   data-action-url="{{ route('claims.status', [$claim->id, 1]) }}"
+                                                   data-method="GET">
                                                     Inactive
                                                 </a>
                                             @else

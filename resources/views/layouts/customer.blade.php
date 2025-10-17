@@ -49,10 +49,10 @@
     @include('customer.partials.logout-modal')
 
     <!-- Modern Customer Portal JavaScript Bundle (includes Bootstrap 5, jQuery, etc.) -->
-    <script src="{{ url('js/customer.js') }}"></script>
+    <script src="{{ versioned_asset('js/customer.js') }}"></script>
 
     <!-- Toastr -->
-    <script src="{{ asset('admin/toastr/toastr.min.js') }}"></script>
+    <script src="{{ versioned_asset('admin/toastr/toastr.min.js') }}"></script>
 
     @yield('scripts')
     @stack('scripts')

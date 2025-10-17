@@ -13,7 +13,7 @@ class PerformanceLogFormatter extends JsonFormatter
         // Extract performance data from context
         $context = $record->context;
         $performanceData = $context['performance'] ?? [];
-        
+
         $formatted = [
             'timestamp' => $record->datetime->format('Y-m-d H:i:s.u'),
             'level' => $record->level->getName(),
@@ -24,10 +24,10 @@ class PerformanceLogFormatter extends JsonFormatter
             'session_id' => $context['session_id'] ?? null,
             'environment' => app()->environment(),
         ];
-        
-        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+
+        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n";
     }
-    
+
     /**
      * Customize the given logger instance.
      */

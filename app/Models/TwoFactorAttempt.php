@@ -2,11 +2,55 @@
 
 namespace App\Models;
 
+use Database\Factories\TwoFactorAttemptFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * App\Models\TwoFactorAttempt
+ *
+ * @property int $id
+ * @property string $authenticatable_type
+ * @property int $authenticatable_id
+ * @property string $code_type
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property bool $successful
+ * @property string|null $failure_reason
+ * @property Carbon $attempted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Model $authenticatable
+ *
+ * @method static Builder|TwoFactorAttempt codeType(string $codeType)
+ * @method static TwoFactorAttemptFactory factory($count = null, $state = [])
+ * @method static Builder|TwoFactorAttempt failed()
+ * @method static Builder|TwoFactorAttempt newModelQuery()
+ * @method static Builder|TwoFactorAttempt newQuery()
+ * @method static Builder|TwoFactorAttempt query()
+ * @method static Builder|TwoFactorAttempt recent(int $minutes = 15)
+ * @method static Builder|TwoFactorAttempt successful()
+ * @method static Builder|TwoFactorAttempt whereAttemptedAt($value)
+ * @method static Builder|TwoFactorAttempt whereAuthenticatableId($value)
+ * @method static Builder|TwoFactorAttempt whereAuthenticatableType($value)
+ * @method static Builder|TwoFactorAttempt whereCodeType($value)
+ * @method static Builder|TwoFactorAttempt whereCreatedAt($value)
+ * @method static Builder|TwoFactorAttempt whereFailureReason($value)
+ * @method static Builder|TwoFactorAttempt whereId($value)
+ * @method static Builder|TwoFactorAttempt whereIpAddress($value)
+ * @method static Builder|TwoFactorAttempt whereSuccessful($value)
+ * @method static Builder|TwoFactorAttempt whereUpdatedAt($value)
+ * @method static Builder|TwoFactorAttempt whereUserAgent($value)
+ *
+ * @mixin Model
+ */
 class TwoFactorAttempt extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'authenticatable_type',
         'authenticatable_id',
@@ -34,7 +78,7 @@ class TwoFactorAttempt extends Model
     /**
      * Scope for successful attempts
      */
-    public function scopeSuccessful($query)
+    protected function scopeSuccessful($query)
     {
         return $query->where('successful', true);
     }
@@ -42,7 +86,7 @@ class TwoFactorAttempt extends Model
     /**
      * Scope for failed attempts
      */
-    public function scopeFailed($query)
+    protected function scopeFailed($query)
     {
         return $query->where('successful', false);
     }
@@ -50,7 +94,7 @@ class TwoFactorAttempt extends Model
     /**
      * Scope for recent attempts
      */
-    public function scopeRecent($query, int $minutes = 15)
+    protected function scopeRecent($query, int $minutes = 15)
     {
         return $query->where('attempted_at', '>=', now()->subMinutes($minutes));
     }
@@ -58,7 +102,7 @@ class TwoFactorAttempt extends Model
     /**
      * Scope for specific code type
      */
-    public function scopeCodeType($query, string $codeType)
+    protected function scopeCodeType($query, string $codeType)
     {
         return $query->where('code_type', $codeType);
     }
@@ -76,7 +120,7 @@ class TwoFactorAttempt extends Model
      */
     public function getCodeTypeDisplay(): string
     {
-        return match($this->code_type) {
+        return match ($this->code_type) {
             'totp' => 'Authenticator App',
             'recovery' => 'Recovery Code',
             'sms' => 'SMS',

@@ -3,10 +3,10 @@
 namespace App\Repositories;
 
 use App\Contracts\Repositories\BaseRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 /**
  * Abstract Base Repository
@@ -34,20 +34,16 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Get paginated results with optional search and filtering
-     *
-     * @param Request $request
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getPaginated(Request $request, int $perPage = 10): LengthAwarePaginator
     {
         $query = $this->modelClass::select('*');
 
-        if (!empty($request->search)) {
+        if (! empty($request->search)) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 foreach ($this->searchableFields as $field) {
-                    $q->orWhere($field, 'LIKE', '%' . $search . '%');
+                    $q->orWhere($field, 'LIKE', '%'.$search.'%');
                 }
             });
         }
@@ -57,9 +53,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Create a new entity
-     *
-     * @param array $data
-     * @return Model
      */
     public function create(array $data): Model
     {
@@ -68,22 +61,16 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Update an existing entity
-     *
-     * @param Model $entity
-     * @param array $data
-     * @return Model
      */
     public function update(Model $entity, array $data): Model
     {
         $entity->update($data);
+
         return $entity->fresh();
     }
 
     /**
      * Delete an entity
-     *
-     * @param Model $entity
-     * @return bool
      */
     public function delete(Model $entity): bool
     {
@@ -92,9 +79,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Find entity by ID
-     *
-     * @param int $id
-     * @return Model|null
      */
     public function findById(int $id): ?Model
     {
@@ -103,10 +87,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Update entity status
-     *
-     * @param int $id
-     * @param int $status
-     * @return bool
      */
     public function updateStatus(int $id, int $status): bool
     {
@@ -115,8 +95,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Get all active entities
-     *
-     * @return Collection
      */
     public function getActive(): Collection
     {
@@ -125,8 +103,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Get all entities for export (no pagination)
-     *
-     * @return Collection
      */
     public function getAllForExport(): Collection
     {
@@ -135,8 +111,6 @@ abstract class AbstractBaseRepository implements BaseRepositoryInterface
 
     /**
      * Get total count of entities
-     *
-     * @return int
      */
     public function getCount(): int
     {

@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Customer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -50,7 +49,7 @@ class CustomerEmailVerificationMail extends Mailable
             [
                 'customer' => $this->customer,
                 'token' => $this->token,
-                'verificationUrl' => route('customer.verify-email', $this->token)
+                'verificationUrl' => route('customer.verify-email', $this->token),
             ] // with
         );
     }

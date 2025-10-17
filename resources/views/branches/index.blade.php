@@ -83,15 +83,31 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if ($branch->status == 1)
-                                                <a href="{{ route('branches.status', [$branch->id, 0]) }}"
-                                                   class="btn btn-sm btn-outline-warning" title="Deactivate"
-                                                   onclick="return confirm('Are you sure you want to deactivate this branch?')">
+                                                <a href="#"
+                                                   class="btn btn-sm btn-outline-warning"
+                                                   title="Deactivate"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#confirmationModal"
+                                                   data-title="Confirm Deactivation"
+                                                   data-message="Are you sure you want to deactivate <strong>{{ $branch->name }}</strong>?"
+                                                   data-confirm-text="Yes, Deactivate"
+                                                   data-confirm-class="btn-warning"
+                                                   data-action-url="{{ route('branches.status', [$branch->id, 0]) }}"
+                                                   data-method="GET">
                                                     <i class="fas fa-ban"></i>
                                                 </a>
                                             @else
-                                                <a href="{{ route('branches.status', [$branch->id, 1]) }}"
-                                                   class="btn btn-sm btn-outline-success" title="Activate"
-                                                   onclick="return confirm('Are you sure you want to activate this branch?')">
+                                                <a href="#"
+                                                   class="btn btn-sm btn-outline-success"
+                                                   title="Activate"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#confirmationModal"
+                                                   data-title="Confirm Activation"
+                                                   data-message="Are you sure you want to activate <strong>{{ $branch->name }}</strong>?"
+                                                   data-confirm-text="Yes, Activate"
+                                                   data-confirm-class="btn-success"
+                                                   data-action-url="{{ route('branches.status', [$branch->id, 1]) }}"
+                                                   data-method="GET">
                                                     <i class="fas fa-check"></i>
                                                 </a>
                                             @endif

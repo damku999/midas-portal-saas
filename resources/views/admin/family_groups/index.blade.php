@@ -117,7 +117,7 @@
                             </td>
                             <td>
                                 <small>{{ formatDateForUi($familyGroup->created_at) }}<br>
-                                {{ $familyGroup->created_at->format('h:i A') }}</small>
+                                {{ format_app_time($familyGroup->created_at) }}</small>
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap" style="gap: 6px; justify-content: flex-start; align-items: center;">

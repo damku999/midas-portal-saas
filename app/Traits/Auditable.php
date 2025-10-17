@@ -5,7 +5,6 @@ namespace App\Traits;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 
 trait Auditable
 {
@@ -29,7 +28,7 @@ trait Auditable
         return $this->morphMany(AuditLog::class, 'auditable');
     }
 
-    public function auditEvent(string $event, array $oldValues = null): AuditLog
+    public function auditEvent(string $event, ?array $oldValues = null): AuditLog
     {
         $actor = Auth::user();
         $request = request();
@@ -46,7 +45,7 @@ trait Auditable
             'metadata' => $this->getAuditMetadata(),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'session_id' => $request->session()?->getId(),
+            'session_id' => $request->hasSession() ? $request->session()->getId() : null,
             'request_id' => $request->header('X-Request-ID') ?? uniqid(),
             'risk_score' => $this->calculateRiskScore($event),
             'risk_level' => $this->determineRiskLevel($event),
@@ -200,7 +199,9 @@ trait Auditable
     {
         // Simple check - in production, you'd want to check against known good IPs
         $actor = Auth::user();
-        if (!$actor) return false;
+        if (! $actor) {
+            return false;
+        }
 
         $recentIPs = AuditLog::where('actor_type', get_class($actor))
             ->where('actor_id', $actor->getKey())
@@ -209,12 +210,13 @@ trait Auditable
             ->pluck('ip_address')
             ->toArray();
 
-        return !in_array($ip, $recentIPs) && count($recentIPs) > 0;
+        return ! in_array($ip, $recentIPs) && count($recentIPs) > 0;
     }
 
     protected function isUnusualTime(): bool
     {
         $hour = now()->hour;
+
         // Consider 11 PM to 6 AM as unusual hours
         return $hour >= 23 || $hour <= 6;
     }
@@ -236,7 +238,9 @@ trait Auditable
     protected function hasRapidSuccessionEvents(): bool
     {
         $actor = Auth::user();
-        if (!$actor) return false;
+        if (! $actor) {
+            return false;
+        }
 
         $recentCount = AuditLog::where('actor_type', get_class($actor))
             ->where('actor_id', $actor->getKey())
@@ -248,7 +252,7 @@ trait Auditable
 
     protected function parseUserAgent(?string $userAgent): array
     {
-        if (!$userAgent) {
+        if (! $userAgent) {
             return [];
         }
 

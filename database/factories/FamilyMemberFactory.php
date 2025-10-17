@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\FamilyMember;
 use App\Models\Customer;
 use App\Models\FamilyGroup;
+use App\Models\FamilyMember;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FamilyMemberFactory extends Factory
@@ -18,7 +18,7 @@ class FamilyMemberFactory extends Factory
             'family_group_id' => FamilyGroup::factory(),
             'relationship' => $this->faker->randomElement([
                 'Self', 'Spouse', 'Son', 'Daughter', 'Father', 'Mother',
-                'Brother', 'Sister', 'Father-in-law', 'Mother-in-law'
+                'Brother', 'Sister', 'Father-in-law', 'Mother-in-law',
             ]),
             'is_head' => false,
             'created_at' => now(),

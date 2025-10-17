@@ -6,13 +6,10 @@ use App\Contracts\Services\BrokerServiceInterface;
 use App\Http\Requests\StoreBrokerRequest;
 use App\Http\Requests\UpdateBrokerRequest;
 use App\Models\Broker;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\BrokersExport;
 
 /**
  * Broker Controller
@@ -22,6 +19,8 @@ use App\Exports\BrokersExport;
  */
 class BrokerController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(
         private BrokerServiceInterface $brokerService
     ) {
@@ -30,20 +29,25 @@ class BrokerController extends AbstractBaseCrudController
 
     /**
      * List Broker
+     *
      * @param Nill
-     * @return Array $broker
+     * @return array $broker
+     *
      * @author Darshan Baraiya
      */
     public function index(Request $request): View
     {
-        $brokers = $this->brokerService->getBrokers($request);
-        return view('brokers.index', ['brokers' => $brokers, 'request' => $request->all()]);
+        $lengthAwarePaginator = $this->brokerService->getBrokers($request);
+
+        return view('brokers.index', ['brokers' => $lengthAwarePaginator, 'request' => $request->all()]);
     }
 
     /**
      * Create Broker
+     *
      * @param Nill
-     * @return Array $broker
+     * @return array $broker
+     *
      * @author Darshan Baraiya
      */
     public function create(): View
@@ -53,45 +57,52 @@ class BrokerController extends AbstractBaseCrudController
 
     /**
      * Store Broker
-     * @param Request $request
+     *
+     * @param  Request  $storeBrokerRequest
      * @return View Brokers
+     *
      * @author Darshan Baraiya
      */
-    public function store(StoreBrokerRequest $request): RedirectResponse
+    public function store(StoreBrokerRequest $storeBrokerRequest): RedirectResponse
     {
         try {
-            $broker = $this->brokerService->createBroker($request->validated());
+            $broker = $this->brokerService->createBroker($storeBrokerRequest->validated());
+
             return $this->redirectWithSuccess('brokers.index',
                 $this->getSuccessMessage('Broker', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Broker', 'create') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Broker', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Update Status Of Broker
-     * @param Integer $status
+     *
      * @return List Page With Success
+     *
      * @author Darshan Baraiya
      */
     public function updateStatus(int $broker_id, int $status): RedirectResponse
     {
         try {
             $this->brokerService->updateStatus($broker_id, $status);
+
             return $this->redirectWithSuccess('brokers.index',
                 $this->getSuccessMessage('Broker status', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Broker status', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Broker status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit Broker
-     * @param Integer $broker
+     *
+     * @param  int  $broker
      * @return Collection $broker
+     *
      * @author Darshan Baraiya
      */
     public function edit(Broker $broker): View
@@ -103,44 +114,50 @@ class BrokerController extends AbstractBaseCrudController
 
     /**
      * Update Broker
-     * @param Request $request, Broker $broker
+     *
+     * @param  Request  $updateBrokerRequest  ,  Broker $broker
      * @return View Brokers
+     *
      * @author Darshan Baraiya
      */
-    public function update(UpdateBrokerRequest $request, Broker $broker): RedirectResponse
+    public function update(UpdateBrokerRequest $updateBrokerRequest, Broker $broker): RedirectResponse
     {
         try {
-            $this->brokerService->updateBroker($broker, $request->validated());
+            $this->brokerService->updateBroker($broker, $updateBrokerRequest->validated());
+
             return $this->redirectWithSuccess('brokers.index',
                 $this->getSuccessMessage('Broker', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Broker', 'update') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Broker', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete Broker
-     * @param Broker $broker
+     *
      * @return Index Brokers
+     *
      * @author Darshan Baraiya
      */
     public function delete(Broker $broker): RedirectResponse
     {
         try {
             $this->brokerService->deleteBroker($broker);
+
             return $this->redirectWithSuccess('brokers.index',
                 $this->getSuccessMessage('Broker', 'deleted'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Broker', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Broker', 'delete').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Import Brokers
-     * @param Null
+     *
+     * @param null
      * @return View File
      */
     public function importBrokers(): View
@@ -148,8 +165,35 @@ class BrokerController extends AbstractBaseCrudController
         return view('brokers.import');
     }
 
-    public function export()
+    protected function getExportRelations(): array
     {
-        return Excel::download(new BrokersExport, 'brokers.xlsx');
+        return [];
+    }
+
+    protected function getSearchableFields(): array
+    {
+        return ['name', 'email', 'mobile_number'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'brokers',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => ['column' => 'created_at', 'direction' => 'desc'],
+            'headings' => ['ID', 'Name', 'Email', 'Mobile Number', 'Status', 'Created Date'],
+            'mapping' => fn ($model): array => [
+                $model->id,
+                $model->name,
+                $model->email ?? 'N/A',
+                $model->mobile_number ?? 'N/A',
+                $model->status ? 'Active' : 'Inactive',
+                $model->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
     }
 }

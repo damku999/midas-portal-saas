@@ -15,7 +15,9 @@ class ClaimNotificationMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $claim;
+
     public $notificationType;
+
     public $additionalData;
 
     /**

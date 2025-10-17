@@ -5,13 +5,13 @@ namespace App\Exports;
 use App\Models\Claim;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ClaimsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class ClaimsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
     protected array $filters;
 
@@ -29,28 +29,28 @@ class ClaimsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
             'customer:id,name,email,mobile_number',
             'customerInsurance:id,policy_no,registration_no,insurance_company_id',
             'customerInsurance.insuranceCompany:id,name',
-            'currentStage:id,claim_id,stage_name'
+            'currentStage:id,claim_id,stage_name',
         ]);
 
         // Apply the same filters as in the service
-        if (!empty($this->filters['search'])) {
+        if (! empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function (Builder $q) use ($search) {
                 $q->where('claim_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function (Builder $customerQuery) use ($search) {
-                      $customerQuery->where('name', 'like', "%{$search}%")
-                                   ->orWhere('email', 'like', "%{$search}%")
-                                   ->orWhere('mobile_number', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('customerInsurance', function (Builder $insuranceQuery) use ($search) {
-                      $insuranceQuery->where('policy_no', 'like', "%{$search}%")
-                                    ->orWhere('registration_no', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function (Builder $customerQuery) use ($search) {
+                        $customerQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('mobile_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customerInsurance', function (Builder $insuranceQuery) use ($search) {
+                        $insuranceQuery->where('policy_no', 'like', "%{$search}%")
+                            ->orWhere('registration_no', 'like', "%{$search}%");
+                    });
             });
         }
 
-        if (!empty($this->filters['insurance_type'])) {
+        if (! empty($this->filters['insurance_type'])) {
             $query->where('insurance_type', $this->filters['insurance_type']);
         }
 
@@ -58,20 +58,17 @@ class ClaimsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
             $query->where('status', $this->filters['status']);
         }
 
-        if (!empty($this->filters['date_from'])) {
+        if (! empty($this->filters['date_from'])) {
             $query->whereDate('incident_date', '>=', formatDateForDatabase($this->filters['date_from']));
         }
 
-        if (!empty($this->filters['date_to'])) {
+        if (! empty($this->filters['date_to'])) {
             $query->whereDate('incident_date', '<=', formatDateForDatabase($this->filters['date_to']));
         }
 
         return $query->orderBy('created_at', 'desc');
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -95,8 +92,7 @@ class ClaimsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
     }
 
     /**
-     * @param Claim $claim
-     * @return array
+     * @param  Claim  $claim
      */
     public function map($claim): array
     {
@@ -121,7 +117,6 @@ class ClaimsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
     }
 
     /**
-     * @param Worksheet $sheet
      * @return array
      */
     public function styles(Worksheet $sheet)

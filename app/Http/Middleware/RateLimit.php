@@ -99,6 +99,7 @@ class RateLimit
     protected function getTimeUntilReset(string $key, int $decayMinutes): int
     {
         $ttl = Cache::getStore()->ttl($key);
+
         return $ttl > 0 ? $ttl : $decayMinutes * 60;
     }
 
@@ -139,7 +140,7 @@ class RateLimit
                 'remaining' => 0,
                 'reset_in_seconds' => $timeUntilReset,
                 'reset_at' => now()->addSeconds($timeUntilReset)->timestamp,
-            ]
+            ],
         ], 429, [
             'Retry-After' => $timeUntilReset,
             'X-RateLimit-Limit' => $maxAttempts,

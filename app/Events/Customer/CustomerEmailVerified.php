@@ -12,7 +12,9 @@ class CustomerEmailVerified
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Customer $customer;
+
     public \DateTime $verifiedAt;
+
     public string $verificationMethod;
 
     public function __construct(Customer $customer, string $verificationMethod = 'email_link')

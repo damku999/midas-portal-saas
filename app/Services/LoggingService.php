@@ -3,15 +3,15 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
 class LoggingService
 {
     private array $contextData = [];
-    
+
     public function __construct()
     {
         $this->contextData = [
@@ -21,7 +21,7 @@ class LoggingService
             'server' => request()?->server('SERVER_NAME', 'unknown'),
         ];
     }
-    
+
     /**
      * Log structured application events
      */
@@ -32,17 +32,17 @@ class LoggingService
             'data' => $data,
             'trace_id' => $this->generateTraceId(),
         ]);
-        
-        Log::log($level, "Event: {$event}", $logData);
+
+        Log::log($level, 'Event: '.$event, $logData);
     }
-    
+
     /**
      * Log user activity with comprehensive context
      */
     public function logUserActivity(string $action, ?int $userId = null, array $metadata = []): void
     {
-        $userId = $userId ?? auth()->id();
-        
+        $userId ??= auth()->id();
+
         $logData = array_merge($this->contextData, [
             'activity' => $action,
             'user_id' => $userId,
@@ -53,14 +53,14 @@ class LoggingService
             'method' => request()?->method(),
             'metadata' => $metadata,
         ]);
-        
-        Log::info("User Activity: {$action}", $logData);
+
+        Log::info('User Activity: '.$action, $logData);
     }
-    
+
     /**
      * Log business events with customer context
      */
-    public function logBusinessEvent(string $event, array $businessData = [], string $entityType = null, ?int $entityId = null): void
+    public function logBusinessEvent(string $event, array $businessData = [], ?string $entityType = null, ?int $entityId = null): void
     {
         $logData = array_merge($this->contextData, [
             'business_event' => $event,
@@ -70,10 +70,10 @@ class LoggingService
             'user_id' => auth()->id(),
             'correlation_id' => $this->generateCorrelationId(),
         ]);
-        
-        Log::info("Business Event: {$event}", $logData);
+
+        Log::info('Business Event: '.$event, $logData);
     }
-    
+
     /**
      * Log performance metrics with detailed context
      */
@@ -86,11 +86,11 @@ class LoggingService
             'peak_memory_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
             'metadata' => $metadata,
         ]);
-        
+
         $level = $duration > 1000 ? 'warning' : 'info';
-        Log::log($level, "Performance: {$operation}", $logData);
+        Log::log($level, 'Performance: '.$operation, $logData);
     }
-    
+
     /**
      * Log database query performance
      */
@@ -105,12 +105,12 @@ class LoggingService
                 'bindings' => $bindings,
                 'connection' => DB::getDefaultConnection(),
             ]);
-            
+
             $level = $duration > 1000 ? 'warning' : ($duration > 500 ? 'notice' : 'debug');
             Log::log($level, 'Database Query', $logData);
         }
     }
-    
+
     /**
      * Log security events
      */
@@ -126,31 +126,31 @@ class LoggingService
             'headers' => request()?->headers->all(),
             'security_data' => $securityData,
         ]);
-        
-        Log::log($severity, "Security Event: {$event}", $logData);
+
+        Log::log($severity, 'Security Event: '.$event, $logData);
     }
-    
+
     /**
      * Log errors with comprehensive context
      */
-    public function logError(Throwable $exception, array $context = []): void
+    public function logError(Throwable $throwable, array $context = []): void
     {
         $logData = array_merge($this->contextData, [
-            'exception' => get_class($exception),
-            'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
+            'exception' => $throwable::class,
+            'message' => $throwable->getMessage(),
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'trace' => $throwable->getTraceAsString(),
             'user_id' => auth()->id(),
             'url' => request()?->fullUrl(),
             'method' => request()?->method(),
             'input' => request()?->except(['password', 'password_confirmation', '_token']),
             'context' => $context,
         ]);
-        
-        Log::error("Exception: {$exception->getMessage()}", $logData);
+
+        Log::error('Exception: '.$throwable->getMessage(), $logData);
     }
-    
+
     /**
      * Log API requests with detailed information
      */
@@ -158,14 +158,14 @@ class LoggingService
     {
         $responseData = null;
         $statusCode = null;
-        
+
         if ($response) {
             $statusCode = $response->getStatusCode();
             if ($response->getStatusCode() >= 400) {
                 $responseData = $response->getContent();
             }
         }
-        
+
         $logData = array_merge($this->contextData, [
             'api_request' => true,
             'method' => $request->method(),
@@ -180,15 +180,15 @@ class LoggingService
             'status_code' => $statusCode,
             'response_data' => $responseData,
         ]);
-        
+
         $level = $statusCode >= 500 ? 'error' : ($statusCode >= 400 ? 'warning' : 'info');
         Log::log($level, 'API Request', $logData);
     }
-    
+
     /**
      * Log cache operations
      */
-    public function logCacheOperation(string $operation, string $key, $value = null, bool $hit = null): void
+    public function logCacheOperation(string $operation, string $key, $value = null, ?bool $hit = null): void
     {
         $logData = array_merge($this->contextData, [
             'cache_operation' => $operation,
@@ -196,10 +196,10 @@ class LoggingService
             'cache_hit' => $hit,
             'value_size' => $value ? strlen(serialize($value)) : null,
         ]);
-        
-        Log::debug("Cache: {$operation}", $logData);
+
+        Log::debug('Cache: '.$operation, $logData);
     }
-    
+
     /**
      * Generate unique trace ID for request tracking
      */
@@ -207,34 +207,36 @@ class LoggingService
     {
         return Str::uuid()->toString();
     }
-    
+
     /**
      * Generate correlation ID for business process tracking
      */
     private function generateCorrelationId(): string
     {
-        return 'corr_' . Str::random(16);
+        return 'corr_'.Str::random(16);
     }
-    
+
     /**
      * Add context data to all subsequent logs
      */
     public function addContext(string $key, $value): self
     {
         $this->contextData[$key] = $value;
+
         return $this;
     }
-    
+
     /**
      * Create a child logger with additional context
      */
     public function withContext(array $context): self
     {
-        $child = new self();
+        $child = new self;
         $child->contextData = array_merge($this->contextData, $context);
+
         return $child;
     }
-    
+
     /**
      * Log system health metrics
      */
@@ -245,7 +247,7 @@ class LoggingService
             'metrics' => $healthData,
             'timestamp' => now()->toISOString(),
         ]);
-        
+
         Log::info('System Health Check', $logData);
     }
 }

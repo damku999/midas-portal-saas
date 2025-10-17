@@ -26,7 +26,7 @@ class CreateQuotationRequest extends FormRequest
             'vehicle_number' => 'nullable|string|max:20',
             'make_model_variant' => 'required|string|max:255',
             'rto_location' => 'required|string|max:255',
-            'manufacturing_year' => 'required|integer|min:1980|max:' . (date('Y') + 1),
+            'manufacturing_year' => 'required|integer|min:1980|max:'.(date('Y') + 1),
             'cubic_capacity_kw' => 'required|integer|min:1',
             'seating_capacity' => 'required|integer|min:1|max:50',
             'fuel_type' => 'required|in:Petrol,Diesel,CNG,Electric,Hybrid',
@@ -133,8 +133,8 @@ class CreateQuotationRequest extends FormRequest
 
                 // Check if addon is selected (either has selected flag = 1 OR has value OR has note)
                 $isSelected = ($companyData[$selectedKey] ?? '0') === '1'
-                    || !empty($companyData[$addonKey])
-                    || !empty($companyData[$noteKey]);
+                    || ! empty($companyData[$addonKey])
+                    || ! empty($companyData[$noteKey]);
 
                 if ($isSelected) {
                     $addonBreakdown[$addonCover->name] = [

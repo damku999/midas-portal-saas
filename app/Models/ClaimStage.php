@@ -3,13 +3,21 @@
 namespace App\Models;
 
 use App\Traits\TableRecordObserver;
+use Database\Factories\ClaimStageFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -21,19 +29,59 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $description
  * @property bool $is_current
  * @property bool $is_completed
- * @property \Illuminate\Support\Carbon|null $stage_date
+ * @property Carbon|null $stage_date
  * @property string|null $notes
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read Claim $claim
+ * @property-read Collection<int, Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read Claim|null $claim
+ * @property-read string|null $stage_date_formatted
+ * @property-read Collection<int, Permission> $permissions
+ * @property-read int|null $permissions_count
+ * @property-read Collection<int, Role> $roles
+ * @property-read int|null $roles_count
+ * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
+ *
+ * @method static ClaimStageFactory factory($count = null, $state = [])
+ * @method static Builder|ClaimStage newModelQuery()
+ * @method static Builder|ClaimStage newQuery()
+ * @method static Builder|ClaimStage onlyTrashed()
+ * @method static Builder|ClaimStage permission($permissions)
+ * @method static Builder|ClaimStage query()
+ * @method static Builder|ClaimStage role($roles, $guard = null)
+ * @method static Builder|ClaimStage whereClaimId($value)
+ * @method static Builder|ClaimStage whereCreatedAt($value)
+ * @method static Builder|ClaimStage whereCreatedBy($value)
+ * @method static Builder|ClaimStage whereDeletedAt($value)
+ * @method static Builder|ClaimStage whereDeletedBy($value)
+ * @method static Builder|ClaimStage whereDescription($value)
+ * @method static Builder|ClaimStage whereId($value)
+ * @method static Builder|ClaimStage whereIsCompleted($value)
+ * @method static Builder|ClaimStage whereIsCurrent($value)
+ * @method static Builder|ClaimStage whereNotes($value)
+ * @method static Builder|ClaimStage whereStageDate($value)
+ * @method static Builder|ClaimStage whereStageName($value)
+ * @method static Builder|ClaimStage whereUpdatedAt($value)
+ * @method static Builder|ClaimStage whereUpdatedBy($value)
+ * @method static Builder|ClaimStage withTrashed()
+ * @method static Builder|ClaimStage withoutTrashed()
+ *
+ * @mixin Model
  */
 class ClaimStage extends Model
 {
-    use HasApiTokens, HasFactory, HasRoles, SoftDeletes, TableRecordObserver, LogsActivity;
+    use HasApiTokens;
+    use HasFactory;
+    use HasRoles;
+    use LogsActivity;
+    use SoftDeletes;
+    use TableRecordObserver;
 
     protected $fillable = [
         'claim_id',
@@ -55,6 +103,7 @@ class ClaimStage extends Model
     ];
 
     protected static $logAttributes = ['*'];
+
     protected static $logOnlyDirty = true;
 
     /**
@@ -71,7 +120,7 @@ class ClaimStage extends Model
     public function setAsCurrent(): void
     {
         // Mark all other stages for this claim as not current
-        self::where('claim_id', $this->claim_id)
+        self::query()->where('claim_id', $this->claim_id)
             ->where('id', '!=', $this->id)
             ->update(['is_current' => false]);
 
@@ -90,7 +139,7 @@ class ClaimStage extends Model
     /**
      * Get formatted stage date.
      */
-    public function getStageDateFormattedAttribute(): ?string
+    protected function getStageDateFormattedAttribute(): ?string
     {
         return $this->stage_date ? formatDateForUi($this->stage_date) : null;
     }
@@ -98,7 +147,7 @@ class ClaimStage extends Model
     /**
      * Set stage date from UI format.
      */
-    public function setStageDateAttribute($value): void
+    protected function setStageDateAttribute($value): void
     {
         if ($value) {
             $this->attributes['stage_date'] = formatDateForDatabase($value);

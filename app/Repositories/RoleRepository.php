@@ -18,18 +18,14 @@ class RoleRepository extends AbstractBaseRepository implements RoleRepositoryInt
 {
     /**
      * The model class name
-     *
-     * @var string
      */
     protected string $modelClass = Role::class;
 
     /**
      * Searchable fields for the getPaginated method
-     *
-     * @var array
      */
     protected array $searchableFields = [
-        'name', 'guard_name'
+        'name', 'guard_name',
     ];
 
     /**
@@ -44,7 +40,7 @@ class RoleRepository extends AbstractBaseRepository implements RoleRepositoryInt
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('guard_name', 'like', "%{$search}%");
+                    ->orWhere('guard_name', 'like', "%{$search}%");
             });
         }
 
@@ -124,7 +120,7 @@ class RoleRepository extends AbstractBaseRepository implements RoleRepositoryInt
     {
         return Role::whereHas('users', function ($query) use ($modelType, $modelId) {
             $query->where('model_type', $modelType)
-                  ->where('model_id', $modelId);
+                ->where('model_id', $modelId);
         })->get();
     }
 }

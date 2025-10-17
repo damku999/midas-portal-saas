@@ -9,8 +9,6 @@ interface ReferenceUserServiceInterface
     /**
      * Create a new reference user
      *
-     * @param array $data
-     * @return ReferenceUser
      * @throws \Throwable
      */
     public function createReferenceUser(array $data): ReferenceUser;
@@ -18,9 +16,6 @@ interface ReferenceUserServiceInterface
     /**
      * Update an existing reference user
      *
-     * @param ReferenceUser $referenceUser
-     * @param array $data
-     * @return bool
      * @throws \Throwable
      */
     public function updateReferenceUser(ReferenceUser $referenceUser, array $data): bool;
@@ -28,8 +23,6 @@ interface ReferenceUserServiceInterface
     /**
      * Delete a reference user
      *
-     * @param ReferenceUser $referenceUser
-     * @return bool
      * @throws \Throwable
      */
     public function deleteReferenceUser(ReferenceUser $referenceUser): bool;
@@ -37,9 +30,6 @@ interface ReferenceUserServiceInterface
     /**
      * Update reference user status
      *
-     * @param int $referenceUserId
-     * @param int $status
-     * @return bool
      * @throws \Throwable
      */
     public function updateStatus(int $referenceUserId, int $status): bool;

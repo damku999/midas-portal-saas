@@ -66,7 +66,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 30,
         ],
-        
+
         // Structured logging for monitoring and analytics
         'structured' => [
             'driver' => 'daily',
@@ -75,7 +75,7 @@ return [
             'days' => 30,
             // 'tap' => [\App\Logging\StructuredLogFormatter::class], // Temporarily disabled
         ],
-        
+
         // Performance monitoring logs
         'performance' => [
             'driver' => 'daily',
@@ -84,7 +84,7 @@ return [
             'days' => 14,
             'tap' => [\App\Logging\PerformanceLogFormatter::class],
         ],
-        
+
         // Error tracking logs
         'errors' => [
             'driver' => 'daily',
@@ -93,7 +93,7 @@ return [
             'days' => 60,
             'tap' => [\App\Logging\ErrorLogFormatter::class],
         ],
-        
+
         // Security events logs
         'security' => [
             'driver' => 'daily',
@@ -102,7 +102,7 @@ return [
             'days' => 90,
             'tap' => [\App\Logging\SecurityLogFormatter::class],
         ],
-        
+
         // Business events logs
         'business' => [
             'driver' => 'daily',

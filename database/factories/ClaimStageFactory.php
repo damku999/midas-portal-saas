@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\ClaimStage;
 use App\Models\Claim;
+use App\Models\ClaimStage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClaimStageFactory extends Factory
@@ -22,7 +22,7 @@ class ClaimStageFactory extends Factory
                 'Processing',
                 'Approved',
                 'Payment Initiated',
-                'Settled'
+                'Settled',
             ]),
             'description' => $this->faker->sentence(),
             'notes' => $this->faker->optional()->paragraph(),

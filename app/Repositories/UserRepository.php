@@ -14,6 +14,7 @@ use App\Models\User;
 class UserRepository extends AbstractBaseRepository implements UserRepositoryInterface
 {
     protected string $modelClass = User::class;
+
     protected array $searchableFields = ['name', 'email'];
 
     /**

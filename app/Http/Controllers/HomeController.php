@@ -6,6 +6,8 @@ use App\Models\Customer;
 use App\Models\CustomerInsurance;
 use App\Models\User;
 use App\Rules\MatchOldPassword;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -25,30 +27,20 @@ class HomeController extends AbstractBaseCrudController
     }
 
     /**
-     * Financial calculation columns
-     */
-    private const FINANCIAL_COLUMNS = [
-        'final_premium_with_gst',
-        'my_commission_amount',
-        'transfer_commission_amount',
-        'actual_earnings',
-    ];
-
-    /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return Renderable
      */
     public function index(Request $request)
     {
-        if (!Auth::user()->hasRole('Admin')) {
+        if (! Auth::user()->hasRole('Admin')) {
             return redirect()->route('customers.index');
         }
+
         $dashboardData = $this->prepareDashboardData($request);
 
         return view('home', $dashboardData);
     }
-
 
     /**
      * Prepare all dashboard data
@@ -75,11 +67,11 @@ class HomeController extends AbstractBaseCrudController
      */
     private function getCustomerStatistics(): array
     {
-        $totalCustomers = Customer::count();
-        $activeCustomers = Customer::where('status', 1)->count();
+        $totalCustomers = Customer::query()->count();
+        $activeCustomers = Customer::query()->where('status', 1)->count();
 
-        $totalInsurances = CustomerInsurance::count();
-        $activeInsurances = CustomerInsurance::where('status', 1)->count();
+        $totalInsurances = CustomerInsurance::query()->count();
+        $activeInsurances = CustomerInsurance::query()->where('status', 1)->count();
 
         return [
             'total_customer' => $totalCustomers,
@@ -101,10 +93,10 @@ class HomeController extends AbstractBaseCrudController
 
         return [
             // Lifetime totals
-            'life_time_final_premium_with_gst' => CustomerInsurance::sum('final_premium_with_gst'),
-            'life_time_my_commission_amount' => CustomerInsurance::sum('my_commission_amount'),
-            'life_time_transfer_commission_amount' => CustomerInsurance::sum('transfer_commission_amount'),
-            'life_time_actual_earnings' => CustomerInsurance::sum('actual_earnings'),
+            'life_time_final_premium_with_gst' => CustomerInsurance::query()->sum('final_premium_with_gst'),
+            'life_time_my_commission_amount' => CustomerInsurance::query()->sum('my_commission_amount'),
+            'life_time_transfer_commission_amount' => CustomerInsurance::query()->sum('transfer_commission_amount'),
+            'life_time_actual_earnings' => CustomerInsurance::query()->sum('actual_earnings'),
 
             // Current month totals
             ...$this->getMonthlyFinancialData($currentMonth, 'current_month'),
@@ -125,7 +117,7 @@ class HomeController extends AbstractBaseCrudController
         $startDate = $month->format('Y-m-d');
         $endDate = $month->copy()->endOfMonth()->format('Y-m-d');
 
-        $data = CustomerInsurance::whereBetween('issue_date', [$startDate, $endDate])
+        $data = CustomerInsurance::query()->whereBetween('issue_date', [$startDate, $endDate])
             ->selectRaw('
                 COALESCE(SUM(final_premium_with_gst), 0) as final_premium_with_gst,
                 COALESCE(SUM(my_commission_amount), 0) as my_commission_amount,
@@ -135,10 +127,10 @@ class HomeController extends AbstractBaseCrudController
             ->first();
 
         return [
-            "{$prefix}_final_premium_with_gst" => $data->final_premium_with_gst,
-            "{$prefix}_my_commission_amount" => $data->my_commission_amount,
-            "{$prefix}_transfer_commission_amount" => $data->transfer_commission_amount,
-            "{$prefix}_actual_earnings" => $data->actual_earnings,
+            $prefix.'_final_premium_with_gst' => $data->final_premium_with_gst,
+            $prefix.'_my_commission_amount' => $data->my_commission_amount,
+            $prefix.'_transfer_commission_amount' => $data->transfer_commission_amount,
+            $prefix.'_actual_earnings' => $data->actual_earnings,
         ];
     }
 
@@ -155,9 +147,9 @@ class HomeController extends AbstractBaseCrudController
         ];
 
         return [
-            'total_renewing_this_month' => CustomerInsurance::where($baseConditions)->count(),
-            'already_renewed_this_month' => CustomerInsurance::where($baseConditions)->where('is_renewed', 1)->count(),
-            'pending_renewal_this_month' => CustomerInsurance::where($baseConditions)->where('is_renewed', 0)->count(),
+            'total_renewing_this_month' => CustomerInsurance::query()->where($baseConditions)->count(),
+            'already_renewed_this_month' => CustomerInsurance::query()->where($baseConditions)->where('is_renewed', 1)->count(),
+            'pending_renewal_this_month' => CustomerInsurance::query()->where($baseConditions)->where('is_renewed', 0)->count(),
         ];
     }
 
@@ -166,7 +158,7 @@ class HomeController extends AbstractBaseCrudController
      */
     private function getExpiringInsurancesCount(): int
     {
-        return CustomerInsurance::where('status', 0)
+        return CustomerInsurance::query()->where('status', 0)
             ->whereMonth('expired_date', Carbon::now()->month)
             ->whereYear('expired_date', Carbon::now()->year)
             ->count();
@@ -179,7 +171,7 @@ class HomeController extends AbstractBaseCrudController
     {
         $financialYearDates = $this->getFinancialYearDates();
 
-        $financialYearData = CustomerInsurance::whereBetween('issue_date', [
+        $financialYearData = CustomerInsurance::query()->whereBetween('issue_date', [
             $financialYearDates['start']->format('Y-m-d'),
             $financialYearDates['end']->format('Y-m-d'),
         ])->get();
@@ -192,9 +184,9 @@ class HomeController extends AbstractBaseCrudController
     /**
      * Get financial year start and end dates
      */
-    private function getFinancialYearDates(Carbon $date = null): array
+    private function getFinancialYearDates(?Carbon $date = null): array
     {
-        $date = $date ?? Carbon::now();
+        $date ??= Carbon::now();
         $currentMonth = $date->month;
         $currentYear = $date->year;
 
@@ -216,9 +208,7 @@ class HomeController extends AbstractBaseCrudController
      */
     private function groupDataByMonth($data): array
     {
-        $groupedData = $data->groupBy(function ($item) {
-            return Carbon::parse($item->issue_date)->format('Y-m');
-        });
+        $groupedData = $data->groupBy(fn ($item) => Carbon::parse($item->issue_date)->format('Y-m'));
 
         $result = [];
         foreach ($groupedData as $month => $monthData) {
@@ -233,6 +223,7 @@ class HomeController extends AbstractBaseCrudController
         }
 
         ksort($result);
+
         return $result;
     }
 
@@ -243,7 +234,6 @@ class HomeController extends AbstractBaseCrudController
     {
         $date = $request->date ? Carbon::parse($request->date) : Carbon::now();
         $currentYear = $date->year;
-        $previousYear = $currentYear - 1;
 
         $financialYearDates = $this->getFinancialYearDates($date);
         $previousFinancialYearDates = $this->getFinancialYearDates($date->copy()->subYear());
@@ -272,7 +262,7 @@ class HomeController extends AbstractBaseCrudController
             'yesterday_data' => $this->getFinancialDataForDate($date->copy()->subDay(), $sumColumns),
             'day_before_yesterday_data' => $this->getFinancialDataForDate($date->copy()->subDays(2), $sumColumns),
             'quarters_data' => $this->getQuarterlyData($financialYearDates['start'], $sumColumns),
-            'quarter_date' => $this->getQuarterDates($financialYearDates['start']),]
+            'quarter_date' => $this->getQuarterDates($financialYearDates['start']), ],
         ];
     }
 
@@ -294,7 +284,7 @@ class HomeController extends AbstractBaseCrudController
      */
     private function getFinancialDataForPeriod(Carbon $startDate, Carbon $endDate, array $columns): array
     {
-        return CustomerInsurance::select($columns)
+        return CustomerInsurance::query()->select($columns)
             ->whereBetween('issue_date', [
                 $startDate->format('Y-m-d'),
                 $endDate->format('Y-m-d'),
@@ -308,7 +298,7 @@ class HomeController extends AbstractBaseCrudController
      */
     private function getFinancialDataForDate(Carbon $date, array $columns): array
     {
-        return CustomerInsurance::select($columns)
+        return CustomerInsurance::query()->select($columns)
             ->where('issue_date', $date->format('Y-m-d'))
             ->first()
             ->toArray();
@@ -362,7 +352,7 @@ class HomeController extends AbstractBaseCrudController
     /**
      * Update user profile information
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request): RedirectResponse
     {
         $request->validate([
             'first_name' => 'required|string|max:255',
@@ -378,10 +368,10 @@ class HomeController extends AbstractBaseCrudController
             DB::commit();
 
             return $this->redirectWithSuccess(null, 'Profile updated successfully.');
-        } catch (\Throwable $exception) {
+        } catch (\Throwable $throwable) {
             DB::rollBack();
 
-            return $this->redirectWithError('Failed to update profile: ' . $exception->getMessage());
+            return $this->redirectWithError('Failed to update profile: '.$throwable->getMessage());
         }
     }
 
@@ -400,10 +390,10 @@ class HomeController extends AbstractBaseCrudController
     /**
      * Change user password
      */
-    public function changePassword(Request $request)
+    public function changePassword(Request $request): RedirectResponse
     {
         $request->validate([
-            'current_password' => ['required', new MatchOldPassword()],
+            'current_password' => ['required', new MatchOldPassword],
             'new_password' => ['required', 'min:8', 'confirmed'],
             'new_password_confirmation' => ['required'],
         ]);
@@ -416,10 +406,10 @@ class HomeController extends AbstractBaseCrudController
             DB::commit();
 
             return $this->redirectWithSuccess(null, 'Password changed successfully.');
-        } catch (\Throwable $exception) {
+        } catch (\Throwable $throwable) {
             DB::rollBack();
 
-            return $this->redirectWithError('Failed to change password: ' . $exception->getMessage());
+            return $this->redirectWithError('Failed to change password: '.$throwable->getMessage());
         }
     }
 
@@ -428,8 +418,8 @@ class HomeController extends AbstractBaseCrudController
      */
     private function updateUserPassword(string $newPassword): void
     {
-        User::find(auth()->id())->update([
-            'password' => Hash::make($newPassword)
+        User::query()->find(auth()->id())->update([
+            'password' => Hash::make($newPassword),
         ]);
     }
 }

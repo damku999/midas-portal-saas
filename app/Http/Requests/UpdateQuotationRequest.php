@@ -27,13 +27,13 @@ class UpdateQuotationRequest extends FormRequest
             'vehicle_number' => 'nullable|string|max:20',
             'make_model_variant' => 'required|string|max:255',
             'rto_location' => 'required|string|max:255',
-            'manufacturing_year' => 'required|integer|min:1980|max:' . (date('Y') + 1),
+            'manufacturing_year' => 'required|integer|min:1980|max:'.(date('Y') + 1),
             'cubic_capacity_kw' => 'required|integer|min:1',
             'seating_capacity' => 'required|integer|min:1|max:50',
             'fuel_type' => 'required|in:Petrol,Diesel,CNG,Electric,Hybrid',
             'ncb_percentage' => 'nullable|numeric|min:0|max:50',
             'whatsapp_number' => 'nullable|string|regex:/^[6-9]\d{9}$/',
-            
+
             // Quotation-level policy and IDV fields (optional, as they can be company-specific too)
             'policy_type' => 'nullable|in:Comprehensive,Own Damage,Third Party',
             'policy_tenure_years' => 'nullable|integer|in:1,2,3',
@@ -43,10 +43,10 @@ class UpdateQuotationRequest extends FormRequest
             'idv_electrical_accessories' => 'nullable|numeric|min:0',
             'idv_non_electrical_accessories' => 'nullable|numeric|min:0',
             'total_idv' => 'nullable|numeric|min:0',
-            
+
             // Additional fields
             'notes' => 'nullable|string|max:2000',
-            
+
             // Company quotes validation
             'companies' => 'nullable|array',
             'companies.*.id' => 'nullable|integer|exists:quotation_companies,id',
@@ -72,7 +72,7 @@ class UpdateQuotationRequest extends FormRequest
             'companies.*.gst_amount' => 'nullable|numeric|min:0',
             'companies.*.final_premium' => 'nullable|numeric|min:0',
             'companies.*.is_recommended' => 'nullable|boolean',
-            
+
         ];
 
         // Add dynamic addon field validations
@@ -109,7 +109,7 @@ class UpdateQuotationRequest extends FormRequest
             'ncb_percentage.max' => 'NCB percentage cannot exceed 50%.',
             'whatsapp_number.regex' => 'Please enter a valid 10-digit mobile number.',
             'notes.max' => 'Notes cannot exceed 2000 characters.',
-            
+
             // Company validation messages
             'companies.*.insurance_company_id.required_with' => 'Please select an insurance company.',
             'companies.*.insurance_company_id.exists' => 'Selected insurance company does not exist.',
@@ -150,8 +150,8 @@ class UpdateQuotationRequest extends FormRequest
 
                 // Check if addon is selected (either has selected flag = 1 OR has value OR has note)
                 $isSelected = ($companyData[$selectedKey] ?? '0') === '1'
-                    || !empty($companyData[$addonKey])
-                    || !empty($companyData[$noteKey]);
+                    || ! empty($companyData[$addonKey])
+                    || ! empty($companyData[$noteKey]);
 
                 if ($isSelected) {
                     $addonBreakdown[$addonCover->name] = [

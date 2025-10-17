@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Services\AddonCoverServiceInterface;
 use App\Models\AddonCover;
+use App\Traits\ExportableTrait;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\Validator;
  */
 class AddonCoverController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(
         private AddonCoverServiceInterface $addonCoverService
     ) {
@@ -22,21 +26,26 @@ class AddonCoverController extends AbstractBaseCrudController
     }
 
     /**
-     * List AddonCover 
+     * List AddonCover
+     *
      * @param Nill
-     * @return Array $addon_covers
+     * @return array $addon_covers
+     *
      * @author Darshan Baraiya
      */
     public function index(Request $request)
     {
-        $addon_covers = $this->addonCoverService->getAddonCovers($request);
-        return view('addon_covers.index', ['addon_covers' => $addon_covers]);
+        $lengthAwarePaginator = $this->addonCoverService->getAddonCovers($request);
+
+        return view('addon_covers.index', ['addon_covers' => $lengthAwarePaginator]);
     }
 
     /**
-     * Create AddonCover 
+     * Create AddonCover
+     *
      * @param Nill
-     * @return Array $addon_cover
+     * @return array $addon_cover
+     *
      * @author Darshan Baraiya
      */
     public function create()
@@ -46,8 +55,9 @@ class AddonCoverController extends AbstractBaseCrudController
 
     /**
      * Store AddonCover
-     * @param Request $request
+     *
      * @return View AddonCovers
+     *
      * @author Darshan Baraiya
      */
     public function store(Request $request)
@@ -64,67 +74,74 @@ class AddonCoverController extends AbstractBaseCrudController
             ];
 
             $this->addonCoverService->createAddonCover($data);
+
             return $this->redirectWithSuccess('addon-covers.index',
                 $this->getSuccessMessage('Add-on Cover', 'created'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Add-on Cover', 'create') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Add-on Cover', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Update Status Of AddonCover
-     * @param Integer $status
+     *
      * @return List Page With Success
+     *
      * @author Darshan Baraiya
      */
-    public function updateStatus($addon_cover_id, $status)
+    public function updateStatus(int $addon_cover_id, int $status): RedirectResponse
     {
-        $validate = Validator::make([
+        $validator = Validator::make([
             'addon_cover_id' => $addon_cover_id,
-            'status' => $status
+            'status' => $status,
         ], [
             'addon_cover_id' => 'required|exists:addon_covers,id',
             'status' => 'required|in:0,1',
         ]);
 
-        if ($validate->fails()) {
-            return $this->redirectWithError($validate->errors()->first());
+        if ($validator->fails()) {
+            return $this->redirectWithError($validator->errors()->first());
         }
 
         try {
             $this->addonCoverService->updateStatus($addon_cover_id, $status);
+
             return $this->redirectWithSuccess('addon-covers.index',
                 $this->getSuccessMessage('Add-on Cover status', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Add-on Cover status', 'update') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Add-on Cover status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit AddonCover
-     * @param Integer $addon_cover
+     *
+     * @param  int  $addonCover
      * @return Collection $addon_cover
+     *
      * @author Darshan Baraiya
      */
-    public function edit(AddonCover $addon_cover)
+    public function edit(AddonCover $addonCover)
     {
         return view('addon_covers.edit')->with([
-            'addon_cover' => $addon_cover
+            'addon_cover' => $addonCover,
         ]);
     }
 
     /**
      * Update AddonCover
-     * @param Request $request, AddonCover $addon_cover
+     *
+     * @param  Request  $request,  AddonCover $addon_cover
      * @return View AddonCovers
+     *
      * @author Darshan Baraiya
      */
-    public function update(Request $request, AddonCover $addon_cover)
+    public function update(Request $request, AddonCover $addonCover)
     {
-        $validationRules = $this->addonCoverService->getUpdateValidationRules($addon_cover);
+        $validationRules = $this->addonCoverService->getUpdateValidationRules($addonCover);
         $request->validate($validationRules);
 
         try {
@@ -135,37 +152,41 @@ class AddonCoverController extends AbstractBaseCrudController
                 'status' => $request->has('status') ? 1 : 0,
             ];
 
-            $this->addonCoverService->updateAddonCover($addon_cover, $data);
+            $this->addonCoverService->updateAddonCover($addonCover, $data);
+
             return $this->redirectWithSuccess('addon-covers.index',
                 $this->getSuccessMessage('Add-on Cover', 'updated'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Add-on Cover', 'update') . ': ' . $th->getMessage())
+                $this->getErrorMessage('Add-on Cover', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete AddonCover
-     * @param AddonCover $addon_cover
+     *
      * @return Index AddonCovers
+     *
      * @author Darshan Baraiya
      */
-    public function delete(AddonCover $addon_cover)
+    public function delete(AddonCover $addonCover): RedirectResponse
     {
         try {
-            $this->addonCoverService->deleteAddonCover($addon_cover);
+            $this->addonCoverService->deleteAddonCover($addonCover);
+
             return $this->redirectWithSuccess('addon-covers.index',
                 $this->getSuccessMessage('Add-on Cover', 'deleted'));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $throwable) {
             return $this->redirectWithError(
-                $this->getErrorMessage('Add-on Cover', 'delete') . ': ' . $th->getMessage());
+                $this->getErrorMessage('Add-on Cover', 'delete').': '.$throwable->getMessage());
         }
     }
 
     /**
-     * Import AddonCovers 
-     * @param Null
+     * Import AddonCovers
+     *
+     * @param null
      * @return View File
      */
     public function importAddonCovers()
@@ -173,9 +194,35 @@ class AddonCoverController extends AbstractBaseCrudController
         return view('addon_covers.import');
     }
 
-    public function export()
+    protected function getExportRelations(): array
     {
-        return $this->addonCoverService->exportAddonCovers();
+        return [];
     }
 
+    protected function getSearchableFields(): array
+    {
+        return ['name', 'description'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'addon_covers',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => ['column' => 'order_no', 'direction' => 'asc'],
+            'headings' => ['ID', 'Name', 'Description', 'Order No', 'Status', 'Created Date'],
+            'mapping' => fn ($model): array => [
+                $model->id,
+                $model->name,
+                $model->description ?? 'N/A',
+                $model->order_no,
+                $model->status ? 'Active' : 'Inactive',
+                $model->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
+    }
 }

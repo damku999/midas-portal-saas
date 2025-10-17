@@ -139,11 +139,11 @@
                         </div>
                         <div class="mb-2">
                             <strong>Created:</strong>
-                            <span class="text-muted">{{ $claim->created_at ? $claim->created_at->format('d/m/Y H:i') : 'N/A' }}</span>
+                            <span class="text-muted">{{ $claim->created_at }}</span>
                         </div>
                         <div class="mb-2">
                             <strong>Last Updated:</strong>
-                            <span class="text-muted">{{ $claim->updated_at ? $claim->updated_at->format('d/m/Y H:i') : 'N/A' }}</span>
+                            <span class="text-muted">{{ $claim->updated_at }}</span>
                         </div>
                     </div>
                 </div>
@@ -247,14 +247,14 @@
 @endsection
 
 @push('styles')
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="{{ cdn_url('cdn_bootstrap_datepicker_css') }}" rel="stylesheet" />
 @endpush
 
 @section('scripts')
     {{-- Include common claims functions --}}
     @include('claims.partials.common-functions')
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ cdn_url('cdn_bootstrap_datepicker_js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize date picker

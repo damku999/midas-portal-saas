@@ -3,21 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Services\HealthCheckService;
-use App\Services\LoggingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class HealthController extends Controller
 {
-    private HealthCheckService $healthService;
-    private LoggingService $logger;
-    
-    public function __construct(HealthCheckService $healthService, LoggingService $logger)
-    {
-        $this->healthService = $healthService;
-        $this->logger = $logger;
-    }
-    
+    public function __construct(private readonly HealthCheckService $healthCheckService) {}
+
     /**
      * Basic health check endpoint
      */
@@ -31,30 +23,30 @@ class HealthController extends Controller
             'environment' => app()->environment(),
         ]);
     }
-    
+
     /**
      * Comprehensive health check with all system components
      */
     public function detailed(): JsonResponse
     {
-        $healthStatus = $this->healthService->runHealthChecks();
-        
-        $statusCode = $healthStatus['status'] === 'healthy' ? 200 : 
+        $healthStatus = $this->healthCheckService->runHealthChecks();
+
+        $statusCode = $healthStatus['status'] === 'healthy' ? 200 :
                      ($healthStatus['status'] === 'warning' ? 200 : 503);
-        
+
         return response()->json($healthStatus, $statusCode);
     }
-    
+
     /**
      * Get detailed system metrics and information
      */
     public function metrics(): JsonResponse
     {
-        $metrics = $this->healthService->getSystemMetrics();
-        
+        $metrics = $this->healthCheckService->getSystemMetrics();
+
         return response()->json($metrics);
     }
-    
+
     /**
      * Liveness probe for Kubernetes/Docker
      */
@@ -66,7 +58,7 @@ class HealthController extends Controller
             'timestamp' => now()->toISOString(),
         ]);
     }
-    
+
     /**
      * Readiness probe for Kubernetes/Docker
      */
@@ -74,10 +66,10 @@ class HealthController extends Controller
     {
         // Check if application is ready to serve traffic
         $checks = [
-            'database' => $this->healthService->checkDatabase(),
-            'cache' => $this->healthService->checkCache(),
+            'database' => $this->healthCheckService->checkDatabase(),
+            'cache' => $this->healthCheckService->checkCache(),
         ];
-        
+
         $isReady = true;
         foreach ($checks as $check) {
             if ($check['status'] !== 'healthy') {
@@ -85,25 +77,25 @@ class HealthController extends Controller
                 break;
             }
         }
-        
+
         $response = [
             'status' => $isReady ? 'ready' : 'not_ready',
             'timestamp' => now()->toISOString(),
             'checks' => $checks,
         ];
-        
+
         $statusCode = $isReady ? 200 : 503;
-        
+
         return response()->json($response, $statusCode);
     }
-    
+
     /**
      * Performance monitoring endpoint
      */
     public function performance(Request $request): JsonResponse
     {
         $timeframe = $request->get('timeframe', '1hour');
-        
+
         // This would typically aggregate performance data from logs
         $performanceData = [
             'timeframe' => $timeframe,
@@ -146,10 +138,10 @@ class HealthController extends Controller
                 ],
             ],
         ];
-        
+
         return response()->json($performanceData);
     }
-    
+
     /**
      * System resources monitoring
      */
@@ -175,10 +167,10 @@ class HealthController extends Controller
                 'timezone' => config('app.timezone'),
             ],
         ];
-        
+
         return response()->json($resources);
     }
-    
+
     /**
      * Application logs endpoint for monitoring
      */
@@ -186,7 +178,7 @@ class HealthController extends Controller
     {
         $level = $request->get('level', 'error');
         $limit = min($request->get('limit', 50), 100);
-        
+
         // This would typically read from log files or centralized logging
         $logs = [
             'level' => $level,
@@ -197,10 +189,10 @@ class HealthController extends Controller
                 // This is a placeholder structure
             ],
         ];
-        
+
         return response()->json($logs);
     }
-    
+
     /**
      * Get system uptime (basic implementation)
      */
@@ -208,9 +200,10 @@ class HealthController extends Controller
     {
         if (PHP_OS_FAMILY === 'Linux' && file_exists('/proc/uptime')) {
             $uptime = file_get_contents('/proc/uptime');
+
             return (float) explode(' ', $uptime)[0];
         }
-        
+
         return null;
     }
 }

@@ -26,7 +26,7 @@ class VerifyCsrfToken extends Middleware
         $result = parent::tokensMatch($request);
 
         // Log CSRF verification attempts
-        if (!$result) {
+        if (! $result) {
             $this->logCsrfFailure($request);
         }
 
@@ -75,7 +75,7 @@ class VerifyCsrfToken extends Middleware
             'method' => $request->method(),
             'context' => json_encode([
                 'referer' => $request->header('Referer'),
-                'csrf_token_provided' => !empty($request->input('_token')),
+                'csrf_token_provided' => ! empty($request->input('_token')),
             ]),
             'severity' => 'medium',
             'created_at' => now(),
@@ -91,7 +91,7 @@ class VerifyCsrfToken extends Middleware
         $isReading = parent::isReading($request);
 
         // Additional validation for state-changing operations
-        if (!$isReading) {
+        if (! $isReading) {
             $this->validateStateChangingRequest($request);
         }
 
@@ -107,7 +107,7 @@ class VerifyCsrfToken extends Middleware
         $origin = $request->header('Origin');
         $referer = $request->header('Referer');
 
-        if ($origin && !$this->isValidOrigin($origin, $request)) {
+        if ($origin && ! $this->isValidOrigin($origin, $request)) {
             Log::channel('security')->warning('Invalid Origin header detected', [
                 'origin' => $origin,
                 'expected_host' => $request->getHost(),
@@ -118,7 +118,7 @@ class VerifyCsrfToken extends Middleware
         }
 
         // Validate Referer header
-        if ($referer && !$this->isValidReferer($referer, $request)) {
+        if ($referer && ! $this->isValidReferer($referer, $request)) {
             Log::channel('security')->warning('Suspicious Referer header detected', [
                 'referer' => $referer,
                 'expected_host' => $request->getHost(),

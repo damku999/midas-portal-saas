@@ -18,18 +18,14 @@ class PermissionRepository extends AbstractBaseRepository implements PermissionR
 {
     /**
      * The model class name
-     *
-     * @var string
      */
     protected string $modelClass = Permission::class;
 
     /**
      * Searchable fields for the getPaginated method
-     *
-     * @var array
      */
     protected array $searchableFields = [
-        'name', 'guard_name'
+        'name', 'guard_name',
     ];
 
     /**
@@ -44,7 +40,7 @@ class PermissionRepository extends AbstractBaseRepository implements PermissionR
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('guard_name', 'like', "%{$search}%");
+                    ->orWhere('guard_name', 'like', "%{$search}%");
             });
         }
 
@@ -55,7 +51,7 @@ class PermissionRepository extends AbstractBaseRepository implements PermissionR
 
         // Module filter (based on permission name prefix)
         if ($request->filled('module')) {
-            $query->where('name', 'like', $request->module . '.%');
+            $query->where('name', 'like', $request->module.'.%');
         }
 
         return $query->orderBy('name')->paginate($perPage);
@@ -109,7 +105,7 @@ class PermissionRepository extends AbstractBaseRepository implements PermissionR
      */
     public function getPermissionsByModule(string $module): Collection
     {
-        return Permission::where('name', 'like', $module . '.%')
+        return Permission::where('name', 'like', $module.'.%')
             ->orderBy('name')
             ->get();
     }
@@ -123,9 +119,9 @@ class PermissionRepository extends AbstractBaseRepository implements PermissionR
             SUBSTRING_INDEX(name, '.', 1) as module,
             COUNT(*) as count
         ")
-        ->groupBy('module')
-        ->pluck('count', 'module')
-        ->toArray();
+            ->groupBy('module')
+            ->pluck('count', 'module')
+            ->toArray();
 
         return [
             'total_permissions' => Permission::count(),

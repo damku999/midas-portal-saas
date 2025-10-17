@@ -1,10 +1,14 @@
 <footer class="sticky-footer bg-white">
     <div class="container my-auto">
         <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Midas Tech @ {{ date('Y') }} | Developed by
-                <a href="https://midastech.in" target="_blank" class="text-decoration-none fw-medium" style="color: #2563eb;">
-                    <i class="fas fa-globe me-1"></i>Midastech
-                </a>
+            <span>
+                {{ footer_copyright_text() }}@if(show_footer_year()) &copy; {{ date('Y') }}@endif
+                @if(show_footer_developer())
+                    | Developed by
+                    <a href="{{ footer_developer_url() }}" target="_blank" class="text-decoration-none fw-medium" style="color: #2563eb;">
+                        <i class="fas fa-globe me-1"></i>{{ footer_developer_name() }}
+                    </a>
+                @endif
             </span>
         </div>
     </div>

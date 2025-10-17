@@ -2,13 +2,47 @@
 
 namespace App\Models\Customer;
 
+use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use App\Models\Customer;
+use Illuminate\Support\Carbon;
 
 /**
- * Customer-specific Security Settings Model
- * Separate from admin security settings to prevent conflicts
+ * App\Models\Customer\CustomerSecuritySettings
+ *
+ * @property int $id
+ * @property string $settingable_type
+ * @property int $settingable_id
+ * @property bool $two_factor_enabled
+ * @property bool $device_tracking_enabled
+ * @property bool $login_notifications
+ * @property bool $security_alerts
+ * @property int $session_timeout
+ * @property int $device_trust_duration
+ * @property array|null $notification_preferences
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Model $settingable
+ *
+ * @method static Builder|CustomerSecuritySettings customersOnly()
+ * @method static Builder|CustomerSecuritySettings newModelQuery()
+ * @method static Builder|CustomerSecuritySettings newQuery()
+ * @method static Builder|CustomerSecuritySettings query()
+ * @method static Builder|CustomerSecuritySettings whereCreatedAt($value)
+ * @method static Builder|CustomerSecuritySettings whereDeviceTrackingEnabled($value)
+ * @method static Builder|CustomerSecuritySettings whereDeviceTrustDuration($value)
+ * @method static Builder|CustomerSecuritySettings whereId($value)
+ * @method static Builder|CustomerSecuritySettings whereLoginNotifications($value)
+ * @method static Builder|CustomerSecuritySettings whereNotificationPreferences($value)
+ * @method static Builder|CustomerSecuritySettings whereSecurityAlerts($value)
+ * @method static Builder|CustomerSecuritySettings whereSessionTimeout($value)
+ * @method static Builder|CustomerSecuritySettings whereSettingableId($value)
+ * @method static Builder|CustomerSecuritySettings whereSettingableType($value)
+ * @method static Builder|CustomerSecuritySettings whereTwoFactorEnabled($value)
+ * @method static Builder|CustomerSecuritySettings whereUpdatedAt($value)
+ *
+ * @mixin Model
  */
 class CustomerSecuritySettings extends Model
 {
@@ -47,7 +81,7 @@ class CustomerSecuritySettings extends Model
     /**
      * Scope to only customer records
      */
-    public function scopeCustomersOnly($query)
+    protected function scopeCustomersOnly($query)
     {
         return $query->where('settingable_type', Customer::class);
     }

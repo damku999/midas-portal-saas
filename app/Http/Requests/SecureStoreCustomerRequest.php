@@ -38,7 +38,7 @@ class SecureStoreCustomerRequest extends SecureFormRequest
                     $dateParts = explode('/', $dateValue);
                     // Validate date components
                     if (checkdate($dateParts[1], $dateParts[0], $dateParts[2])) {
-                        $data[$dateField] = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+                        $data[$dateField] = $dateParts[2].'-'.$dateParts[1].'-'.$dateParts[0];
                     }
                 }
             }
@@ -57,7 +57,7 @@ class SecureStoreCustomerRequest extends SecureFormRequest
             $data['gst_number'] = strtoupper(preg_replace('/[^A-Z0-9]/', '', $this->gst_number));
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -84,7 +84,7 @@ class SecureStoreCustomerRequest extends SecureFormRequest
             ],
             'pan_card_path' => [
                 'nullable',
-                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048)
+                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048),
             ],
 
             // Aadhar card validation for Retail customers
@@ -97,7 +97,7 @@ class SecureStoreCustomerRequest extends SecureFormRequest
             ],
             'aadhar_card_path' => [
                 'nullable',
-                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048)
+                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048),
             ],
 
             // GST validation for Corporate customers
@@ -110,14 +110,14 @@ class SecureStoreCustomerRequest extends SecureFormRequest
             ],
             'gst_path' => [
                 'nullable',
-                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048)
+                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png'], 2048),
             ],
 
             // Date validations
             'date_of_birth' => [
                 'nullable',
                 $this->getSecureDateRules(false, true), // No future dates
-                'before:' . now()->subYears(18)->format('Y-m-d'), // Must be 18+ years old
+                'before:'.now()->subYears(18)->format('Y-m-d'), // Must be 18+ years old
             ],
             'wedding_anniversary_date' => [
                 'nullable',

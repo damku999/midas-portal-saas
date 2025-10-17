@@ -3,13 +3,13 @@
 namespace App\Modules\Quotation\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Quotation\Contracts\QuotationServiceInterface;
 use App\Http\Requests\StoreQuotationRequest;
 use App\Http\Requests\UpdateQuotationRequest;
-use App\Models\Quotation;
+use App\Models\AddonCover;
 use App\Models\Customer;
 use App\Models\InsuranceCompany;
-use App\Models\AddonCover;
+use App\Models\Quotation;
+use App\Modules\Quotation\Contracts\QuotationServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,7 +29,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotations = $this->quotationService->getQuotations($request);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $quotations->items(),
@@ -45,13 +45,13 @@ class QuotationApiController extends Controller
                     'search' => $request->input('search'),
                     'status' => $request->input('status'),
                     'customer_id' => $request->input('customer_id'),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve quotations',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -63,7 +63,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotation = $this->quotationService->createQuotation($request);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Quotation created successfully',
@@ -73,7 +73,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create quotation',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -89,9 +89,9 @@ class QuotationApiController extends Controller
                 'quotationCompanies' => function ($query) {
                     $query->orderBy('ranking');
                 },
-                'quotationCompanies.insuranceCompany'
+                'quotationCompanies.insuranceCompany',
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $quotation,
@@ -100,7 +100,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve quotation',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -112,7 +112,7 @@ class QuotationApiController extends Controller
     {
         try {
             $updated = $this->quotationService->updateQuotation($request, $quotation);
-            
+
             if ($updated) {
                 return response()->json([
                     'success' => true,
@@ -120,7 +120,7 @@ class QuotationApiController extends Controller
                     'data' => $quotation->fresh()->load(['customer', 'quotationCompanies.insuranceCompany']),
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update quotation',
@@ -129,7 +129,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update quotation',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -141,14 +141,14 @@ class QuotationApiController extends Controller
     {
         try {
             $deleted = $this->quotationService->deleteQuotation($quotation);
-            
+
             if ($deleted) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Quotation deleted successfully',
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete quotation',
@@ -157,7 +157,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete quotation',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -169,7 +169,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotes = $this->quotationService->generateCompanyQuotes($quotation);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Company quotes generated successfully',
@@ -177,13 +177,13 @@ class QuotationApiController extends Controller
                     'quotation_id' => $quotation->id,
                     'quotes_generated' => count($quotes),
                     'quotes' => $quotes,
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate company quotes',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -198,20 +198,20 @@ class QuotationApiController extends Controller
                 ->with('insuranceCompany')
                 ->orderBy('ranking')
                 ->get();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'quotation_id' => $quotation->id,
                     'quotes_count' => $quotes->count(),
                     'quotes' => $quotes,
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve company quotes',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -231,26 +231,26 @@ class QuotationApiController extends Controller
         try {
             // Delete existing company quotes
             $quotation->quotationCompanies()->delete();
-            
+
             // Create new company quotes
             $companies = $request->input('companies', []);
             foreach ($companies as $companyData) {
                 $quotation->quotationCompanies()->create($companyData);
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Company quotes updated successfully',
                 'data' => [
                     'quotation_id' => $quotation->id,
                     'quotes_updated' => count($companies),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update company quotes',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -262,7 +262,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotation->load(['customer', 'quotationCompanies.insuranceCompany']);
-            
+
             if ($quotation->quotationCompanies->isEmpty()) {
                 return response()->json([
                     'success' => false,
@@ -271,13 +271,13 @@ class QuotationApiController extends Controller
             }
 
             $pdf = app(\App\Services\PdfGenerationService::class)->generateQuotationPdf($quotation);
-            
+
             return $pdf->download("quotation-{$quotation->id}-{$quotation->customer->name}.pdf");
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate PDF',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -289,7 +289,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotation->load(['customer', 'quotationCompanies.insuranceCompany']);
-            
+
             if ($quotation->quotationCompanies->isEmpty()) {
                 return response()->json([
                     'success' => false,
@@ -297,7 +297,7 @@ class QuotationApiController extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            if (!$quotation->whatsapp_number && !$quotation->customer->mobile_number) {
+            if (! $quotation->whatsapp_number && ! $quotation->customer->mobile_number) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Cannot send quotation - no WhatsApp number available',
@@ -307,7 +307,7 @@ class QuotationApiController extends Controller
             // Use the original service method for WhatsApp sending
             $originalService = app(\App\Services\QuotationService::class);
             $originalService->sendQuotationViaWhatsApp($quotation);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Quotation sent via WhatsApp successfully',
@@ -316,13 +316,13 @@ class QuotationApiController extends Controller
                     'customer_name' => $quotation->customer->name,
                     'whatsapp_number' => $quotation->whatsapp_number ?: $quotation->customer->mobile_number,
                     'sent_at' => now()->toISOString(),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send quotation via WhatsApp',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -342,7 +342,7 @@ class QuotationApiController extends Controller
 
         try {
             $totalIdv = $this->quotationService->calculatePremium($request->all());
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -353,14 +353,14 @@ class QuotationApiController extends Controller
                         'cng_lpg_kit' => $request->input('idv_cng_lpg_kit', 0),
                         'electrical_accessories' => $request->input('idv_electrical_accessories', 0),
                         'non_electrical_accessories' => $request->input('idv_non_electrical_accessories', 0),
-                    ]
-                ]
+                    ],
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to calculate premium',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -372,7 +372,7 @@ class QuotationApiController extends Controller
     {
         try {
             $statistics = $this->quotationService->getQuotationStatistics();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $statistics,
@@ -382,7 +382,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve quotation statistics',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -394,7 +394,7 @@ class QuotationApiController extends Controller
     {
         try {
             $quotations = $this->quotationService->getActiveQuotations();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $quotations->load(['customer']),
@@ -404,7 +404,7 @@ class QuotationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve active quotations',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -420,7 +420,7 @@ class QuotationApiController extends Controller
                 'insurance_companies' => InsuranceCompany::where('status', 1)->orderBy('name')->get(['id', 'name', 'status']),
                 'addon_covers' => AddonCover::getOrdered(1),
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $data,
@@ -428,13 +428,13 @@ class QuotationApiController extends Controller
                     'customers' => $data['customers']->count(),
                     'insurance_companies' => $data['insurance_companies']->count(),
                     'addon_covers' => $data['addon_covers']->count(),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve form data',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

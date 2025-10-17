@@ -86,12 +86,12 @@
                 rules: { required: true, minLength: 2, maxLength: 100 },
                 displayName: 'Company Name'
             },
-            email: { 
-                rules: { required: true, email: true },
+            email: {
+                rules: { email: true },
                 displayName: 'Email'
             },
-            mobile_number: { 
-                rules: { required: true, phone: true },
+            mobile_number: {
+                rules: { phone: true },
                 displayName: 'Mobile Number'
             },
             status: { 

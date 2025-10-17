@@ -173,7 +173,7 @@
                                         </td>
                                         <td>
                                             @if ($policy->final_premium_with_gst)
-                                                <strong class="text-success">₹{{ number_format($policy->final_premium_with_gst, 0) }}</strong>
+                                                <strong class="text-success">{{ format_indian_currency($policy->final_premium_with_gst) }}</strong>
                                             @else
                                                 <span class="text-muted">N/A</span>
                                             @endif

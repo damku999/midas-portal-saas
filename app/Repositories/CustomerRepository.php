@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 class CustomerRepository extends AbstractBaseRepository implements CustomerRepositoryInterface
 {
     protected string $modelClass = Customer::class;
+
     protected array $searchableFields = ['name', 'email', 'mobile_number'];
 
     /**
@@ -26,15 +27,15 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
     {
         $query = Customer::query();
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        if (! empty($filters['from_date']) && ! empty($filters['to_date'])) {
             $query->whereBetween('created_at', [$filters['from_date'], $filters['to_date']]);
         }
 
@@ -50,17 +51,17 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
         $filters = $request->all();
 
         // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = '%' . trim($filters['search']) . '%';
+        if (! empty($filters['search'])) {
+            $searchTerm = '%'.trim($filters['search']).'%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', $searchTerm)
-                  ->orWhere('email', 'LIKE', $searchTerm)
-                  ->orWhere('mobile_number', 'LIKE', $searchTerm);
+                    ->orWhere('email', 'LIKE', $searchTerm)
+                    ->orWhere('mobile_number', 'LIKE', $searchTerm);
             });
         }
 
         // Type filter
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
@@ -70,7 +71,7 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
         }
 
         // Date range filter
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        if (! empty($filters['from_date']) && ! empty($filters['to_date'])) {
             $query->whereBetween('created_at', [$filters['from_date'], $filters['to_date']]);
         }
 
@@ -120,11 +121,12 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
 
     public function search(string $query): Collection
     {
-        $searchTerm = '%' . trim($query) . '%';
+        $searchTerm = '%'.trim($query).'%';
+
         return Customer::where('name', 'LIKE', $searchTerm)
-                      ->orWhere('email', 'LIKE', $searchTerm)
-                      ->orWhere('mobile_number', 'LIKE', $searchTerm)
-                      ->get();
+            ->orWhere('email', 'LIKE', $searchTerm)
+            ->orWhere('mobile_number', 'LIKE', $searchTerm)
+            ->get();
     }
 
     public function exists(int $id): bool

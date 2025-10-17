@@ -10,38 +10,32 @@
 
         <!-- DataTales Example -->
         <div class="card shadow mt-3 mb-4">
-            <x-list-header 
-                    title="Customer Insurances Management"
-                    subtitle="Manage all active insurance policies"
-                    addRoute="customer_insurances.create"
-                    addPermission="customer-insurance-create"
-                    exportRoute="customer_insurances.export"
-            />
+            <x-list-header title="Customer Insurances Management" subtitle="Manage all active insurance policies"
+                addRoute="customer_insurances.create" addPermission="customer-insurance-create"
+                exportRoute="customer_insurances.export" />
             <div class="card-body">
                 <form method="GET" action="{{ route('customer_insurances.index') }}" id="search_form">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="search">Search Customer Insurances</label>
-                                <input type="text" class="form-control" id="search" name="search" 
-                                       placeholder="Customer, policy number..." 
-                                       value="{{ request('search') }}">
+                                <input type="text" class="form-control" id="search" name="search"
+                                    placeholder="Customer, policy number..." value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="start_date">Expiry Start Date</label>
-                                <input type="text" class="form-control datepicker" id="start_date" name="start_date" 
-                                       placeholder="Start Date" 
-                                       value="{{ request('start_date') ?: request('renewal_due_start') }}">
+                                <input type="text" class="form-control datepicker" id="start_date" name="start_date"
+                                    placeholder="Start Date"
+                                    value="{{ request('start_date') ?: request('renewal_due_start') }}">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="end_date">Expiry End Date</label>
-                                <input type="text" class="form-control datepicker" id="end_date" name="end_date" 
-                                       placeholder="End Date" 
-                                       value="{{ request('end_date') ?: request('renewal_due_end') }}">
+                                <input type="text" class="form-control datepicker" id="end_date" name="end_date"
+                                    placeholder="End Date" value="{{ request('end_date') ?: request('renewal_due_end') }}">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -50,7 +44,8 @@
                                 <select class="form-control" id="status" name="status">
                                     <option value="">All Status</option>
                                     <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -66,12 +61,12 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Hidden fields to preserve renewal filter parameters -->
-                    @if(request('renewal_due_start'))
+                    @if (request('renewal_due_start'))
                         <input type="hidden" name="renewal_due_start" value="{{ request('renewal_due_start') }}">
                     @endif
-                    @if(request('renewal_due_end'))
+                    @if (request('renewal_due_end'))
                         <input type="hidden" name="renewal_due_end" value="{{ request('renewal_due_end') }}">
                     @endif
                     <input type="hidden" name="sort" value="{{ request('sort', 'updated_at') }}">
@@ -210,8 +205,9 @@
                                             $oneMonthAfter = $expiredDate->copy()->addMonth();
                                             $currentDate = \Carbon\Carbon::now();
                                         @endphp
-                                        
-                                        <div class="d-flex flex-nowrap" style="gap: 4px; justify-content: flex-start; align-items: center; overflow-x: auto;">
+
+                                        <div class="d-flex flex-nowrap"
+                                            style="gap: 4px; justify-content: flex-start; align-items: center; overflow-x: auto;">
                                             <!-- 1. WhatsApp Send Document -->
                                             @if ($customer_insurance->policy_document_path)
                                                 <a href="{{ route('customer_insurances.sendWADocument', ['customer_insurance' => $customer_insurance->id]) }}"
@@ -219,12 +215,17 @@
                                                     <i class="fab fa-whatsapp"></i>
                                                 </a>
                                             @endif
-                                            
+
                                             <!-- 2. WhatsApp Renewal Reminder -->
-                                            @if (auth()->user()->hasPermissionTo('customer-insurance-edit') && $currentDate->between($oneMonthBefore, $oneMonthAfter) && $customer_insurance->is_renewed == 0)
+                                            @if (auth()->user()->hasPermissionTo('customer-insurance-edit') &&
+                                                    $currentDate->greaterThanOrEqualTo($oneMonthBefore) &&
+                                                    $customer_insurance->is_renewed == 0)
                                                 <a href="{{ route('customer_insurances.sendRenewalReminderWA', ['customer_insurance' => $customer_insurance->id]) }}"
-                                                    class="btn btn-warning btn-sm" title="Send Renewal Reminder via WhatsApp" style="white-space: nowrap;">
-                                                    <i class="fa fa-bell"></i><i class="fab fa-whatsapp" style="margin-left: 1px;"></i>
+                                                    class="btn btn-warning btn-sm"
+                                                    title="Send Renewal Reminder via WhatsApp"
+                                                    style="white-space: nowrap;">
+                                                    <i class="fa fa-bell"></i><i class="fab fa-whatsapp"
+                                                        style="margin-left: 1px;"></i>
                                                 </a>
                                             @endif
 
@@ -239,13 +240,16 @@
                                             <!-- 4. Download -->
                                             @if ($customer_insurance->policy_document_path)
                                                 <a href="{{ asset('storage/' . $customer_insurance->policy_document_path) }}"
-                                                    class="btn btn-info btn-sm" target="_blank" title="Download Policy Document">
+                                                    class="btn btn-info btn-sm" target="_blank"
+                                                    title="Download Policy Document">
                                                     <i class="fa fa-download"></i>
                                                 </a>
                                             @endif
 
                                             <!-- 5. Renew -->
-                                            @if (auth()->user()->hasPermissionTo('customer-insurance-edit') && $currentDate->between($oneMonthBefore, $oneMonthAfter) && $customer_insurance->is_renewed == 0)
+                                            @if (auth()->user()->hasPermissionTo('customer-insurance-edit') &&
+                                                    $currentDate->greaterThanOrEqualTo($oneMonthBefore) &&
+                                                    $customer_insurance->is_renewed == 0)
                                                 <a href="{{ route('customer_insurances.renew', ['customer_insurance' => $customer_insurance->id]) }}"
                                                     class="btn btn-secondary btn-sm" title="Renew Policy">
                                                     <i class="fas fa-redo"></i>
@@ -269,7 +273,8 @@
 
                                             <!-- 7. Delete -->
                                             @if (auth()->user()->hasPermissionTo('customer-insurance-delete'))
-                                                <a class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete Policy"
+                                                <a class="btn btn-danger btn-sm" href="javascript:void(0);"
+                                                    title="Delete Policy"
                                                     onclick="delete_conf_common('{{ $customer_insurance->id }}','CustomerInsurance', 'Customer Insurance', '{{ route('customer_insurances.index') }}');">
                                                     <i class="fas fa-trash"></i>
                                                 </a>

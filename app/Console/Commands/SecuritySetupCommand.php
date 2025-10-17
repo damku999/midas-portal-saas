@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class SecuritySetupCommand extends Command
 {
     protected $signature = 'security:setup {--force : Force setup even if already configured}';
+
     protected $description = 'Set up comprehensive security features for the application';
 
     public function handle()
@@ -19,8 +20,9 @@ class SecuritySetupCommand extends Command
 
         // Step 1: Check prerequisites
         $this->info('1. Checking prerequisites...');
-        if (!$this->checkPrerequisites()) {
+        if (! $this->checkPrerequisites()) {
             $this->error('Prerequisites check failed. Please resolve issues and try again.');
+
             return 1;
         }
 
@@ -80,6 +82,7 @@ class SecuritySetupCommand extends Command
     {
         try {
             DB::connection()->getPdo();
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -90,11 +93,11 @@ class SecuritySetupCommand extends Command
     {
         try {
             // Check if security_events table exists
-            if (!DB::getSchemaBuilder()->hasTable('security_events')) {
+            if (! DB::getSchemaBuilder()->hasTable('security_events')) {
                 $this->line('  Creating security_events table...');
                 Artisan::call('migrate', [
-                    '--path' => 'database/migrations/2025_09_20_000001_create_security_events_table.php',
-                    '--force' => true
+                    '--path' => 'database/migrations/2025_10_08_000045_create_security_events_table.php',
+                    '--force' => true,
                 ]);
                 $this->line('  ✅ Security events table created');
             } else {
@@ -109,26 +112,26 @@ class SecuritySetupCommand extends Command
             if (empty($missingColumns)) {
                 $this->line('  ✅ Security events table structure valid');
             } else {
-                $this->line('  ⚠️  Missing columns: ' . implode(', ', $missingColumns));
+                $this->line('  ⚠️  Missing columns: '.implode(', ', $missingColumns));
             }
 
         } catch (\Exception $e) {
-            $this->error('  ❌ Database setup failed: ' . $e->getMessage());
+            $this->error('  ❌ Database setup failed: '.$e->getMessage());
         }
     }
 
     private function setupLogging(): void
     {
         $logPath = storage_path('logs');
-        $securityLogPath = $logPath . '/security.log';
+        $securityLogPath = $logPath.'/security.log';
 
         // Ensure logs directory exists
-        if (!File::isDirectory($logPath)) {
+        if (! File::isDirectory($logPath)) {
             File::makeDirectory($logPath, 0755, true);
         }
 
         // Create security log file if it doesn't exist
-        if (!File::exists($securityLogPath)) {
+        if (! File::exists($securityLogPath)) {
             File::put($securityLogPath, '');
             $this->line('  ✅ Security log file created');
         } else {
@@ -157,7 +160,7 @@ class SecuritySetupCommand extends Command
             $this->line("         'path' => storage_path('logs/security.log'),");
             $this->line("         'level' => 'info',");
             $this->line("         'days' => 90,");
-            $this->line("     ],");
+            $this->line('     ],');
         }
     }
 
@@ -215,12 +218,12 @@ class SecuritySetupCommand extends Command
         }
 
         // Check session settings
-        if (!config('session.secure') && app()->environment('production')) {
+        if (! config('session.secure') && app()->environment('production')) {
             $issues[] = 'SESSION_SECURE should be true in production';
         }
 
         // Check security configuration
-        if (!config('security')) {
+        if (! config('security')) {
             $issues[] = 'Security configuration not loaded';
         }
 
@@ -244,7 +247,7 @@ class SecuritySetupCommand extends Command
                 $this->line('  ⚠️  Some security tests failed - review output above');
             }
         } catch (\Exception $e) {
-            $this->line('  ⚠️  Could not run security tests: ' . $e->getMessage());
+            $this->line('  ⚠️  Could not run security tests: '.$e->getMessage());
         }
     }
 

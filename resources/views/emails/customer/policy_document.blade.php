@@ -32,7 +32,7 @@
                     <ul>
                         <li><strong>Policy Number:</strong> {{ $policy_details['policy_number'] ?? 'N/A' }}</li>
                         <li><strong>Policy Type:</strong> {{ $policy_details['policy_type'] ?? 'N/A' }}</li>
-                        <li><strong>Coverage Amount:</strong> ₹{{ number_format($policy_details['coverage_amount'] ?? 0, 2) }}</li>
+                        <li><strong>Coverage Amount:</strong> {{ app_currency_symbol() }}{{ number_format($policy_details['coverage_amount'] ?? 0, 2) }}</li>
                         <li><strong>Start Date:</strong> {{ $policy_details['start_date'] ?? 'N/A' }}</li>
                         <li><strong>End Date:</strong> {{ $policy_details['end_date'] ?? 'N/A' }}</li>
                     </ul>

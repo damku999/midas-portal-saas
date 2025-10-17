@@ -2,7 +2,6 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Models\CustomerInsurance;
 use Illuminate\Database\Eloquent\Collection;
 
 /**

@@ -11,31 +11,41 @@
     <title>{{ config('app.name', 'Laravel') }} | @yield('title')</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/icon.png') }}" />
+    <link rel="shortcut icon" type="image/jpg" href="{{ company_favicon_asset() }}" />
 
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Google Fonts - Modern Inter font for consistency -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Modern Inter font for consistency (Dynamic) -->
+    <link href="{{ cdn_url('cdn_google_fonts_inter') }}" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Font Awesome (Dynamic) -->
+    <link rel="stylesheet" href="{{ cdn_url('cdn_fontawesome_css') }}" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS (Dynamic) -->
+    <link href="{{ cdn_url('cdn_bootstrap_css') }}" rel="stylesheet">
 
     <!-- Custom styles for admin auth -->
-    <link href="{{asset('admin/css/sb-admin-2.min.css')}}" rel="stylesheet">
+    <link href="{{ versioned_asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
 
     <!-- Additional page-specific styles -->
     @yield('stylesheets')
 
+    <!-- Cloudflare Turnstile -->
+    @turnstileScripts()
+
+    <!-- Dynamic Theme Styles -->
+    <style>
+        :root {
+            {{ theme_styles() }}
+        }
+    </style>
+
     <!-- Modern Auth Styles - Exact Match with Customer Portal -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: {{ theme_primary_font() }}, sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
         }

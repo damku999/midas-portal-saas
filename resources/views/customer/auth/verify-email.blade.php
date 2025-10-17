@@ -9,9 +9,9 @@
                 <div class="login-card">
                     <!-- Logo Section -->
                     <div class="text-center mb-4">
-                        <img src="{{ asset('images/parth_logo.png') }}" alt="WebMonks" class="img-fluid mb-3"
+                        <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid mb-3"
                             style="max-height: 50px;">
-                        <h4 class="fw-bold text-dark mb-1">Customer Portal</h4>
+                        <h4 class="fw-bold text-dark mb-1">{{ company_name() }}</h4>
                         <p class="text-muted small mb-0">Verify your email address</p>
                     </div>
 

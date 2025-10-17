@@ -14,7 +14,7 @@ class VerifyTwoFactorSession
     public function handle(Request $request, Closure $next)
     {
         // Only apply to 2FA challenge routes
-        if (!$request->routeIs('*.two-factor.challenge', '*.two-factor.verify')) {
+        if (! $request->routeIs('*.two-factor.challenge', '*.two-factor.verify')) {
             return $next($request);
         }
 
@@ -24,12 +24,12 @@ class VerifyTwoFactorSession
         Log::info('🔐 [2FA Middleware] Session verification', [
             'route' => $request->route()->getName(),
             'session_id' => session()->getId(),
-            'has_2fa_user_id' => !empty($userId),
+            'has_2fa_user_id' => ! empty($userId),
             '2fa_user_id' => $userId,
             '2fa_guard' => $guard,
             'session_keys' => array_keys(session()->all()),
             'request_method' => $request->method(),
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         return $next($request);

@@ -5,11 +5,12 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow mt-3 mb-4">
-                <x-list-header 
+                <x-list-header
                         title="Quotations Management"
                         subtitle="Manage insurance quotations and quotes"
                         addRoute="quotations.create"
                         addPermission="quotation-create"
+                        exportRoute="quotations.export"
                 />
                 <div class="card-body">
                     <!-- Search and Filter Form -->
@@ -73,7 +74,7 @@
                                             <small class="text-muted">
                                                 {{ $quotation->vehicle_number ?? 'To be registered' }} | 
                                                 {{ $quotation->fuel_type }} | 
-                                                IDV: ₹{{ number_format($quotation->total_idv) }}
+                                                IDV: {{ format_indian_currency($quotation->total_idv) }}
                                             </small>
                                         </td>
                                         <td>

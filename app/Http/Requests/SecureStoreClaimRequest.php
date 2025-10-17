@@ -35,7 +35,7 @@ class SecureStoreClaimRequest extends SecureFormRequest
             if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateValue)) {
                 $dateParts = explode('/', $dateValue);
                 if (checkdate($dateParts[1], $dateParts[0], $dateParts[2])) {
-                    $data['incident_date'] = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+                    $data['incident_date'] = $dateParts[2].'-'.$dateParts[1].'-'.$dateParts[0];
                 }
             }
         }
@@ -50,7 +50,7 @@ class SecureStoreClaimRequest extends SecureFormRequest
             $data['claim_amount'] = preg_replace('/[^0-9.]/', '', $this->claim_amount);
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -63,81 +63,81 @@ class SecureStoreClaimRequest extends SecureFormRequest
         return [
             'customer_insurance_id' => [
                 'required',
-                'exists:customer_insurances,id'
+                'exists:customer_insurances,id',
             ],
             'insurance_type' => [
                 'required',
-                'in:Health,Vehicle,Life,Property'
+                'in:Health,Vehicle,Life,Property',
             ],
             'incident_date' => [
                 'required',
                 $this->getSecureDateRules(false, true), // No future dates
-                'after:' . now()->subYears(10)->format('Y-m-d'), // Not more than 10 years ago
+                'after:'.now()->subYears(10)->format('Y-m-d'), // Not more than 10 years ago
             ],
             'incident_location' => [
                 'nullable',
-                $this->getSecureStringRules(500)
+                $this->getSecureStringRules(500),
             ],
             'description' => [
                 'required',
                 $this->getSecureStringRules(2000, true), // Allow basic formatting
-                'min:10'
+                'min:10',
             ],
             'claim_amount' => [
                 'nullable',
                 'numeric',
                 'min:1',
-                'max:99999999.99' // Reasonable max claim amount
+                'max:99999999.99', // Reasonable max claim amount
             ],
             'whatsapp_number' => [
                 'nullable',
                 $this->getSecurePhoneRules(),
-                'max:15'
+                'max:15',
             ],
             'emergency_contact_name' => [
                 'nullable',
-                $this->getSecureStringRules(255)
+                $this->getSecureStringRules(255),
             ],
             'emergency_contact_number' => [
                 'nullable',
                 $this->getSecurePhoneRules(),
-                'digits:10'
+                'digits:10',
             ],
             'police_report_number' => [
                 'nullable',
                 $this->getSecureStringRules(50),
-                'regex:/^[A-Z0-9\-\/]+$/' // Alphanumeric with hyphens and slashes
+                'regex:/^[A-Z0-9\-\/]+$/', // Alphanumeric with hyphens and slashes
             ],
             'hospital_name' => [
                 'required_if:insurance_type,Health',
                 'nullable',
-                $this->getSecureStringRules(255)
+                $this->getSecureStringRules(255),
             ],
             'doctor_name' => [
                 'required_if:insurance_type,Health',
                 'nullable',
-                $this->getSecureStringRules(255)
+                $this->getSecureStringRules(255),
             ],
             'vehicle_registration_number' => [
                 'required_if:insurance_type,Vehicle',
                 'nullable',
                 'string',
                 'max:20',
-                'regex:/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/' // Indian vehicle number format
+                'regex:/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/', // Indian vehicle number format
             ],
             'garage_name' => [
                 'required_if:insurance_type,Vehicle',
                 'nullable',
-                $this->getSecureStringRules(255)
+                $this->getSecureStringRules(255),
             ],
             'supporting_documents' => [
                 'nullable',
                 'array',
-                'max:10' // Limit number of files
+                'max:10', // Limit number of files
             ],
             'supporting_documents.*' => [
-                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'], 5120) // 5MB per file
-            ]
+                $this->getSecureFileRules(['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'], 5120), // 5MB per file
+            ],
         ];
     }
 

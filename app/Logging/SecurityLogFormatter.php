@@ -2,9 +2,9 @@
 
 namespace App\Logging;
 
+use Illuminate\Log\Logger as IlluminateLogger;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
-use Illuminate\Log\Logger as IlluminateLogger;
 use Monolog\LogRecord;
 
 class SecurityLogFormatter extends JsonFormatter
@@ -12,7 +12,7 @@ class SecurityLogFormatter extends JsonFormatter
     public function format(LogRecord $record): string
     {
         $context = $record->context;
-        
+
         $formatted = [
             'timestamp' => $record->datetime->format('Y-m-d H:i:s.u'),
             'level' => $record->level->getName(),
@@ -30,10 +30,10 @@ class SecurityLogFormatter extends JsonFormatter
             'server' => request()?->server('SERVER_NAME', 'unknown'),
             'referer' => request()?->header('Referer'),
         ];
-        
-        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+
+        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n";
     }
-    
+
     /**
      * Customize the given logger instance.
      */

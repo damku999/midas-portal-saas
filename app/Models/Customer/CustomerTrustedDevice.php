@@ -2,14 +2,56 @@
 
 namespace App\Models\Customer;
 
+use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use App\Models\Customer;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
 /**
- * Customer-specific Trusted Device Model
- * Separate from admin trusted devices to prevent conflicts
+ * App\Models\Customer\CustomerTrustedDevice
+ *
+ * @property int $id
+ * @property string $authenticatable_type
+ * @property int $authenticatable_id
+ * @property string $device_id
+ * @property string $device_name
+ * @property string|null $device_type
+ * @property string|null $browser
+ * @property string|null $platform
+ * @property string $ip_address
+ * @property string $user_agent
+ * @property Carbon|null $last_used_at
+ * @property Carbon $trusted_at
+ * @property Carbon|null $expires_at
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Model $authenticatable
+ *
+ * @method static Builder|CustomerTrustedDevice active()
+ * @method static Builder|CustomerTrustedDevice customersOnly()
+ * @method static Builder|CustomerTrustedDevice newModelQuery()
+ * @method static Builder|CustomerTrustedDevice newQuery()
+ * @method static Builder|CustomerTrustedDevice query()
+ * @method static Builder|CustomerTrustedDevice whereAuthenticatableId($value)
+ * @method static Builder|CustomerTrustedDevice whereAuthenticatableType($value)
+ * @method static Builder|CustomerTrustedDevice whereBrowser($value)
+ * @method static Builder|CustomerTrustedDevice whereCreatedAt($value)
+ * @method static Builder|CustomerTrustedDevice whereDeviceId($value)
+ * @method static Builder|CustomerTrustedDevice whereDeviceName($value)
+ * @method static Builder|CustomerTrustedDevice whereDeviceType($value)
+ * @method static Builder|CustomerTrustedDevice whereExpiresAt($value)
+ * @method static Builder|CustomerTrustedDevice whereId($value)
+ * @method static Builder|CustomerTrustedDevice whereIpAddress($value)
+ * @method static Builder|CustomerTrustedDevice whereIsActive($value)
+ * @method static Builder|CustomerTrustedDevice whereLastUsedAt($value)
+ * @method static Builder|CustomerTrustedDevice wherePlatform($value)
+ * @method static Builder|CustomerTrustedDevice whereTrustedAt($value)
+ * @method static Builder|CustomerTrustedDevice whereUpdatedAt($value)
+ * @method static Builder|CustomerTrustedDevice whereUserAgent($value)
+ *
+ * @mixin Model
  */
 class CustomerTrustedDevice extends Model
 {
@@ -49,7 +91,7 @@ class CustomerTrustedDevice extends Model
     /**
      * Scope to only customer records
      */
-    public function scopeCustomersOnly($query)
+    protected function scopeCustomersOnly($query)
     {
         return $query->where('authenticatable_type', Customer::class);
     }
@@ -57,10 +99,10 @@ class CustomerTrustedDevice extends Model
     /**
      * Scope to only active devices
      */
-    public function scopeActive($query)
+    protected function scopeActive($query)
     {
         return $query->where('is_active', true)
-                    ->where('expires_at', '>', now());
+            ->where('expires_at', '>', now());
     }
 
     /**
@@ -76,7 +118,7 @@ class CustomerTrustedDevice extends Model
      */
     public function isActive(): bool
     {
-        return $this->is_active && !$this->isExpired();
+        return $this->is_active && ! $this->isExpired();
     }
 
     /**
@@ -111,7 +153,7 @@ class CustomerTrustedDevice extends Model
      */
     public static function generateDeviceId(string $userAgent, string $ipAddress): string
     {
-        return hash('sha256', $userAgent . '|' . $ipAddress);
+        return hash('sha256', $userAgent.'|'.$ipAddress);
     }
 
     /**
@@ -167,6 +209,6 @@ class CustomerTrustedDevice extends Model
      */
     public static function createDeviceName(array $deviceInfo): string
     {
-        return $deviceInfo['browser'] . ' on ' . $deviceInfo['platform'];
+        return $deviceInfo['browser'].' on '.$deviceInfo['platform'];
     }
 }

@@ -12,8 +12,11 @@ class PolicyCreated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public CustomerInsurance $policy;
+
     public ?int $createdBy;
+
     public string $creationSource;
+
     public array $policyDetails;
 
     public function __construct(CustomerInsurance $policy, string $creationSource = 'admin', ?int $createdBy = null)
@@ -21,7 +24,7 @@ class PolicyCreated
         $this->policy = $policy;
         $this->createdBy = $createdBy ?? auth()->id();
         $this->creationSource = $creationSource;
-        
+
         $this->policyDetails = [
             'policy_number' => $policy->policy_number,
             'premium_amount' => $policy->premium_amount,
@@ -58,10 +61,10 @@ class PolicyCreated
 
     public function getDaysToExpiry(): int
     {
-        if (!$this->policy->policy_end_date) {
+        if (! $this->policy->policy_end_date) {
             return 365; // Default assumption
         }
-        
+
         return now()->diffInDays($this->policy->policy_end_date, false);
     }
 

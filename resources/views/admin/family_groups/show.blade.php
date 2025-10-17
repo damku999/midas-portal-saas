@@ -179,9 +179,14 @@
                                         </td>
                                         <td>
                                             @if(!$member->is_head)
-                                                <form method="POST" action="{{ route('family_groups.member.remove', $member) }}" 
+                                                <form method="POST"
+                                                      action="{{ route('family_groups.member.remove', $member) }}"
                                                       style="display: inline;"
-                                                      onsubmit="return confirm('Are you sure you want to remove {{ $member->customer->name }} from this family? This will reset their login credentials.')">
+                                                      data-confirm-submit="true"
+                                                      data-title="Confirm Member Removal"
+                                                      data-message="Are you sure you want to remove <strong>{{ $member->customer->name }}</strong> from this family?<br><small class='text-muted'>This will reset their login credentials.</small>"
+                                                      data-confirm-text="Yes, Remove"
+                                                      data-confirm-class="btn-danger">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove Member">
@@ -255,8 +260,13 @@
                             </a>
                         @endif
 
-                        <form method="POST" action="{{ route('family_groups.destroy', $familyGroup) }}" 
-                              onsubmit="return confirm('Are you sure you want to delete {{ $familyGroup->name }}? This will remove all family associations. This action cannot be undone.')">
+                        <form method="POST"
+                              action="{{ route('family_groups.destroy', $familyGroup) }}"
+                              data-confirm-submit="true"
+                              data-title="Confirm Group Deletion"
+                              data-message="Are you sure you want to delete <strong>{{ $familyGroup->name }}</strong>?<br><small class='text-muted'>This will remove all family associations. This action cannot be undone.</small>"
+                              data-confirm-text="Yes, Delete Group"
+                              data-confirm-class="btn-danger">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm btn-block">

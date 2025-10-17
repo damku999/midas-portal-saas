@@ -11,7 +11,7 @@
                     <!-- Auth Header -->
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <img src="{{ asset('images/parth_logo.png') }}" alt="WebMonks" class="img-fluid mb-3" style="max-width: 120px;">
+                            <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid mb-3" style="max-width: 120px;">
                             <h4 class="text-dark fw-bold">Forgot Password?</h4>
                             <p class="text-muted">Enter your email to receive reset instructions</p>
                         </div>
@@ -49,6 +49,16 @@
                                 @error('email')
                                     <div class="invalid-feedback">
                                         <i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Cloudflare Turnstile -->
+                            <div class="form-group">
+                                <x-turnstile />
+                                @error('cf-turnstile-response')
+                                    <div class="text-danger mt-2">
+                                        <small><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</small>
                                     </div>
                                 @enderror
                             </div>

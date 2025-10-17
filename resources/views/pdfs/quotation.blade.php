@@ -201,7 +201,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">Total IDV:</span>
-                    <span class="info-value">₹{{ number_format($quotation->total_idv ?? 0) }}</span>
+                    <span class="info-value">{{ format_indian_currency($quotation->total_idv ?? 0) }}</span>
                 </div>
             </div>
         </div>
@@ -284,14 +284,14 @@
             <tr>
                 <td class="row-header">Vehicle IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->idv_vehicle ?? $quotation->idv_vehicle ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->idv_vehicle ?? $quotation->idv_vehicle ?? 0) }}</td>
                 @endforeach
             </tr>
             @if($quotation->quotationCompanies->where('idv_trailer', '>', 0)->count() > 0 || $quotation->idv_trailer > 0)
             <tr>
                 <td class="row-header">Trailer IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->idv_trailer ?? $quotation->idv_trailer ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->idv_trailer ?? $quotation->idv_trailer ?? 0) }}</td>
                 @endforeach
             </tr>
             @endif
@@ -299,7 +299,7 @@
             <tr>
                 <td class="row-header">CNG/LPG Kit IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->idv_cng_lpg_kit ?? $quotation->idv_cng_lpg_kit ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->idv_cng_lpg_kit ?? $quotation->idv_cng_lpg_kit ?? 0) }}</td>
                 @endforeach
             </tr>
             @endif
@@ -307,7 +307,7 @@
             <tr>
                 <td class="row-header">Electrical Accessories IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->idv_electrical_accessories ?? $quotation->idv_electrical_accessories ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->idv_electrical_accessories ?? $quotation->idv_electrical_accessories ?? 0) }}</td>
                 @endforeach
             </tr>
             @endif
@@ -315,14 +315,14 @@
             <tr>
                 <td class="row-header">Non-Electrical Accessories IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->idv_non_electrical_accessories ?? $quotation->idv_non_electrical_accessories ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->idv_non_electrical_accessories ?? $quotation->idv_non_electrical_accessories ?? 0) }}</td>
                 @endforeach
             </tr>
             @endif
             <tr>
                 <td class="row-header total-row">Total IDV</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency total-row">₹{{ number_format($company->total_idv ?? $quotation->total_idv ?? 0, 2) }}</td>
+                    <td class="currency total-row">{{ format_indian_currency($company->total_idv ?? $quotation->total_idv ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -334,25 +334,25 @@
             <tr>
                 <td class="row-header">Basic OD Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->basic_od_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->basic_od_premium ?? 0) }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td class="row-header">Third Party Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->tp_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->tp_premium ?? 0) }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td class="row-header">CNG/LPG Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->cng_lpg_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->cng_lpg_premium ?? 0) }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td class="row-header">Total OD Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->total_od_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->total_od_premium ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -391,7 +391,7 @@
                         @endphp
                         <td class="currency">
                             @if($price > 0)
-                                ₹{{ number_format($price, 2) }}
+                                {{ format_indian_currency($price) }}
                             @else
                                 <span style="color: green; font-weight: bold;">✓ Covered</span>
                             @endif
@@ -403,7 +403,7 @@
             <tr>
                 <td class="row-header">Total Add on Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->total_addon_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->total_addon_premium ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -411,7 +411,7 @@
             <tr>
                 <td class="row-header total-row">Net Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency total-row">₹{{ number_format($company->net_premium ?? 0, 2) }}</td>
+                    <td class="currency total-row">{{ format_indian_currency($company->net_premium ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -423,19 +423,19 @@
             <tr>
                 <td class="row-header">SGST</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->sgst_amount ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->sgst_amount ?? 0) }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td class="row-header">CGST</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->cgst_amount ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->cgst_amount ?? 0) }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td class="row-header">Total Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="currency">₹{{ number_format($company->total_premium ?? 0, 2) }}</td>
+                    <td class="currency">{{ format_indian_currency($company->total_premium ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -443,7 +443,7 @@
             <tr>
                 <td class="final-total">Final Premium</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td class="final-total">₹{{ number_format($company->final_premium ?? 0, 2) }}</td>
+                    <td class="final-total">{{ format_indian_currency($company->final_premium ?? 0) }}</td>
                 @endforeach
             </tr>
 
@@ -509,7 +509,7 @@
                                     @endif
                                 </td>
                                 <td style="text-align: right; font-weight: bold; font-size: 11px;">
-                                    ₹{{ number_format($company->final_premium ?? 0, 2) }}
+                                    {{ format_indian_currency($company->final_premium ?? 0) }}
                                     @if($company->quote_number)<br><span style="font-size: 8px; font-weight: normal;">Quote: {{ $company->quote_number }}</span>@endif
                                 </td>
                             </tr>
@@ -534,39 +534,39 @@
                         </tr>
                         <tr style="border-top: 1px solid #ddd; background: #f0f9ff;">
                             <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">Basic OD Premium:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format($company->basic_od_premium ?? 0) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->basic_od_premium ?? 0) }}</td>
                         </tr>
                         <tr style="background: #f0f9ff;">
                             <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">TP Premium:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format($company->tp_premium ?? 0) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->tp_premium ?? 0) }}</td>
                         </tr>
                         <tr style="background: #f0f9ff;">
                             <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">Add-on Premium:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format($company->total_addon_premium ?? 0) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->total_addon_premium ?? 0) }}</td>
                         </tr>
                         @if($company->cng_lpg_premium > 0)
                         <tr style="background: #f0f9ff;">
                             <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">CNG/LPG Premium:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format($company->cng_lpg_premium) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->cng_lpg_premium) }}</td>
                         </tr>
                         @endif
                         <tr style="border-top: 1px solid #ddd; background: #e3f2fd;">
                             <td style="padding: 3px; font-weight: bold; color: #1976d2;">Net Premium:</td>
-                            <td style="padding: 3px; font-weight: bold; color: #1976d2;">₹{{ number_format($company->net_premium ?? 0) }}</td>
+                            <td style="padding: 3px; font-weight: bold; color: #1976d2;">{{ format_indian_currency($company->net_premium ?? 0) }}</td>
                         </tr>
                         <tr style="background: #fff3cd;">
                             <td style="padding: 3px; font-weight: bold; color: #856404;">Total GST:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format(($company->sgst_amount ?? 0) + ($company->cgst_amount ?? 0)) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency(($company->sgst_amount ?? 0) + ($company->cgst_amount ?? 0)) }}</td>
                         </tr>
                         @if($company->roadside_assistance > 0)
                         <tr style="background: #d1ecf1;">
                             <td style="padding: 3px; font-weight: bold; color: #0c5460;">RSA:</td>
-                            <td style="padding: 3px; font-weight: bold;">₹{{ number_format($company->roadside_assistance) }}</td>
+                            <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->roadside_assistance) }}</td>
                         </tr>
                         @endif
                         <tr style="border-top: 2px solid #dc3545; background: #f8d7da;">
                             <td style="padding: 4px; font-weight: bold; color: #721c24; font-size: 10px;">Final Premium:</td>
-                            <td style="padding: 4px; font-weight: bold; color: #721c24; font-size: 10px;">₹{{ number_format($company->final_premium ?? 0, 2) }}</td>
+                            <td style="padding: 4px; font-weight: bold; color: #721c24; font-size: 10px;">{{ format_indian_currency($company->final_premium ?? 0) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -576,7 +576,7 @@
 
     <div class="footer">
         <p>This quotation comparison is generated automatically. Please verify all details before making any decisions.
-            Generated by <a href="https://midastech.in/" target="_blank">MIDAS</a> - {{ now()->format('d/m/Y H:i:s') }}
+            Generated by <a href="https://midastech.in/" target="_blank">MIDAS</a> - {{ format_app_date(now()) }} {{ now()->format('H:i:s') }}
         </p>
     </div>
 </body>

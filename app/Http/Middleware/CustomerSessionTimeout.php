@@ -16,7 +16,7 @@ class CustomerSessionTimeout
     public function handle(Request $request, Closure $next): Response
     {
         // Only apply to authenticated customer sessions
-        if (!Auth::guard('customer')->check()) {
+        if (! Auth::guard('customer')->check()) {
             return $next($request);
         }
 
@@ -28,12 +28,14 @@ class CustomerSessionTimeout
         if ($this->shouldSkipTimeoutCheck($request)) {
             // Update activity timestamp and continue
             session(['customer_last_activity' => now()->format('Y-m-d H:i:s')]);
+
             return $next($request);
         }
 
         // If no last activity recorded, set it now
-        if (!$lastActivity) {
+        if (! $lastActivity) {
             session(['customer_last_activity' => now()->format('Y-m-d H:i:s')]);
+
             return $next($request);
         }
 
@@ -54,11 +56,12 @@ class CustomerSessionTimeout
                 'customer_id' => $customer->id,
                 'invalid_timestamp' => $lastActivity,
                 'route' => $request->route()?->getName(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             // Reset to current time and continue
             session(['customer_last_activity' => now()->format('Y-m-d H:i:s')]);
+
             return $next($request);
         }
         $timeoutThreshold = now()->subMinutes($sessionTimeoutMinutes);
@@ -71,7 +74,7 @@ class CustomerSessionTimeout
             'timeout_threshold' => $timeoutThreshold->toDateTimeString(),
             'minutes_since_activity' => $lastActivityTime->diffInMinutes(now()),
             'timeout_minutes' => $sessionTimeoutMinutes,
-            'will_timeout' => $lastActivityTime->isBefore($timeoutThreshold)
+            'will_timeout' => $lastActivityTime->isBefore($timeoutThreshold),
         ]);
 
         // Check if session has timed out
@@ -90,13 +93,13 @@ class CustomerSessionTimeout
                     'last_activity' => $lastActivityTime->toDateTimeString(),
                     'timeout_minutes' => $sessionTimeoutMinutes,
                     'inactive_duration_minutes' => $lastActivityTime->diffInMinutes(now()),
-                    'security_action' => 'forced_logout'
-                ]
+                    'security_action' => 'forced_logout',
+                ],
             ]);
 
             // Force logout and clear all session data
             Auth::guard('customer')->logout();
-            
+
             // Clear session data before invalidating
             $request->session()->flush();
             $request->session()->invalidate();
@@ -107,7 +110,7 @@ class CustomerSessionTimeout
                 return response()->json([
                     'error' => 'Session expired',
                     'message' => 'Your session has expired. Please refresh and log in again.',
-                    'redirect' => route('customer.login')
+                    'redirect' => route('customer.login'),
                 ], 401);
             }
 
@@ -121,7 +124,7 @@ class CustomerSessionTimeout
 
         // Add session metadata to response headers for debugging (in development only)
         $response = $next($request);
-        
+
         // Debug: Log successful middleware completion
         if ($request->route()?->getName() === 'customer.change-password') {
             \Log::info('CustomerSessionTimeout middleware completed successfully', [
@@ -129,7 +132,7 @@ class CustomerSessionTimeout
                 'route' => $request->route()?->getName(),
                 'response_status' => $response->getStatusCode(),
                 'is_redirect' => $response->isRedirection(),
-                'redirect_location' => $response->headers->get('Location')
+                'redirect_location' => $response->headers->get('Location'),
             ]);
         }
 
@@ -152,11 +155,11 @@ class CustomerSessionTimeout
             'customer.change-password.update',
             'customer.password.update',
             'customer.logout',
-            'customer.verification.send'
+            'customer.verification.send',
         ];
 
         $routeName = $request->route()?->getName();
-        
+
         // Skip for critical routes
         if (in_array($routeName, $criticalRoutes)) {
             return true;
@@ -169,7 +172,7 @@ class CustomerSessionTimeout
                 'customer/change-password',
                 'customer/password/reset',
                 'customer/password/email',
-                'customer/logout'
+                'customer/logout',
             ];
 
             foreach ($securityPaths as $securityPath) {

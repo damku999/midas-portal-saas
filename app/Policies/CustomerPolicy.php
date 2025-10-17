@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Customer;
 use App\Models\CustomerInsurance;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CustomerPolicy
 {
@@ -26,7 +25,7 @@ class CustomerPolicy
             return true;
         }
 
-        return $currentCustomer->hasFamily() && 
+        return $currentCustomer->hasFamily() &&
                $currentCustomer->isInSameFamilyAs($targetCustomer);
     }
 
@@ -39,11 +38,12 @@ class CustomerPolicy
             return true;
         }
 
-        if (!$customer->hasFamily()) {
+        if (! $customer->hasFamily()) {
             return false;
         }
 
         $viewablePolicyIds = $customer->getViewableInsurance()->pluck('id');
+
         return $viewablePolicyIds->contains($policy->id);
     }
 

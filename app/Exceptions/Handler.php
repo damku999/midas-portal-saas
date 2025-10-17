@@ -2,13 +2,7 @@
 
 namespace App\Exceptions;
 
-use App\Models\CustomerAuditLog;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -41,8 +35,7 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-        });
+        $this->reportable(function (Throwable $e) {});
     }
 
     /**

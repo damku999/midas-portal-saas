@@ -2,16 +2,18 @@
 
 namespace App\Services;
 
-use App\Contracts\Services\UserServiceInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Contracts\Services\UserServiceInterface;
 use App\Exports\UserExport;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * User Service
@@ -22,7 +24,7 @@ use Spatie\Permission\Models\Role;
 class UserService extends BaseService implements UserServiceInterface
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
+        private readonly UserRepositoryInterface $userRepository
     ) {}
 
     public function getUsers(Request $request): LengthAwarePaginator
@@ -32,62 +34,62 @@ class UserService extends BaseService implements UserServiceInterface
 
     public function createUser(array $data): User
     {
-        return $this->createInTransaction(function () use ($data) {
+        return $this->createInTransaction(function () use ($data): Model {
             if (isset($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             }
 
-            $user = $this->userRepository->create($data);
+            $model = $this->userRepository->create($data);
 
             if (isset($data['roles'])) {
-                $user->assignRole($data['roles']);
+                $model->assignRole($data['roles']);
             }
 
-            return $user;
+            return $model;
         });
     }
 
     public function updateUser(User $user, array $data): User
     {
-        return $this->updateInTransaction(function () use ($user, $data) {
-            if (isset($data['password']) && !empty($data['password'])) {
+        return $this->updateInTransaction(function () use ($user, $data): Model {
+            if (isset($data['password']) && ! empty($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             } else {
                 unset($data['password']);
             }
 
-            $updatedUser = $this->userRepository->update($user, $data);
+            $model = $this->userRepository->update($user, $data);
 
             if (isset($data['roles'])) {
-                $updatedUser->syncRoles($data['roles']);
+                $model->syncRoles($data['roles']);
             }
 
-            return $updatedUser;
+            return $model;
         });
     }
 
     public function deleteUser(User $user): bool
     {
         return $this->deleteInTransaction(
-            fn() => $this->userRepository->delete($user)
+            fn (): bool => $this->userRepository->delete($user)
         );
     }
 
     public function updateStatus(int $userId, int $status): bool
     {
         return $this->updateInTransaction(
-            fn() => $this->userRepository->updateStatus($userId, $status)
+            fn (): bool => $this->userRepository->updateStatus($userId, $status)
         );
     }
 
     public function assignRoles(User $user, array $roles): void
     {
-        $this->executeInTransaction(function () use ($user, $roles) {
+        $this->executeInTransaction(static function () use ($user, $roles): void {
             $user->syncRoles($roles);
         });
     }
 
-    public function exportUsers(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportUsers(): BinaryFileResponse
     {
         return Excel::download(new UserExport, 'users.xlsx');
     }
@@ -99,17 +101,18 @@ class UserService extends BaseService implements UserServiceInterface
 
     public function changePassword(User $user, string $newPassword): bool
     {
-        return $this->updateInTransaction(function () use ($user, $newPassword) {
+        return $this->updateInTransaction(function () use ($user, $newPassword): bool {
             $hashedPassword = Hash::make($newPassword);
+
             return $this->userRepository->updatePassword($user, $hashedPassword);
         });
     }
-    
+
     public function getUserWithRoles(int $userId): ?User
     {
         return $this->userRepository->findWithRoles($userId);
     }
-    
+
     public function getStoreValidationRules(): array
     {
         return [
@@ -123,19 +126,19 @@ class UserService extends BaseService implements UserServiceInterface
             'new_confirm_password' => 'required|same:new_password',
         ];
     }
-    
+
     public function getUpdateValidationRules(User $user): array
     {
         return [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'mobile_number' => 'required|numeric|digits:10',
             'role_id' => 'required|exists:roles,id',
             'status' => 'required|numeric|in:0,1',
         ];
     }
-    
+
     public function getPasswordValidationRules(): array
     {
         return [
@@ -143,7 +146,7 @@ class UserService extends BaseService implements UserServiceInterface
             'new_confirm_password' => 'required|same:new_password',
         ];
     }
-    
+
     public function getRoles(): Collection
     {
         return Role::all();

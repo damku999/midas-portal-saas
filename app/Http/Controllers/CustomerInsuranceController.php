@@ -6,8 +6,10 @@ use App\Contracts\Services\CustomerInsuranceServiceInterface;
 use App\Models\Customer;
 use App\Models\CustomerInsurance;
 use App\Traits\WhatsAppApiTrait;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Customer Insurance Controller
@@ -26,23 +28,54 @@ class CustomerInsuranceController extends AbstractBaseCrudController
             ['permission' => 'customer-insurance-list|customer-insurance-create|customer-insurance-edit|customer-insurance-delete', 'only' => ['index']],
             ['permission' => 'customer-insurance-create', 'only' => ['create', 'store', 'updateStatus']],
             ['permission' => 'customer-insurance-edit', 'only' => ['edit', 'update', 'renew', 'storeRenew']],
-            ['permission' => 'customer-insurance-delete', 'only' => ['delete']]
+            ['permission' => 'customer-insurance-delete', 'only' => ['delete']],
         ]);
     }
 
     /**
      * List CustomerInsurance
-     * @param Request $request
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
     public function index(Request $request)
     {
-        $customer_insurances = $this->customerInsuranceService->getCustomerInsurances($request);
-        $customers = Customer::select('id', 'name')->get();
-        
+        // Handle AJAX requests for Select2 autocomplete
+        if ($request->ajax() || $request->has('ajax')) {
+            $search = $request->input('q', $request->input('search', ''));
+
+            $query = CustomerInsurance::with('customer:id,name')
+                ->select('id', 'policy_no', 'customer_id', 'registration_no');
+
+            if ($search) {
+                $query->where(static function ($q) use ($search): void {
+                    $q->where('policy_no', 'LIKE', sprintf('%%%s%%', $search))
+                        ->orWhere('registration_no', 'LIKE', sprintf('%%%s%%', $search))
+                        ->orWhereHas('customer', static function ($cq) use ($search): void {
+                            $cq->where('name', 'LIKE', sprintf('%%%s%%', $search));
+                        });
+                });
+            }
+
+            $insurances = $query->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            // Format for Select2
+            return response()->json([
+                'results' => $insurances->map(fn ($insurance): array => [
+                    'id' => $insurance->id,
+                    'text' => $insurance->policy_no.' - '.($insurance->customer?->name ?? 'Unknown'),
+                ]),
+            ]);
+        }
+
+        $lengthAwarePaginator = $this->customerInsuranceService->getCustomerInsurances($request);
+        $customers = Customer::query()->select('id', 'name')->get();
+
         return view('customer_insurances.index', [
-            'customer_insurances' => $customer_insurances,
+            'customer_insurances' => $lengthAwarePaginator,
             'customers' => $customers,
             'sort' => $request->input('sort', 'id'),
             'direction' => $request->input('direction', 'desc'),
@@ -52,22 +85,25 @@ class CustomerInsuranceController extends AbstractBaseCrudController
 
     /**
      * Create CustomerInsurance
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
     public function create()
     {
         $formData = $this->customerInsuranceService->getFormData();
+
         return view('customer_insurances.add', $formData);
     }
 
     /**
      * Store CustomerInsurance
-     * @param Request $request
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validationRules = $this->customerInsuranceService->getStoreValidationRules();
         $request->validate($validationRules);
@@ -78,29 +114,28 @@ class CustomerInsuranceController extends AbstractBaseCrudController
 
             // Handle file uploads
             $this->customerInsuranceService->handleFileUpload($request, $customer_insurance);
-            
+
             // Send WhatsApp document if uploaded
-            if (!empty($customer_insurance->policy_document_path)) {
+            if (! empty($customer_insurance->policy_document_path)) {
                 $this->customerInsuranceService->sendWhatsAppDocument($customer_insurance);
             }
 
             return $this->redirectWithSuccess('customer_insurances.index', $this->getSuccessMessage('Customer Insurance', 'created'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Update Status Of CustomerInsurance
-     * @param int $customer_insurance_id
-     * @param int $status
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function updateStatus($customer_insurance_id, $status)
+    public function updateStatus(int $customer_insurance_id, int $status): RedirectResponse
     {
         // Validation
-        $validate = Validator::make([
+        $validator = Validator::make([
             'customer_insurance_id' => $customer_insurance_id,
             'status' => $status,
         ], [
@@ -108,111 +143,113 @@ class CustomerInsuranceController extends AbstractBaseCrudController
             'status' => 'required|in:0,1',
         ]);
 
-        if ($validate->fails()) {
-            return $this->redirectWithError($validate->errors()->first());
+        if ($validator->fails()) {
+            return $this->redirectWithError($validator->errors()->first());
         }
 
         try {
             $this->customerInsuranceService->updateStatus($customer_insurance_id, $status);
+
             return $this->redirectWithSuccess('customer_insurances.index', $this->getSuccessMessage('Customer Insurance Status', 'updated'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit CustomerInsurance
-     * @param CustomerInsurance $customer_insurance
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
-    public function edit(CustomerInsurance $customer_insurance)
+    public function edit(CustomerInsurance $customerInsurance)
     {
         $formData = $this->customerInsuranceService->getFormData();
-        $formData['customer_insurance'] = $customer_insurance;
-        
+        $formData['customer_insurance'] = $customerInsurance;
+
         return view('customer_insurances.edit', $formData);
     }
 
     /**
      * Send WhatsApp Document
-     * @param CustomerInsurance $customer_insurance
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function sendWADocument(CustomerInsurance $customer_insurance)
+    public function sendWADocument(CustomerInsurance $customerInsurance): RedirectResponse
     {
         try {
-            $sent = $this->customerInsuranceService->sendWhatsAppDocument($customer_insurance);
-            
+            $sent = $this->customerInsuranceService->sendWhatsAppDocument($customerInsurance);
+
             if ($sent) {
                 return $this->redirectWithSuccess('customer_insurances.index', 'Document Sent Successfully!');
-            } else {
-                return $this->redirectWithError('Document Not Sent!');
             }
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation') . ': ' . $th->getMessage());
+
+            return $this->redirectWithError('Document Not Sent!');
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Send Renewal Reminder via WhatsApp
-     * @param CustomerInsurance $customer_insurance
-     * @return RedirectResponse
      */
-    public function sendRenewalReminderWA(CustomerInsurance $customer_insurance)
+    public function sendRenewalReminderWA(CustomerInsurance $customerInsurance): RedirectResponse
     {
         try {
-            $this->customerInsuranceService->sendRenewalReminderWhatsApp($customer_insurance);
+            $this->customerInsuranceService->sendRenewalReminderWhatsApp($customerInsurance);
+
             return $this->redirectWithSuccess('customer_insurances.index', 'Renewal Reminder Sent Successfully!');
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Update CustomerInsurance
-     * @param Request $request
-     * @param CustomerInsurance $customer_insurance
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function update(Request $request, CustomerInsurance $customer_insurance)
+    public function update(Request $request, CustomerInsurance $customerInsurance): RedirectResponse
     {
         $validationRules = $this->customerInsuranceService->getUpdateValidationRules();
         $request->validate($validationRules);
 
         try {
             $data = $this->customerInsuranceService->prepareStorageData($request);
-            $this->customerInsuranceService->updateCustomerInsurance($customer_insurance, $data);
+            $this->customerInsuranceService->updateCustomerInsurance($customerInsurance, $data);
 
             // Handle file uploads
-            $this->customerInsuranceService->handleFileUpload($request, $customer_insurance);
+            $this->customerInsuranceService->handleFileUpload($request, $customerInsurance);
 
             return $this->redirectWithSuccess('customer_insurances.index', $this->getSuccessMessage('Customer Insurance', 'updated'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Delete CustomerInsurance
-     * @param CustomerInsurance $customer_insurance
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function delete(CustomerInsurance $customer_insurance)
+    public function delete(CustomerInsurance $customerInsurance): RedirectResponse
     {
         try {
-            $this->customerInsuranceService->deleteCustomerInsurance($customer_insurance);
+            $this->customerInsuranceService->deleteCustomerInsurance($customerInsurance);
+
             return $this->redirectWithSuccess('customer_insurances.index', $this->getSuccessMessage('Customer Insurance', 'deleted'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'operation').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Import CustomerInsurances
+     *
      * @return View
      */
     public function importCustomerInsurances()
@@ -222,54 +259,53 @@ class CustomerInsuranceController extends AbstractBaseCrudController
 
     /**
      * Export CustomerInsurances
-     * @return BinaryFileResponse
      */
-    public function export()
+    public function export(): BinaryFileResponse
     {
         return $this->customerInsuranceService->exportCustomerInsurances();
     }
 
     /**
      * Renew CustomerInsurance
-     * @param CustomerInsurance $customer_insurance
+     *
      * @return View
+     *
      * @author Darshan Baraiya
      */
-    public function renew(CustomerInsurance $customer_insurance)
+    public function renew(CustomerInsurance $customerInsurance)
     {
         $formData = $this->customerInsuranceService->getFormData();
-        $formData['customer_insurance'] = $customer_insurance;
-        
+        $formData['customer_insurance'] = $customerInsurance;
+
         return view('customer_insurances.renew', $formData);
     }
 
     /**
      * Store Renew CustomerInsurance
-     * @param Request $request
-     * @param CustomerInsurance $customer_insurance
-     * @return RedirectResponse
+     *
+     *
      * @author Darshan Baraiya
      */
-    public function storeRenew(Request $request, CustomerInsurance $customer_insurance)
+    public function storeRenew(Request $request, CustomerInsurance $customerInsurance): RedirectResponse
     {
         $validationRules = $this->customerInsuranceService->getRenewalValidationRules();
         $request->validate($validationRules);
 
         try {
             $data = $this->customerInsuranceService->prepareStorageData($request);
-            $renewedPolicy = $this->customerInsuranceService->renewPolicy($customer_insurance, $data);
+            $renewedPolicy = $this->customerInsuranceService->renewPolicy($customerInsurance, $data);
 
             // Handle file uploads
             $this->customerInsuranceService->handleFileUpload($request, $renewedPolicy);
-            
+
             // Send WhatsApp document if uploaded
-            if (!empty($renewedPolicy->policy_document_path)) {
+            if (! empty($renewedPolicy->policy_document_path)) {
                 $this->customerInsuranceService->sendWhatsAppDocument($renewedPolicy);
             }
 
             return $this->redirectWithSuccess('customer_insurances.index', $this->getSuccessMessage('Customer Insurance', 'renewed'));
-        } catch (\Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create') . ': ' . $th->getMessage());
+        } catch (\Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Customer Insurance', 'create').': '.$throwable->getMessage());
         }
     }
 }

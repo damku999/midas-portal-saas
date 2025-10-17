@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\CustomerAuthController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,11 +16,11 @@ use App\Http\Controllers\Auth\CustomerAuthController;
 
 // Customer Authentication Routes (defined with priority)
 Route::prefix('customer')->name('customer.')->group(function () {
-    
+
     // ==========================================
     // PUBLIC ROUTES (Unauthenticated Access)
     // ==========================================
-    
+
     // Login Routes with Rate Limiting
     Route::middleware(['throttle:10,1'])->group(function () {
         Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('login');
@@ -43,7 +43,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // ==========================================
     // AUTHENTICATED ROUTES (Customer Login Required)
     // ==========================================
-    
+
     // Logout Route (Authenticated Customers Only)
     Route::post('/logout', [CustomerAuthController::class, 'logout'])
         ->middleware(['customer.auth'])
@@ -52,7 +52,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // Core Dashboard Routes (Protected with Session Timeout)
     // Increased rate limit since individual routes have their own more specific limits
     Route::middleware(['customer.auth', 'customer.timeout', 'throttle:200,1'])->group(function () {
-        
+
         // Main Dashboard
         Route::get('/dashboard', [CustomerAuthController::class, 'dashboard'])->name('dashboard');
 
@@ -115,29 +115,27 @@ Route::prefix('customer')->name('customer.')->group(function () {
                 ->name('revoke-device');
         });
 
-    // ==========================================
-    // 2FA CHALLENGE ROUTES (Outside auth middleware)
-    // ==========================================
+        // ==========================================
+        // 2FA CHALLENGE ROUTES (Outside auth middleware)
+        // ==========================================
 
-    // 2FA Challenge Routes (for customer - keep separate route names)
-    Route::get('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'showVerification'])
-        ->middleware(['throttle:30,1'])
-        ->name('customer.two-factor.challenge');
+        // 2FA Challenge Routes (for customer - keep separate route names)
+        Route::get('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'showVerification'])
+            ->middleware(['throttle:30,1'])
+            ->name('customer.two-factor.challenge');
 
-    Route::post('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'verify'])
-        ->middleware(['throttle:6,1'])
-        ->name('customer.two-factor.verify');
-
-
+        Route::post('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'verify'])
+            ->middleware(['throttle:6,1'])
+            ->name('customer.two-factor.verify');
 
         // ==========================================
         // FAMILY MEMBER MANAGEMENT (Family Heads Only)
         // ==========================================
-        
+
         // Family Member Profile Access
         Route::get('/family-member/{member}/profile', [CustomerAuthController::class, 'showFamilyMemberProfile'])
             ->name('family-member.profile');
-            
+
         // Family Member Password Management
         Route::get('/family-member/{member}/change-password', [CustomerAuthController::class, 'showFamilyMemberPasswordForm'])
             ->name('family-member.change-password');
@@ -154,31 +152,31 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // ==========================================
     // FAMILY GROUP ROUTES (Family Membership Required)
     // ==========================================
-    
+
     // Family-Specific Routes (Require Family Group Membership)
     Route::middleware(['customer.auth', 'customer.timeout', 'customer.family', 'throttle:60,1'])->group(function () {
-        
+
         // ==========================================
         // INSURANCE POLICIES MANAGEMENT
         // ==========================================
-        
+
         // Policy Listing and Details
         Route::get('/policies', [CustomerAuthController::class, 'showPolicies'])->name('policies');
         Route::get('/policies/{policy}', [CustomerAuthController::class, 'showPolicyDetail'])->name('policies.detail');
-        
+
         // Policy Document Downloads (Rate Limited)
         Route::get('/policies/{policy}/download', [CustomerAuthController::class, 'downloadPolicy'])
             ->middleware(['throttle:10,1'])
             ->name('policies.download');
-        
+
         // ==========================================
         // QUOTATIONS MANAGEMENT
         // ==========================================
-        
+
         // Quotation Listing and Details
         Route::get('/quotations', [CustomerAuthController::class, 'showQuotations'])->name('quotations');
         Route::get('/quotations/{quotation}', [CustomerAuthController::class, 'showQuotationDetail'])->name('quotations.detail');
-        
+
         // Quotation Document Downloads (Rate Limited)
         Route::get('/quotations/{quotation}/download', [CustomerAuthController::class, 'downloadQuotation'])
             ->middleware(['throttle:10,1'])
@@ -201,7 +199,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 |
 | 1. Rate Limiting:
 |    - Login attempts: 10 per minute
-|    - Password reset: 5 per minute  
+|    - Password reset: 5 per minute
 |    - Email verification: 3 per minute
 |    - General routes: 60 per minute
 |    - Downloads: 10 per minute

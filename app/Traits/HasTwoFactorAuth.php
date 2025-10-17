@@ -2,11 +2,11 @@
 
 namespace App\Traits;
 
-use App\Models\TwoFactorAuth;
 use App\Models\TrustedDevice;
 use App\Models\TwoFactorAttempt;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Models\TwoFactorAuth;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait HasTwoFactorAuth
 {
@@ -66,7 +66,7 @@ trait HasTwoFactorAuth
     /**
      * Enable 2FA (start setup process)
      */
-    public function enableTwoFactor(string $secret = null): TwoFactorAuth
+    public function enableTwoFactor(?string $secret = null): TwoFactorAuth
     {
         $twoFactor = $this->getOrCreateTwoFactorAuth();
 
@@ -103,12 +103,13 @@ trait HasTwoFactorAuth
      */
     public function confirmTwoFactor(string $code): bool
     {
-        if (!$this->twoFactorAuth || !$this->twoFactorAuth->secret) {
+        if (! $this->twoFactorAuth || ! $this->twoFactorAuth->secret) {
             return false;
         }
 
         if ($this->verifyTwoFactorCode($code)) {
             $this->twoFactorAuth->confirm();
+
             return true;
         }
 
@@ -120,11 +121,12 @@ trait HasTwoFactorAuth
      */
     public function verifyTwoFactorCode(string $code): bool
     {
-        if (!$this->twoFactorAuth || !$this->twoFactorAuth->secret) {
+        if (! $this->twoFactorAuth || ! $this->twoFactorAuth->secret) {
             return false;
         }
 
         $secret = $this->twoFactorAuth->secret;
+
         return $this->validateTOTP($secret, $code);
     }
 
@@ -133,7 +135,7 @@ trait HasTwoFactorAuth
      */
     public function verifyRecoveryCode(string $code): bool
     {
-        if (!$this->twoFactorAuth) {
+        if (! $this->twoFactorAuth) {
             return false;
         }
 
@@ -151,15 +153,15 @@ trait HasTwoFactorAuth
         );
 
         return $this->trustedDevices()
-                   ->where('device_id', $deviceId)
-                   ->valid()
-                   ->exists();
+            ->where('device_id', $deviceId)
+            ->valid()
+            ->exists();
     }
 
     /**
      * Trust current device
      */
-    public function trustDevice(\Illuminate\Http\Request $request, string $deviceName = null): TrustedDevice
+    public function trustDevice(\Illuminate\Http\Request $request, ?string $deviceName = null): TrustedDevice
     {
         return TrustedDevice::createFromRequest($this, $request, $deviceName);
     }
@@ -180,8 +182,10 @@ trait HasTwoFactorAuth
         $device = $this->trustedDevices()->find($deviceId);
         if ($device) {
             $device->revoke();
+
             return true;
         }
+
         return false;
     }
 
@@ -196,6 +200,7 @@ trait HasTwoFactorAuth
         for ($i = 0; $i < 32; $i++) {
             $secret .= $chars[random_int(0, 31)];
         }
+
         return $secret;
     }
 
@@ -226,18 +231,18 @@ trait HasTwoFactorAuth
         $secretBinary = $this->base32Decode($secret);
 
         // Convert time slice to 8-byte big-endian
-        $time = pack('N*', 0) . pack('N*', $timeSlice);
+        $time = pack('N*', 0).pack('N*', $timeSlice);
 
         // Generate HMAC-SHA1
         $hash = hash_hmac('sha1', $time, $secretBinary, true);
 
         // Dynamic truncation
-        $offset = ord($hash[19]) & 0xf;
+        $offset = ord($hash[19]) & 0xF;
         $code = (
-            ((ord($hash[$offset+0]) & 0x7f) << 24) |
-            ((ord($hash[$offset+1]) & 0xff) << 16) |
-            ((ord($hash[$offset+2]) & 0xff) << 8) |
-            (ord($hash[$offset+3]) & 0xff)
+            ((ord($hash[$offset + 0]) & 0x7F) << 24) |
+            ((ord($hash[$offset + 1]) & 0xFF) << 16) |
+            ((ord($hash[$offset + 2]) & 0xFF) << 8) |
+            (ord($hash[$offset + 3]) & 0xFF)
         ) % 1000000;
 
         return str_pad($code, 6, '0', STR_PAD_LEFT);
@@ -273,7 +278,7 @@ trait HasTwoFactorAuth
      */
     public function getTwoFactorQrCodeUrl(): ?string
     {
-        if (!$this->twoFactorAuth || !$this->twoFactorAuth->secret) {
+        if (! $this->twoFactorAuth || ! $this->twoFactorAuth->secret) {
             return null;
         }
 
@@ -294,7 +299,7 @@ trait HasTwoFactorAuth
         string $codeType,
         bool $successful,
         \Illuminate\Http\Request $request,
-        string $failureReason = null
+        ?string $failureReason = null
     ): void {
         $this->twoFactorAttempts()->create([
             'code_type' => $codeType,
@@ -312,9 +317,9 @@ trait HasTwoFactorAuth
     public function getRecentFailedTwoFactorAttempts(int $minutes = 15): int
     {
         return $this->twoFactorAttempts()
-                   ->where('attempted_at', '>=', now()->subMinutes($minutes))
-                   ->where('successful', false)
-                   ->count();
+            ->where('attempted_at', '>=', now()->subMinutes($minutes))
+            ->where('successful', false)
+            ->count();
     }
 
     /**

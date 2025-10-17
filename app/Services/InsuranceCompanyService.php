@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
-use App\Contracts\Services\InsuranceCompanyServiceInterface;
 use App\Contracts\Repositories\InsuranceCompanyRepositoryInterface;
+use App\Contracts\Services\InsuranceCompanyServiceInterface;
 use App\Exports\InsuranceCompanyExport;
 use App\Models\InsuranceCompany;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Insurance Company Service
@@ -20,7 +22,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class InsuranceCompanyService extends BaseService implements InsuranceCompanyServiceInterface
 {
     public function __construct(
-        private InsuranceCompanyRepositoryInterface $insuranceCompanyRepository
+        private readonly InsuranceCompanyRepositoryInterface $insuranceCompanyRepository
     ) {}
 
     public function getInsuranceCompanies(Request $request): LengthAwarePaginator
@@ -31,32 +33,32 @@ class InsuranceCompanyService extends BaseService implements InsuranceCompanySer
     public function createInsuranceCompany(array $data): InsuranceCompany
     {
         return $this->createInTransaction(
-            fn() => $this->insuranceCompanyRepository->create($data)
+            fn (): Model => $this->insuranceCompanyRepository->create($data)
         );
     }
 
     public function updateInsuranceCompany(InsuranceCompany $insuranceCompany, array $data): InsuranceCompany
     {
         return $this->updateInTransaction(
-            fn() => $this->insuranceCompanyRepository->update($insuranceCompany, $data)
+            fn (): Model => $this->insuranceCompanyRepository->update($insuranceCompany, $data)
         );
     }
 
     public function deleteInsuranceCompany(InsuranceCompany $insuranceCompany): bool
     {
         return $this->deleteInTransaction(
-            fn() => $this->insuranceCompanyRepository->delete($insuranceCompany)
+            fn (): bool => $this->insuranceCompanyRepository->delete($insuranceCompany)
         );
     }
 
     public function updateStatus(int $insuranceCompanyId, int $status): bool
     {
         return $this->updateInTransaction(
-            fn() => $this->insuranceCompanyRepository->updateStatus($insuranceCompanyId, $status)
+            fn (): bool => $this->insuranceCompanyRepository->updateStatus($insuranceCompanyId, $status)
         );
     }
 
-    public function exportInsuranceCompanies(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportInsuranceCompanies(): BinaryFileResponse
     {
         return Excel::download(new InsuranceCompanyExport, 'insurance_companies.xlsx');
     }

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\ReferenceUser;
 use App\Services\ReferenceUserService;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ReferenceUsersExport;
+use App\Traits\ExportableTrait;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 use Throwable;
 
 /**
@@ -18,6 +19,8 @@ use Throwable;
  */
 class ReferenceUsersController extends AbstractBaseCrudController
 {
+    use ExportableTrait;
+
     public function __construct(
         private ReferenceUserService $referenceUserService
     ) {
@@ -27,29 +30,28 @@ class ReferenceUsersController extends AbstractBaseCrudController
     /**
      * List ReferenceUsers
      *
-     * @param Request $request
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request)
     {
         $query = ReferenceUser::query();
 
         if ($request->filled('search')) {
-            $searchTerm = '%' . trim($request->search) . '%';
+            $searchTerm = '%'.trim($request->search).'%';
             $query->where('name', 'LIKE', $searchTerm)
                 ->orWhere('email', 'LIKE', $searchTerm)
                 ->orWhere('mobile_number', 'LIKE', $searchTerm);
         }
 
-        $reference_users = $query->paginate(10);
+        $query->paginate(config('app.pagination_default', 15));
 
-        return view('reference_users.index', compact('reference_users'));
+        return view('reference_users.index', ['reference_users' => $reference_users]);
     }
 
     /**
      * Create ReferenceUser
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -59,34 +61,32 @@ class ReferenceUsersController extends AbstractBaseCrudController
     /**
      * Store ReferenceUser
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
         $validationRules = [
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:100',
+            'mobile_number' => 'nullable|string|max:15',
         ];
 
         $validated = $request->validate($validationRules);
 
         try {
             $this->referenceUserService->createReferenceUser($validated);
+
             return $this->redirectWithSuccess('reference_users.index', $this->getSuccessMessage('Reference User', 'created'));
-        } catch (Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Reference User', 'create') . ': ' . $th->getMessage())
+        } catch (Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Reference User', 'create').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Update Status Of ReferenceUser
-     *
-     * @param Integer $reference_user_id
-     * @param Integer $status
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateStatus($reference_user_id, $status)
+    public function updateStatus(int $reference_user_id, int $status): RedirectResponse
     {
         $validationRules = [
             'reference_user_id' => 'required|exists:reference_users,id',
@@ -104,80 +104,101 @@ class ReferenceUsersController extends AbstractBaseCrudController
 
         try {
             $this->referenceUserService->updateStatus($reference_user_id, $status);
+
             return $this->redirectWithSuccess('reference_users.index', $this->getSuccessMessage('Reference User Status', 'updated'));
-        } catch (Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Reference User Status', 'update') . ': ' . $th->getMessage());
+        } catch (Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Reference User Status', 'update').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Edit ReferenceUser
      *
-     * @param ReferenceUser $reference_user
-     * @return \Illuminate\View\View
+     * @return View
      */
-    public function edit(ReferenceUser $reference_user)
+    public function edit(ReferenceUser $referenceUser)
     {
-        return view('reference_users.edit', compact('reference_user'));
+        return view('reference_users.edit', ['reference_user' => $reference_user]);
     }
 
     /**
      * Update ReferenceUser
      *
-     * @param Request $request
-     * @param ReferenceUser $reference_user
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function update(Request $request, ReferenceUser $reference_user)
+    public function update(Request $request, ReferenceUser $referenceUser)
     {
         $validationRules = [
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:100',
+            'mobile_number' => 'nullable|string|max:15',
         ];
 
         $validated = $request->validate($validationRules);
 
         try {
-            $this->referenceUserService->updateReferenceUser($reference_user, $validated);
+            $this->referenceUserService->updateReferenceUser($referenceUser, $validated);
+
             return $this->redirectWithSuccess('reference_users.index', $this->getSuccessMessage('Reference User', 'updated'));
-        } catch (Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Reference User', 'update') . ': ' . $th->getMessage())
+        } catch (Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Reference User', 'update').': '.$throwable->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Delete ReferenceUser
-     *
-     * @param ReferenceUser $reference_user
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete(ReferenceUser $reference_user)
+    public function delete(ReferenceUser $referenceUser): RedirectResponse
     {
         try {
-            $this->referenceUserService->deleteReferenceUser($reference_user);
+            $this->referenceUserService->deleteReferenceUser($referenceUser);
+
             return $this->redirectWithSuccess('reference_users.index', $this->getSuccessMessage('Reference User', 'deleted'));
-        } catch (Throwable $th) {
-            return $this->redirectWithError($this->getErrorMessage('Reference User', 'delete') . ': ' . $th->getMessage());
+        } catch (Throwable $throwable) {
+            return $this->redirectWithError($this->getErrorMessage('Reference User', 'delete').': '.$throwable->getMessage());
         }
     }
 
     /**
      * Import ReferenceUsers
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function importReferenceUsers()
     {
         return view('reference_users.import');
     }
 
-    /**
-     * Export ReferenceUsers
-     *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    public function export()
+    protected function getExportRelations(): array
     {
-        return Excel::download(new ReferenceUsersExport, 'reference_users.xlsx');
+        return [];
+    }
+
+    protected function getSearchableFields(): array
+    {
+        return ['name', 'email', 'mobile_number'];
+    }
+
+    protected function getExportConfig(Request $request): array
+    {
+        return [
+            'format' => $request->get('format', 'xlsx'),
+            'filename' => 'reference_users',
+            'with_headings' => true,
+            'auto_size' => true,
+            'relations' => $this->getExportRelations(),
+            'order_by' => ['column' => 'created_at', 'direction' => 'desc'],
+            'headings' => ['ID', 'Name', 'Email', 'Mobile Number', 'Status', 'Created Date'],
+            'mapping' => fn ($model): array => [
+                $model->id,
+                $model->name,
+                $model->email ?? 'N/A',
+                $model->mobile_number ?? 'N/A',
+                $model->status ? 'Active' : 'Inactive',
+                $model->created_at->format('Y-m-d H:i:s'),
+            ],
+            'with_mapping' => true,
+        ];
     }
 }

@@ -20,21 +20,17 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
 {
     /**
      * The model class name
-     *
-     * @var string
      */
     protected string $modelClass = Claim::class;
 
     /**
      * Searchable fields for the getPaginated method
-     *
-     * @var array
      */
     protected array $searchableFields = [
         'claim_number',
         'description',
         'incident_location',
-        'whatsapp_number'
+        'whatsapp_number',
     ];
 
     /**
@@ -46,7 +42,7 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
             'customer:id,name,email,mobile_number',
             'customerInsurance:id,policy_no,registration_no,insurance_company_id',
             'customerInsurance.insuranceCompany:id,name',
-            'currentStage:id,claim_id,stage_name'
+            'currentStage:id,claim_id,stage_name',
         ]);
 
         // Apply search filters
@@ -54,16 +50,16 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
             $search = $request->input('search');
             $query->where(function (Builder $q) use ($search) {
                 $q->where('claim_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function (Builder $customerQuery) use ($search) {
-                      $customerQuery->where('name', 'like', "%{$search}%")
-                                   ->orWhere('email', 'like', "%{$search}%")
-                                   ->orWhere('mobile_number', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('customerInsurance', function (Builder $insuranceQuery) use ($search) {
-                      $insuranceQuery->where('policy_no', 'like', "%{$search}%")
-                                    ->orWhere('registration_no', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function (Builder $customerQuery) use ($search) {
+                        $customerQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('mobile_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customerInsurance', function (Builder $insuranceQuery) use ($search) {
+                        $insuranceQuery->where('policy_no', 'like', "%{$search}%")
+                            ->orWhere('registration_no', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -92,7 +88,7 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
 
         // Validate sort field to prevent SQL injection
         $allowedSortFields = [
-            'claim_number', 'insurance_type', 'incident_date', 'status', 'created_at', 'updated_at'
+            'claim_number', 'insurance_type', 'incident_date', 'status', 'created_at', 'updated_at',
         ];
 
         if (in_array($sortField, $allowedSortFields)) {
@@ -149,11 +145,11 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
             'health_claims' => Claim::where('insurance_type', 'Health')->count(),
             'vehicle_claims' => Claim::where('insurance_type', 'Vehicle')->count(),
             'this_month_claims' => Claim::whereMonth('created_at', now()->month)
-                                      ->whereYear('created_at', now()->year)
-                                      ->count(),
+                ->whereYear('created_at', now()->year)
+                ->count(),
             'this_week_claims' => Claim::whereBetween('created_at', [
                 now()->startOfWeek(),
-                now()->endOfWeek()
+                now()->endOfWeek(),
             ])->count(),
         ];
     }
@@ -170,12 +166,12 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
         return Claim::with(['customer', 'customerInsurance.insuranceCompany'])
             ->where(function (Builder $query) use ($searchTerm) {
                 $query->where('claim_number', 'like', "%{$searchTerm}%")
-                      ->orWhere('description', 'like', "%{$searchTerm}%")
-                      ->orWhereHas('customer', function (Builder $customerQuery) use ($searchTerm) {
-                          $customerQuery->where('name', 'like', "%{$searchTerm}%")
-                                       ->orWhere('email', 'like', "%{$searchTerm}%")
-                                       ->orWhere('mobile_number', 'like', "%{$searchTerm}%");
-                      });
+                    ->orWhere('description', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('customer', function (Builder $customerQuery) use ($searchTerm) {
+                        $customerQuery->where('name', 'like', "%{$searchTerm}%")
+                            ->orWhere('email', 'like', "%{$searchTerm}%")
+                            ->orWhere('mobile_number', 'like', "%{$searchTerm}%");
+                    });
             })
             ->limit($limit)
             ->orderBy('created_at', 'desc')
@@ -274,7 +270,7 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
                 'month_name' => $startDate->format('M Y'),
                 'claims_count' => $count,
                 'total_amount' => $amount,
-                'average_amount' => $count > 0 ? $amount / $count : 0
+                'average_amount' => $count > 0 ? $amount / $count : 0,
             ];
         }
 
@@ -335,8 +331,8 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
             ->join('claim_stages', 'claims.id', '=', 'claim_stages.claim_id')
             ->where(function ($query) {
                 $query->where('claim_stages.stage_name', 'LIKE', '%settled%')
-                      ->orWhere('claim_stages.stage_name', 'LIKE', '%closed%')
-                      ->orWhere('claim_stages.stage_name', 'LIKE', '%completed%');
+                    ->orWhere('claim_stages.stage_name', 'LIKE', '%closed%')
+                    ->orWhere('claim_stages.stage_name', 'LIKE', '%completed%');
             })
             ->where('claim_stages.is_completed', 1)
             ->whereNotNull('claim_stages.stage_date')
@@ -350,6 +346,7 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
         $totalDays = $settledClaims->sum(function ($claim) {
             $incidentDate = \Carbon\Carbon::parse($claim->incident_date);
             $settlementDate = \Carbon\Carbon::parse($claim->stage_date);
+
             return $incidentDate->diffInDays($settlementDate);
         });
 

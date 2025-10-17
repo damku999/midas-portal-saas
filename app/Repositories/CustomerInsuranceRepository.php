@@ -4,11 +4,11 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\CustomerInsuranceRepositoryInterface;
 use App\Models\CustomerInsurance;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 /**
  * Customer Insurance Repository
@@ -19,6 +19,7 @@ use Carbon\Carbon;
 class CustomerInsuranceRepository extends AbstractBaseRepository implements CustomerInsuranceRepositoryInterface
 {
     protected string $modelClass = CustomerInsurance::class;
+
     protected array $searchableFields = ['policy_no', 'registration_no'];
 
     /**
@@ -32,33 +33,33 @@ class CustomerInsuranceRepository extends AbstractBaseRepository implements Cust
             'branches.name as branch_name',
             'brokers.name as broker_name',
             'relationship_managers.name as relationship_manager_name',
-            'premium_types.name AS policy_type_name'
+            'premium_types.name AS policy_type_name',
         ])
-        ->leftJoin('customers', 'customers.id', '=', 'customer_insurances.customer_id')
-        ->leftJoin('branches', 'branches.id', '=', 'customer_insurances.branch_id')
-        ->leftJoin('brokers', 'brokers.id', '=', 'customer_insurances.broker_id')
-        ->leftJoin('relationship_managers', 'relationship_managers.id', '=', 'customer_insurances.relationship_manager_id')
-        ->leftJoin('premium_types', 'premium_types.id', '=', 'customer_insurances.premium_type_id');
+            ->leftJoin('customers', 'customers.id', '=', 'customer_insurances.customer_id')
+            ->leftJoin('branches', 'branches.id', '=', 'customer_insurances.branch_id')
+            ->leftJoin('brokers', 'brokers.id', '=', 'customer_insurances.broker_id')
+            ->leftJoin('relationship_managers', 'relationship_managers.id', '=', 'customer_insurances.relationship_manager_id')
+            ->leftJoin('premium_types', 'premium_types.id', '=', 'customer_insurances.premium_type_id');
 
         // Apply filters
-        if (!empty($request->search)) {
+        if (! empty($request->search)) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
-                $q->where('customers.name', 'LIKE', '%' . $search . '%')
-                  ->orWhere('customer_insurances.policy_no', 'LIKE', '%' . $search . '%')
-                  ->orWhere('customer_insurances.registration_no', 'LIKE', '%' . $search . '%');
+                $q->where('customers.name', 'LIKE', '%'.$search.'%')
+                    ->orWhere('customer_insurances.policy_no', 'LIKE', '%'.$search.'%')
+                    ->orWhere('customer_insurances.registration_no', 'LIKE', '%'.$search.'%');
             });
         }
 
-        if (!empty($request->customer_id)) {
+        if (! empty($request->customer_id)) {
             $query->where('customer_insurances.customer_id', $request->customer_id);
         }
 
-        if (!empty($request->insurance_company_id)) {
+        if (! empty($request->insurance_company_id)) {
             $query->where('customer_insurances.insurance_company_id', $request->insurance_company_id);
         }
 
-        if (!empty($request->status)) {
+        if (! empty($request->status)) {
             $query->where('customer_insurances.status', $request->status);
         }
 
@@ -181,6 +182,7 @@ class CustomerInsuranceRepository extends AbstractBaseRepository implements Cust
     public function getExpiringWithinDays(int $days): int
     {
         $expiryDate = Carbon::now()->addDays($days);
+
         return CustomerInsurance::where('status', 1)
             ->where('expired_date', '<=', $expiryDate)
             ->where('expired_date', '>', Carbon::now())
@@ -194,7 +196,7 @@ class CustomerInsuranceRepository extends AbstractBaseRepository implements Cust
     {
         return CustomerInsurance::whereBetween('created_at', [
             Carbon::now()->startOfMonth(),
-            Carbon::now()
+            Carbon::now(),
         ])->count();
     }
 
@@ -245,7 +247,7 @@ class CustomerInsuranceRepository extends AbstractBaseRepository implements Cust
                 'month_name' => $startDate->format('M Y'),
                 'revenue' => $revenue,
                 'policies_count' => $count,
-                'average_premium' => $count > 0 ? $revenue / $count : 0
+                'average_premium' => $count > 0 ? $revenue / $count : 0,
             ];
         }
 

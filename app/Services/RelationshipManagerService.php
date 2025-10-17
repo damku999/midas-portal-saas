@@ -15,58 +15,48 @@ class RelationshipManagerService extends BaseService
     /**
      * Create a new relationship manager
      *
-     * @param array $data
-     * @return RelationshipManager
      * @throws \Throwable
      */
     public function createRelationshipManager(array $data): RelationshipManager
     {
         return $this->createInTransaction(
-            fn() => RelationshipManager::create($data)
+            fn () => RelationshipManager::query()->create($data)
         );
     }
 
     /**
      * Update an existing relationship manager
      *
-     * @param RelationshipManager $relationshipManager
-     * @param array $data
-     * @return bool
      * @throws \Throwable
      */
     public function updateRelationshipManager(RelationshipManager $relationshipManager, array $data): bool
     {
         return $this->updateInTransaction(
-            fn() => $relationshipManager->update($data)
+            fn () => $relationshipManager->update($data)
         );
     }
 
     /**
      * Delete a relationship manager
      *
-     * @param RelationshipManager $relationshipManager
-     * @return bool
      * @throws \Throwable
      */
     public function deleteRelationshipManager(RelationshipManager $relationshipManager): bool
     {
         return $this->deleteInTransaction(
-            fn() => $relationshipManager->delete()
+            fn () => $relationshipManager->delete()
         );
     }
 
     /**
      * Update relationship manager status
      *
-     * @param int $relationshipManagerId
-     * @param int $status
-     * @return bool
      * @throws \Throwable
      */
     public function updateStatus(int $relationshipManagerId, int $status): bool
     {
         return $this->executeInTransaction(
-            fn() => RelationshipManager::whereId($relationshipManagerId)->update(['status' => $status])
+            fn () => RelationshipManager::whereId($relationshipManagerId)->update(['status' => $status])
         );
     }
 }

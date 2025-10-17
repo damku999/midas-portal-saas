@@ -3,8 +3,8 @@
 namespace App\Repositories;
 
 use App\Contracts\Repositories\FamilyGroupRepositoryInterface;
-use App\Models\FamilyGroup;
 use App\Models\Customer;
+use App\Models\FamilyGroup;
 use App\Models\FamilyMember;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -20,18 +20,14 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
 {
     /**
      * The model class name
-     *
-     * @var string
      */
     protected string $modelClass = FamilyGroup::class;
 
     /**
      * Searchable fields for the getPaginated method
-     *
-     * @var array
      */
     protected array $searchableFields = [
-        'name'
+        'name',
     ];
 
     /**
@@ -46,10 +42,10 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('familyHead', function ($subQ) use ($search) {
-                      $subQ->where('name', 'like', "%{$search}%")
-                           ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('familyHead', function ($subQ) use ($search) {
+                        $subQ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -117,7 +113,7 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
         return Customer::where('status', true)
             ->where(function ($query) use ($familyGroupId) {
                 $query->whereNull('family_group_id')
-                      ->orWhere('family_group_id', $familyGroupId);
+                    ->orWhere('family_group_id', $familyGroupId);
             })
             ->whereDoesntHave('familyMember', function ($query) use ($familyGroupId) {
                 $query->where('family_group_id', '!=', $familyGroupId);
@@ -156,7 +152,7 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
     {
         // Update the family group record
         $familyGroup = FamilyGroup::find($familyGroupId);
-        if (!$familyGroup) {
+        if (! $familyGroup) {
             return false;
         }
 
@@ -228,10 +224,10 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
         return FamilyGroup::with(['familyHead', 'familyMembers.customer'])
             ->where(function ($query) use ($searchTerm) {
                 $query->where('name', 'like', "%{$searchTerm}%")
-                      ->orWhereHas('familyHead', function ($subQuery) use ($searchTerm) {
-                          $subQuery->where('name', 'like', "%{$searchTerm}%")
-                                   ->orWhere('email', 'like', "%{$searchTerm}%");
-                      });
+                    ->orWhereHas('familyHead', function ($subQuery) use ($searchTerm) {
+                        $subQuery->where('name', 'like', "%{$searchTerm}%")
+                            ->orWhere('email', 'like', "%{$searchTerm}%");
+                    });
             })
             ->limit($limit)
             ->orderBy('created_at', 'desc')

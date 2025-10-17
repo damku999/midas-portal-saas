@@ -2,17 +2,17 @@
 
 namespace App\Modules\Policy\Services;
 
-use App\Modules\Policy\Contracts\PolicyServiceInterface;
-use App\Models\CustomerInsurance;
 use App\Events\Insurance\PolicyCreated;
-use App\Events\Insurance\PolicyRenewed;
 use App\Events\Insurance\PolicyExpiringWarning;
+use App\Events\Insurance\PolicyRenewed;
+use App\Models\CustomerInsurance;
+use App\Modules\Policy\Contracts\PolicyServiceInterface;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class PolicyService implements PolicyServiceInterface
 {
@@ -24,8 +24,8 @@ class PolicyService implements PolicyServiceInterface
         if ($search = $request->input('search')) {
             $query->whereHas('customer', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('mobile_number', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('mobile_number', 'like', "%{$search}%");
             })->orWhere('policy_number', 'like', "%{$search}%");
         }
 
@@ -63,12 +63,12 @@ class PolicyService implements PolicyServiceInterface
 
         try {
             // Generate policy number if not provided
-            if (!isset($policyData['policy_number'])) {
+            if (! isset($policyData['policy_number'])) {
                 $policyData['policy_number'] = $this->generatePolicyNumber();
             }
 
             // Calculate end date if not provided
-            if (!isset($policyData['end_date']) && isset($policyData['start_date'])) {
+            if (! isset($policyData['end_date']) && isset($policyData['start_date'])) {
                 $startDate = Carbon::parse($policyData['start_date']);
                 $policyData['end_date'] = $startDate->addYear()->toDateString();
             }
@@ -104,13 +104,14 @@ class PolicyService implements PolicyServiceInterface
                 Log::info('Policy updated', [
                     'policy_id' => $policyId,
                     'changes' => array_diff_assoc($updateData, $originalData),
-                    'updated_by' => auth()->user()->name ?? 'system'
+                    'updated_by' => auth()->user()->name ?? 'system',
                 ]);
 
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -138,16 +139,16 @@ class PolicyService implements PolicyServiceInterface
                 'engine_number' => $originalPolicy->engine_number,
                 'chassis_number' => $originalPolicy->chassis_number,
                 'registration_date' => $originalPolicy->registration_date,
-                
+
                 // Premium and coverage details
                 'sum_assured' => $renewalData['sum_assured'] ?? $originalPolicy->sum_assured,
                 'premium' => $renewalData['premium'] ?? $originalPolicy->premium,
                 'addon_covers' => $renewalData['addon_covers'] ?? $originalPolicy->addon_covers,
-                
+
                 // Renewal specific dates
                 'start_date' => $renewalData['start_date'] ?? Carbon::parse($originalPolicy->end_date)->toDateString(),
                 'end_date' => $renewalData['end_date'] ?? Carbon::parse($originalPolicy->end_date)->addYear()->toDateString(),
-                
+
                 // Status and tracking
                 'status' => 'Active',
                 'is_renewal' => true,
@@ -198,13 +199,14 @@ class PolicyService implements PolicyServiceInterface
                     'policy_id' => $policyId,
                     'policy_number' => $policy->policy_number,
                     'reason' => $reason,
-                    'cancelled_by' => auth()->user()->name ?? 'system'
+                    'cancelled_by' => auth()->user()->name ?? 'system',
                 ]);
 
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -218,7 +220,7 @@ class PolicyService implements PolicyServiceInterface
             'customer',
             'insuranceCompany',
             'parentPolicy',
-            'renewedPolicy'
+            'renewedPolicy',
         ])->find($id);
     }
 
@@ -244,7 +246,7 @@ class PolicyService implements PolicyServiceInterface
         // Fire expiring warning events for policies expiring in 30 days or less
         foreach ($policies as $policy) {
             $daysUntilExpiry = Carbon::now()->diffInDays(Carbon::parse($policy->end_date));
-            
+
             if (in_array($daysUntilExpiry, [30, 15, 7, 3, 1])) {
                 PolicyExpiringWarning::dispatch($policy, $daysUntilExpiry);
             }
@@ -258,7 +260,7 @@ class PolicyService implements PolicyServiceInterface
         // Basic premium calculation logic
         $baseIdv = $policyData['sum_assured'] ?? 0;
         $vehicleAge = date('Y') - ($policyData['manufacturing_year'] ?? date('Y'));
-        
+
         // Base rate calculation
         $baseRate = match (true) {
             $vehicleAge <= 1 => 0.025, // 2.5%
@@ -272,7 +274,7 @@ class PolicyService implements PolicyServiceInterface
         // Add-on covers
         $addonPremium = 0;
         $addons = $policyData['addon_covers'] ?? [];
-        
+
         foreach ($addons as $addon) {
             $addonPremium += match ($addon) {
                 'Zero Depreciation' => $baseIdv * 0.004,
@@ -326,8 +328,8 @@ class PolicyService implements PolicyServiceInterface
             ->where('policy_number', 'like', "%{$query}%")
             ->orWhereHas('customer', function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('email', 'like', "%{$query}%")
-                  ->orWhere('mobile_number', 'like', "%{$query}%");
+                    ->orWhere('email', 'like', "%{$query}%")
+                    ->orWhere('mobile_number', 'like', "%{$query}%");
             })
             ->orWhere('vehicle_number', 'like', "%{$query}%")
             ->orWhere('make_model_variant', 'like', "%{$query}%")
@@ -350,7 +352,7 @@ class PolicyService implements PolicyServiceInterface
     {
         $year = date('Y');
         $month = date('m');
-        
+
         // Get the last policy number for this month
         $lastPolicy = CustomerInsurance::whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
@@ -375,8 +377,8 @@ class PolicyService implements PolicyServiceInterface
     private function generateRenewalPolicyNumber(string $originalPolicyNumber): string
     {
         $year = date('Y');
-        $renewalSuffix = 'R' . ($year % 100);
-        
-        return $originalPolicyNumber . '/' . $renewalSuffix;
+        $renewalSuffix = 'R'.($year % 100);
+
+        return $originalPolicyNumber.'/'.$renewalSuffix;
     }
 }

@@ -2,12 +2,64 @@
 
 namespace App\Models;
 
+use Database\Factories\TrustedDeviceFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
+/**
+ * App\Models\TrustedDevice
+ *
+ * @property int $id
+ * @property string $authenticatable_type
+ * @property int $authenticatable_id
+ * @property string $device_id
+ * @property string $device_name
+ * @property string|null $device_type
+ * @property string|null $browser
+ * @property string|null $platform
+ * @property string $ip_address
+ * @property string $user_agent
+ * @property Carbon|null $last_used_at
+ * @property Carbon $trusted_at
+ * @property Carbon|null $expires_at
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Model $authenticatable
+ *
+ * @method static Builder|TrustedDevice active()
+ * @method static TrustedDeviceFactory factory($count = null, $state = [])
+ * @method static Builder|TrustedDevice newModelQuery()
+ * @method static Builder|TrustedDevice newQuery()
+ * @method static Builder|TrustedDevice query()
+ * @method static Builder|TrustedDevice valid()
+ * @method static Builder|TrustedDevice whereAuthenticatableId($value)
+ * @method static Builder|TrustedDevice whereAuthenticatableType($value)
+ * @method static Builder|TrustedDevice whereBrowser($value)
+ * @method static Builder|TrustedDevice whereCreatedAt($value)
+ * @method static Builder|TrustedDevice whereDeviceId($value)
+ * @method static Builder|TrustedDevice whereDeviceName($value)
+ * @method static Builder|TrustedDevice whereDeviceType($value)
+ * @method static Builder|TrustedDevice whereExpiresAt($value)
+ * @method static Builder|TrustedDevice whereId($value)
+ * @method static Builder|TrustedDevice whereIpAddress($value)
+ * @method static Builder|TrustedDevice whereIsActive($value)
+ * @method static Builder|TrustedDevice whereLastUsedAt($value)
+ * @method static Builder|TrustedDevice wherePlatform($value)
+ * @method static Builder|TrustedDevice whereTrustedAt($value)
+ * @method static Builder|TrustedDevice whereUpdatedAt($value)
+ * @method static Builder|TrustedDevice whereUserAgent($value)
+ *
+ * @mixin Model
+ */
 class TrustedDevice extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'authenticatable_type',
         'authenticatable_id',
@@ -44,7 +96,8 @@ class TrustedDevice extends Model
      */
     public static function generateDeviceId(string $userAgent, string $ipAddress, ?string $additionalData = null): string
     {
-        $fingerprint = $userAgent . $ipAddress . ($additionalData ?? '');
+        $fingerprint = $userAgent.$ipAddress.($additionalData ?? '');
+
         return hash('sha256', $fingerprint);
     }
 
@@ -53,22 +106,22 @@ class TrustedDevice extends Model
      */
     public static function createFromRequest(
         $authenticatable,
-        \Illuminate\Http\Request $request,
-        string $deviceName = null
+        Request $request,
+        ?string $deviceName = null
     ): self {
         $userAgent = $request->userAgent() ?? '';
         $ipAddress = $request->ip();
         $deviceId = self::generateDeviceId($userAgent, $ipAddress);
 
         // Check if device already exists for this user
-        $existingDevice = self::where('authenticatable_type', get_class($authenticatable))
+        $existingDevice = self::query()->where('authenticatable_type', $authenticatable::class)
             ->where('authenticatable_id', $authenticatable->id)
             ->where('device_id', $deviceId)
             ->first();
 
         if ($existingDevice) {
             // If device exists but is inactive, reactivate it
-            if (!$existingDevice->is_active) {
+            if (! $existingDevice->is_active) {
                 $existingDevice->update([
                     'device_name' => $deviceName ?? $existingDevice->device_name,
                     'last_used_at' => now(),
@@ -76,6 +129,7 @@ class TrustedDevice extends Model
                     'expires_at' => now()->addDays(config('security.device_trust_duration', 30)),
                     'is_active' => true,
                 ]);
+
                 return $existingDevice;
             }
 
@@ -84,6 +138,7 @@ class TrustedDevice extends Model
                 'device_name' => $deviceName ?? $existingDevice->device_name,
                 'last_used_at' => now(),
             ]);
+
             return $existingDevice;
         }
 
@@ -91,8 +146,8 @@ class TrustedDevice extends Model
         $deviceInfo = self::parseUserAgent($userAgent);
 
         // Create new device
-        return self::create([
-            'authenticatable_type' => get_class($authenticatable),
+        return self::query()->create([
+            'authenticatable_type' => $authenticatable::class,
             'authenticatable_id' => $authenticatable->id,
             'device_id' => $deviceId,
             'device_name' => $deviceName ?? $deviceInfo['device_name'],
@@ -121,39 +176,39 @@ class TrustedDevice extends Model
         // Detect mobile devices
         if (preg_match('/Mobile|Android|iPhone|iPad/', $userAgent)) {
             $deviceType = 'mobile';
-            if (strpos($userAgent, 'iPad') !== false) {
+            if (str_contains($userAgent, 'iPad')) {
                 $deviceType = 'tablet';
                 $deviceName = 'iPad';
                 $platform = 'iOS';
-            } elseif (strpos($userAgent, 'iPhone') !== false) {
+            } elseif (str_contains($userAgent, 'iPhone')) {
                 $deviceName = 'iPhone';
                 $platform = 'iOS';
-            } elseif (strpos($userAgent, 'Android') !== false) {
+            } elseif (str_contains($userAgent, 'Android')) {
                 $platform = 'Android';
                 $deviceName = 'Android Device';
             }
         }
 
         // Detect browser
-        if (strpos($userAgent, 'Chrome') !== false && strpos($userAgent, 'Edg') === false) {
+        if (str_contains($userAgent, 'Chrome') && in_array(str_contains($userAgent, 'Edg'), [0, false], true)) {
             $browser = 'Chrome';
-        } elseif (strpos($userAgent, 'Firefox') !== false) {
+        } elseif (str_contains($userAgent, 'Firefox')) {
             $browser = 'Firefox';
-        } elseif (strpos($userAgent, 'Safari') !== false && strpos($userAgent, 'Chrome') === false) {
+        } elseif (str_contains($userAgent, 'Safari') && in_array(str_contains($userAgent, 'Chrome'), [0, false], true)) {
             $browser = 'Safari';
-        } elseif (strpos($userAgent, 'Edg') !== false) {
+        } elseif (str_contains($userAgent, 'Edg')) {
             $browser = 'Edge';
         }
 
         // Detect platform if not mobile
         if ($deviceType === 'desktop') {
-            if (strpos($userAgent, 'Windows') !== false) {
+            if (str_contains($userAgent, 'Windows')) {
                 $platform = 'Windows';
                 $deviceName = 'Windows PC';
-            } elseif (strpos($userAgent, 'Mac') !== false) {
+            } elseif (str_contains($userAgent, 'Mac')) {
                 $platform = 'macOS';
                 $deviceName = 'Mac';
-            } elseif (strpos($userAgent, 'Linux') !== false) {
+            } elseif (str_contains($userAgent, 'Linux')) {
                 $platform = 'Linux';
                 $deviceName = 'Linux PC';
             }
@@ -173,7 +228,7 @@ class TrustedDevice extends Model
     public function isValid(): bool
     {
         return $this->is_active &&
-               (!$this->expires_at || $this->expires_at->isFuture());
+               (! $this->expires_at || $this->expires_at->isFuture());
     }
 
     /**
@@ -195,9 +250,9 @@ class TrustedDevice extends Model
     /**
      * Extend trust period
      */
-    public function extendTrust(int $days = null): void
+    public function extendTrust(?int $days = null): void
     {
-        $days = $days ?? config('security.device_trust_duration', 30);
+        $days ??= config('security.device_trust_duration', 30);
         $this->update(['expires_at' => now()->addDays($days)]);
     }
 
@@ -206,15 +261,15 @@ class TrustedDevice extends Model
      */
     public function getDisplayName(): string
     {
-        return $this->device_name .
-               ($this->browser ? " ({$this->browser})" : '') .
-               ($this->platform ? " - {$this->platform}" : '');
+        return $this->device_name.
+               ($this->browser ? sprintf(' (%s)', $this->browser) : '').
+               ($this->platform ? ' - '.$this->platform : '');
     }
 
     /**
      * Scope for active devices only
      */
-    public function scopeActive($query)
+    protected function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
@@ -222,12 +277,12 @@ class TrustedDevice extends Model
     /**
      * Scope for valid (active and not expired) devices
      */
-    public function scopeValid($query)
+    protected function scopeValid($query)
     {
         return $query->where('is_active', true)
-                    ->where(function($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>', now());
-                    });
+            ->where(static function ($q): void {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 }

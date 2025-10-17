@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ContentSecurityPolicyService
 {
-    private string $nonce;
-    private array $trustedHosts;
-    private bool $isDevelopment;
-    private bool $reportOnly;
+    private readonly string $nonce;
+
+    private readonly array $trustedHosts;
+
+    private readonly bool $isDevelopment;
+
+    private readonly bool $reportOnly;
 
     public function __construct()
     {
@@ -28,7 +31,7 @@ class ContentSecurityPolicyService
     public function getContentSecurityPolicy(Request $request): array
     {
         $isAdminPanel = $this->isAdminPanel($request);
-        
+
         $basePolicy = [
             'default-src' => "'self'",
             'script-src' => $this->getScriptSrc($isAdminPanel),
@@ -52,7 +55,7 @@ class ContentSecurityPolicyService
         }
 
         // Upgrade insecure requests in production
-        if (!$this->isDevelopment) {
+        if (! $this->isDevelopment) {
             $basePolicy['upgrade-insecure-requests'] = '';
         }
 
@@ -64,21 +67,21 @@ class ContentSecurityPolicyService
         return [
             // Core security headers
             'X-Content-Type-Options' => 'nosniff',
-            'X-Frame-Options' => 'DENY', 
+            'X-Frame-Options' => 'DENY',
             'X-XSS-Protection' => '0', // Disabled in favor of CSP
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            
+
             // HSTS for HTTPS
             'Strict-Transport-Security' => $this->getHstsHeader(),
-            
+
             // Cross-Origin policies
             'Cross-Origin-Embedder-Policy' => 'require-corp',
             'Cross-Origin-Opener-Policy' => 'same-origin',
             'Cross-Origin-Resource-Policy' => 'same-origin',
-            
+
             // Permissions policy (new Permissions API)
             'Permissions-Policy' => $this->getPermissionsPolicy(),
-            
+
             // Additional security headers
             'X-Permitted-Cross-Domain-Policies' => 'none',
             'X-DNS-Prefetch-Control' => 'off',
@@ -94,32 +97,32 @@ class ContentSecurityPolicyService
     public function buildCspString(array $policy): string
     {
         $cspString = '';
-        
+
         foreach ($policy as $directive => $value) {
             if (empty($value)) {
-                $cspString .= $directive . '; ';
+                $cspString .= $directive.'; ';
             } else {
-                $cspString .= $directive . ' ' . $value . '; ';
+                $cspString .= $directive.' '.$value.'; ';
             }
         }
-        
+
         return rtrim($cspString, '; ');
     }
 
     private function getScriptSrc(bool $isAdminPanel): string
     {
         $sources = ["'self'"];
-        
+
         // Add nonce for inline scripts
-        $sources[] = "'nonce-{$this->nonce}'";
-        
+        $sources[] = sprintf("'nonce-%s'", $this->nonce);
+
         // Add trusted CDNs for specific functionality
         $cdnSources = [
             'https://code.jquery.com',
             'https://cdn.jsdelivr.net',
             'https://cdnjs.cloudflare.com',
         ];
-        
+
         // Admin panel may need additional sources for charts/analytics
         if ($isAdminPanel) {
             $cdnSources = array_merge($cdnSources, [
@@ -127,29 +130,29 @@ class ContentSecurityPolicyService
                 'https://cdn.datatables.net',
             ]);
         }
-        
+
         $sources = array_merge($sources, $cdnSources);
-        
+
         // Add trusted hosts
-        if (!empty($this->trustedHosts)) {
+        if ($this->trustedHosts !== []) {
             $sources = array_merge($sources, $this->trustedHosts);
         }
-        
+
         // Development mode may need eval for hot reloading
         if ($this->isDevelopment) {
             $sources[] = "'unsafe-eval'"; // Only for development
         }
-        
+
         return implode(' ', $sources);
     }
 
     private function getStyleSrc(): string
     {
         $sources = ["'self'"];
-        
+
         // Add nonce for inline styles
-        $sources[] = "'nonce-{$this->nonce}'";
-        
+        $sources[] = sprintf("'nonce-%s'", $this->nonce);
+
         // Add trusted style CDNs
         $styleCdns = [
             'https://fonts.googleapis.com',
@@ -157,9 +160,9 @@ class ContentSecurityPolicyService
             'https://cdnjs.cloudflare.com',
             'https://kit.fontawesome.com',
         ];
-        
+
         $sources = array_merge($sources, $styleCdns);
-        
+
         return implode(' ', $sources);
     }
 
@@ -176,17 +179,17 @@ class ContentSecurityPolicyService
     private function getConnectSrc(): string
     {
         $sources = ["'self'"];
-        
+
         // Add API endpoints if different domain
         if ($apiDomain = config('app.api_domain')) {
             $sources[] = $apiDomain;
         }
-        
+
         // Add WhatsApp API domain if configured
         if ($whatsappDomain = config('whatsapp.api_domain')) {
             $sources[] = $whatsappDomain;
         }
-        
+
         return implode(' ', $sources);
     }
 
@@ -195,17 +198,17 @@ class ContentSecurityPolicyService
         $maxAge = config('security.hsts_max_age', 31536000); // 1 year default
         $includeSubdomains = config('security.hsts_include_subdomains', true);
         $preload = config('security.hsts_preload', false);
-        
-        $header = "max-age={$maxAge}";
-        
+
+        $header = 'max-age='.$maxAge;
+
         if ($includeSubdomains) {
             $header .= '; includeSubDomains';
         }
-        
+
         if ($preload) {
             $header .= '; preload';
         }
-        
+
         return $header;
     }
 
@@ -216,7 +219,7 @@ class ContentSecurityPolicyService
 
     private function isAdminPanel(Request $request): bool
     {
-        return !str_starts_with($request->path(), 'customer');
+        return ! str_starts_with($request->path(), 'customer');
     }
 
     public function generateNonceForView(): string
@@ -232,7 +235,7 @@ class ContentSecurityPolicyService
 
     public function logCspViolation(array $violationData): void
     {
-        \Log::channel('security')->warning('CSP Violation detected', [
+        Log::channel('security')->warning('CSP Violation detected', [
             'violation' => $violationData,
             'user_id' => auth()->id(),
             'ip' => request()->ip(),

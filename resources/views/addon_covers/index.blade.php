@@ -103,11 +103,17 @@
                                             @endif
 
                                             @if (auth()->user()->hasPermissionTo('addon-cover-delete'))
-                                                <form action="{{ route('addon-covers.delete', $addon_cover->id) }}" method="POST" style="display: inline;">
+                                                <form action="{{ route('addon-covers.delete', $addon_cover->id) }}"
+                                                      method="POST"
+                                                      style="display: inline;"
+                                                      data-confirm-submit="true"
+                                                      data-title="Confirm Deletion"
+                                                      data-message="Are you sure you want to delete <strong>{{ $addon_cover->name }}</strong>? This action cannot be undone."
+                                                      data-confirm-text="Yes, Delete"
+                                                      data-confirm-class="btn-danger">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="btn btn-danger btn-sm" title="Delete Add-on Cover"
-                                                        onclick="if(confirm('Are you sure you want to delete this Add-on Cover?')) { this.closest('form').submit(); }">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Add-on Cover">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

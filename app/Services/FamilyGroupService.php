@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Contracts\Repositories\FamilyGroupRepositoryInterface;
 use App\Contracts\Services\FamilyGroupServiceInterface;
+use App\Models\Customer;
 use App\Models\FamilyGroup;
 use App\Models\FamilyMember;
-use App\Models\Customer;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,21 +24,14 @@ use Illuminate\Support\Facades\Log;
 class FamilyGroupService extends BaseService implements FamilyGroupServiceInterface
 {
     /**
-     * Family Group Repository instance
-     *
-     * @var FamilyGroupRepositoryInterface
-     */
-    private FamilyGroupRepositoryInterface $familyGroupRepository;
-
-    /**
      * Constructor
-     *
-     * @param FamilyGroupRepositoryInterface $familyGroupRepository
      */
-    public function __construct(FamilyGroupRepositoryInterface $familyGroupRepository)
-    {
-        $this->familyGroupRepository = $familyGroupRepository;
-    }
+    public function __construct(
+        /**
+         * Family Group Repository instance
+         */
+        private readonly FamilyGroupRepositoryInterface $familyGroupRepository
+    ) {}
 
     /**
      * Get paginated list of family groups with filters
@@ -58,9 +54,9 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function createFamilyGroup(array $data): FamilyGroup
     {
-        return $this->createInTransaction(function () use ($data) {
+        return $this->createInTransaction(function () use ($data): Model {
             // Create family group
-            $familyGroup = $this->familyGroupRepository->create([
+            $model = $this->familyGroupRepository->create([
                 'name' => $data['name'],
                 'family_head_id' => $data['family_head_id'],
                 'status' => $data['status'] ?? true,
@@ -68,32 +64,32 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             ]);
 
             // Update family head's family_group_id
-            Customer::where('id', $data['family_head_id'])
-                ->update(['family_group_id' => $familyGroup->id]);
+            Customer::query()->where('id', $data['family_head_id'])
+                ->update(['family_group_id' => $model->id]);
 
             // Set up passwords for all family members
             $passwordNotifications = [];
 
             // Setup family head password
-            $familyHead = Customer::find($data['family_head_id']);
+            $familyHead = Customer::query()->find($data['family_head_id']);
 
             // Use admin-provided password or generate one
-            $customPassword = !empty($data['family_head_password']) ? $data['family_head_password'] : null;
+            $customPassword = empty($data['family_head_password']) ? null : $data['family_head_password'];
             $forcePasswordChange = $data['force_password_change'] ?? true;
 
-            if ($customPassword || !$familyHead->hasVerifiedEmail() || $familyHead->needsPasswordChange()) {
+            if ($customPassword || ! $familyHead->hasVerifiedEmail() || $familyHead->needsPasswordChange()) {
                 $password = $customPassword ? $familyHead->setCustomPassword($customPassword, $forcePasswordChange) : $familyHead->setDefaultPassword();
                 $passwordNotifications[] = [
                     'customer' => $familyHead,
                     'password' => $password,
                     'is_head' => true,
-                    'admin_set' => !empty($customPassword)
+                    'admin_set' => ! empty($customPassword),
                 ];
             }
 
             // Add family head as member
-            FamilyMember::create([
-                'family_group_id' => $familyGroup->id,
+            FamilyMember::query()->create([
+                'family_group_id' => $model->id,
                 'customer_id' => $data['family_head_id'],
                 'relationship' => 'head',
                 'is_head' => true,
@@ -101,25 +97,25 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             ]);
 
             // Add other family members if provided
-            if (!empty($data['member_ids'])) {
+            if (! empty($data['member_ids'])) {
                 foreach ($data['member_ids'] as $index => $memberId) {
                     if ($memberId != $data['family_head_id']) {
-                        Customer::where('id', $memberId)
-                            ->update(['family_group_id' => $familyGroup->id]);
+                        Customer::query()->where('id', $memberId)
+                            ->update(['family_group_id' => $model->id]);
 
                         // Setup password for family member
-                        $familyMember = Customer::find($memberId);
-                        if (!$familyMember->hasVerifiedEmail() || $familyMember->needsPasswordChange()) {
+                        $familyMember = Customer::query()->find($memberId);
+                        if (! $familyMember->hasVerifiedEmail() || $familyMember->needsPasswordChange()) {
                             $password = $familyMember->setDefaultPassword();
                             $passwordNotifications[] = [
                                 'customer' => $familyMember,
                                 'password' => $password,
-                                'is_head' => false
+                                'is_head' => false,
                             ];
                         }
 
-                        FamilyMember::create([
-                            'family_group_id' => $familyGroup->id,
+                        FamilyMember::query()->create([
+                            'family_group_id' => $model->id,
                             'customer_id' => $memberId,
                             'relationship' => $data['relationships'][$index] ?? null,
                             'is_head' => false,
@@ -130,16 +126,16 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             }
 
             // Send password notifications after successful commit
-            $this->sendPasswordNotifications($passwordNotifications, $familyGroup);
+            $this->sendPasswordNotifications($passwordNotifications, $model);
 
             Log::info('Family group created successfully', [
-                'family_group_id' => $familyGroup->id,
+                'family_group_id' => $model->id,
                 'family_head_id' => $data['family_head_id'],
                 'members_count' => count($data['member_ids'] ?? []),
                 'user_id' => auth()->id(),
             ]);
 
-            return $familyGroup;
+            return $model;
         });
     }
 
@@ -148,9 +144,9 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function updateFamilyGroup(FamilyGroup $familyGroup, array $data): bool
     {
-        return $this->updateInTransaction(function () use ($familyGroup, $data) {
+        return $this->updateInTransaction(function () use ($familyGroup, $data): Model {
             // Update basic family group data
-            $updated = $this->familyGroupRepository->update($familyGroup, [
+            $model = $this->familyGroupRepository->update($familyGroup, [
                 'name' => $data['name'],
                 'status' => $data['status'] ?? $familyGroup->status,
             ]);
@@ -165,14 +161,14 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
                 $this->updateFamilyMembers($familyGroup, $data['member_ids'], $data['relationships'] ?? []);
             }
 
-            if ($updated) {
+            if ($model) {
                 Log::info('Family group updated successfully', [
                     'family_group_id' => $familyGroup->id,
                     'user_id' => auth()->id(),
                 ]);
             }
 
-            return $updated;
+            return $model;
         });
     }
 
@@ -181,12 +177,12 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function deleteFamilyGroup(FamilyGroup $familyGroup): bool
     {
-        return $this->deleteInTransaction(function () use ($familyGroup) {
+        return $this->deleteInTransaction(function () use ($familyGroup): bool {
             // Remove all family members
-            FamilyMember::where('family_group_id', $familyGroup->id)->delete();
+            FamilyMember::query()->where('family_group_id', $familyGroup->id)->delete();
 
             // Update all customers to remove family_group_id
-            Customer::where('family_group_id', $familyGroup->id)
+            Customer::query()->where('family_group_id', $familyGroup->id)
                 ->update(['family_group_id' => null]);
 
             // Delete the family group
@@ -221,14 +217,14 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
 
             return $updated;
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             Log::error('Failed to update family group status', [
                 'family_group_id' => $familyGroupId,
                 'status' => $status,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'user_id' => auth()->id(),
             ]);
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -237,13 +233,13 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function addFamilyMember(int $familyGroupId, array $memberData): FamilyMember
     {
-        return $this->createInTransaction(function () use ($familyGroupId, $memberData) {
+        return $this->createInTransaction(static function () use ($familyGroupId, $memberData) {
             // Update customer's family_group_id
-            Customer::where('id', $memberData['customer_id'])
+            Customer::query()->where('id', $memberData['customer_id'])
                 ->update(['family_group_id' => $familyGroupId]);
 
             // Create family member record
-            $familyMember = FamilyMember::create([
+            $familyMember = FamilyMember::query()->create([
                 'family_group_id' => $familyGroupId,
                 'customer_id' => $memberData['customer_id'],
                 'relationship' => $memberData['relationship'] ?? null,
@@ -252,8 +248,8 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             ]);
 
             // Setup password if needed
-            $customer = Customer::find($memberData['customer_id']);
-            if (!$customer->hasVerifiedEmail() || $customer->needsPasswordChange()) {
+            $customer = Customer::query()->find($memberData['customer_id']);
+            if (! $customer->hasVerifiedEmail() || $customer->needsPasswordChange()) {
                 $customer->setDefaultPassword();
             }
 
@@ -266,9 +262,9 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function removeFamilyMember(int $familyGroupId, int $memberId): bool
     {
-        return $this->executeInTransaction(function () use ($familyGroupId, $memberId) {
+        return $this->executeInTransaction(function () use ($familyGroupId, $memberId): bool {
             // Check if member is family head
-            $familyMember = FamilyMember::where('family_group_id', $familyGroupId)
+            $familyMember = FamilyMember::query()->where('family_group_id', $familyGroupId)
                 ->where('customer_id', $memberId)
                 ->first();
 
@@ -285,7 +281,7 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function updateFamilyMember(int $familyMemberId, array $data): bool
     {
-        $familyMember = FamilyMember::findOrFail($familyMemberId);
+        $familyMember = FamilyMember::query()->findOrFail($familyMemberId);
 
         return $familyMember->update([
             'relationship' => $data['relationship'] ?? $familyMember->relationship,
@@ -298,9 +294,7 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function changeFamilyHead(int $familyGroupId, int $newFamilyHeadId): bool
     {
-        return $this->executeInTransaction(function () use ($familyGroupId, $newFamilyHeadId) {
-            return $this->familyGroupRepository->updateFamilyHead($familyGroupId, $newFamilyHeadId);
-        });
+        return $this->executeInTransaction(fn (): bool => $this->familyGroupRepository->updateFamilyHead($familyGroupId, $newFamilyHeadId));
     }
 
     /**
@@ -311,13 +305,13 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
         $passwordNotifications = [];
 
         foreach ($memberIds as $memberId) {
-            $customer = Customer::find($memberId);
-            if ($customer && (!$customer->hasVerifiedEmail() || $customer->needsPasswordChange())) {
+            $customer = Customer::query()->find($memberId);
+            if ($customer && (! $customer->hasVerifiedEmail() || $customer->needsPasswordChange())) {
                 $password = $customer->setDefaultPassword();
                 $passwordNotifications[] = [
                     'customer' => $customer,
                     'password' => $password,
-                    'is_head' => false
+                    'is_head' => false,
                 ];
             }
         }
@@ -331,23 +325,25 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     public function sendPasswordNotifications(array $passwordNotifications, FamilyGroup $familyGroup): bool
     {
         try {
-            foreach ($passwordNotifications as $notification) {
+            foreach ($passwordNotifications as $passwordNotification) {
                 // Send WhatsApp notification if enabled
-                if ($notification['customer']->mobile_number) {
+                if ($passwordNotification['customer']->mobile_number) {
                     // Implementation would depend on WhatsApp service
                     Log::info('Password notification sent', [
-                        'customer_id' => $notification['customer']->id,
+                        'customer_id' => $passwordNotification['customer']->id,
                         'family_group_id' => $familyGroup->id,
-                        'is_head' => $notification['is_head'],
+                        'is_head' => $passwordNotification['is_head'],
                     ]);
                 }
             }
+
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             Log::error('Failed to send password notifications', [
                 'family_group_id' => $familyGroup->id,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -355,9 +351,9 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     /**
      * Get available customers for family group
      */
-    public function getAvailableCustomers(?int $familyGroupId = null): \Illuminate\Database\Eloquent\Collection
+    public function getAvailableCustomers(?int $familyGroupId = null): Collection
     {
-        if ($familyGroupId) {
+        if ($familyGroupId !== null && $familyGroupId !== 0) {
             return $this->familyGroupRepository->getAvailableCustomersForEdit($familyGroupId);
         }
 
@@ -369,16 +365,16 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function cleanupOrphanedRecords(): int
     {
-        $orphanedCount = FamilyMember::whereNotExists(function ($query) {
-            $query->select(\DB::raw(1))
-                  ->from('family_groups')
-                  ->whereRaw('family_groups.id = family_members.family_group_id');
+        $orphanedCount = FamilyMember::query()->whereNotExists(static function ($query): void {
+            $query->select(DB::raw(1))
+                ->from('family_groups')
+                ->whereRaw('family_groups.id = family_members.family_group_id');
         })->count();
 
-        FamilyMember::whereNotExists(function ($query) {
-            $query->select(\DB::raw(1))
-                  ->from('family_groups')
-                  ->whereRaw('family_groups.id = family_members.family_group_id');
+        FamilyMember::query()->whereNotExists(static function ($query): void {
+            $query->select(DB::raw(1))
+                ->from('family_groups')
+                ->whereRaw('family_groups.id = family_members.family_group_id');
         })->delete();
 
         if ($orphanedCount > 0) {
@@ -398,22 +394,18 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     {
         try {
             return $this->familyGroupRepository->getFamilyGroupStatistics();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             Log::error('Failed to get family group statistics', [
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'user_id' => auth()->id(),
             ]);
+
             return [];
         }
     }
 
     /**
      * Update family members for a family group
-     *
-     * @param FamilyGroup $familyGroup
-     * @param array $memberIds
-     * @param array $relationships
-     * @return void
      */
     private function updateFamilyMembers(FamilyGroup $familyGroup, array $memberIds, array $relationships = []): void
     {
@@ -444,7 +436,7 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     /**
      * Get all family groups for export
      */
-    public function getAllFamilyGroupsForExport(): \Illuminate\Database\Eloquent\Collection
+    public function getAllFamilyGroupsForExport(): Collection
     {
         return $this->familyGroupRepository->getAllFamilyGroupsWithRelationships();
     }
@@ -454,7 +446,7 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function removeFamilyMemberByObject(FamilyMember $familyMember): bool
     {
-        return $this->executeInTransaction(function () use ($familyMember) {
+        return $this->executeInTransaction(static function () use ($familyMember) {
             // Prevent removing family head
             if ($familyMember->is_head) {
                 throw new \Exception('Cannot remove family head. Please change family head first or delete the entire family group.');
@@ -463,11 +455,11 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             $customerId = $familyMember->customer_id;
 
             // Reset customer data when removing from family
-            Customer::where('id', $customerId)->update([
+            Customer::query()->where('id', $customerId)->update([
                 'family_group_id' => null,
                 'password' => null,
                 'email_verified_at' => null,
-                'password_reset_sent_at' => null
+                'password_reset_sent_at' => null,
             ]);
 
             // Delete the family member record

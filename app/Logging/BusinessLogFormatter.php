@@ -11,7 +11,7 @@ class BusinessLogFormatter extends JsonFormatter
     public function format(LogRecord $record): string
     {
         $context = $record->context;
-        
+
         $formatted = [
             'timestamp' => $record->datetime->format('Y-m-d H:i:s.u'),
             'level' => $record->level->getName(),
@@ -30,10 +30,10 @@ class BusinessLogFormatter extends JsonFormatter
             'environment' => app()->environment(),
             'server' => request()?->server('SERVER_NAME', 'unknown'),
         ];
-        
-        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+
+        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n";
     }
-    
+
     /**
      * Customize the given logger instance.
      */

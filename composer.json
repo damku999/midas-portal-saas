@@ -15,6 +15,7 @@
         "maatwebsite/excel": "^3.1",
         "opcodesio/log-viewer": "^3.8",
         "pragmarx/google2fa-laravel": "^2.3",
+        "ryangjchandler/laravel-cloudflare-turnstile": "^1.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.5"
@@ -22,11 +23,15 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",
         "bennett-treptow/laravel-migration-generator": "^4.3",
+        "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.9.1",
         "laravel/boost": "^1.0",
+        "laravel/pint": "^1.25",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
+        "pestphp/pest": "^2.36",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^10.0",
         "spatie/laravel-ignition": "^2.0"
     },
@@ -37,7 +42,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/Helpers/SettingsHelper.php"
         ]
     },
     "autoload-dev": {
@@ -68,6 +74,77 @@
             "@php artisan optimize:clear",
             "@php artisan migrate --seed",
             "npm run dev"
+        ],
+        "test:notifications": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan test tests/Unit/Notification/VariableResolverServiceTest.php --colors",
+            "@php artisan test tests/Unit/Notification/VariableRegistryServiceTest.php --colors",
+            "@php artisan test tests/Unit/Notification/NotificationContextTest.php --colors",
+            "@php artisan test tests/Unit/Notification/TemplateServiceTest.php --colors",
+            "@php artisan test tests/Feature/Notification --colors",
+            "@php artisan test tests/Unit/Notification tests/Feature/Notification --coverage"
+        ],
+        "setup:notifications": [
+            "@php artisan migrate --force",
+            "@php artisan db:seed --class=UnifiedPermissionsSeeder --force",
+            "@php artisan route:clear",
+            "@php artisan view:clear",
+            "@php artisan config:clear",
+            "@php artisan cache:clear"
+        ],
+        "fix": [
+            "@php vendor/bin/pint",
+            "@php artisan optimize:clear"
+        ],
+        "fix:quick": [
+            "@composer dump-autoload -o",
+            "@php artisan cache:clear",
+            "@php artisan config:clear",
+            "@php artisan route:clear",
+            "@php artisan view:clear"
+        ],
+        "analyze": [
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse --memory-limit=2G",
+            "@composer audit"
+        ],
+        "analyze:full": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse --memory-limit=2G",
+            "@composer audit",
+            "@composer outdated --direct"
+        ],
+        "check": [
+            "@composer dump-autoload -o",
+            "@php artisan cache:clear",
+            "@php artisan config:clear",
+            "@php artisan route:clear",
+            "@php artisan view:clear",
+            "@composer audit"
+        ],
+        "quality:install": [
+            "@composer require laravel/pint --dev",
+            "@composer require phpstan/phpstan --dev",
+            "@composer require nunomaduro/larastan --dev"
+        ],
+        "refactor": [
+            "@php vendor/bin/rector process --dry-run"
+        ],
+        "refactor:apply": [
+            "@php vendor/bin/rector process"
+        ],
+        "refactor:clear": [
+            "@php vendor/bin/rector clear-cache"
+        ],
+        "refactor:sets": [
+            "@php vendor/bin/rector list-rules"
+        ],
+        "upgrade": [
+            "Composer\\Config::disableProcessTimeout",
+            "@composer refactor:clear",
+            "@composer refactor:apply",
+            "@composer fix"
         ]
     },
     "extra": {
@@ -78,7 +155,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

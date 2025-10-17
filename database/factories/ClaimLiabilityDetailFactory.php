@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\ClaimLiabilityDetail;
 use App\Models\Claim;
+use App\Models\ClaimLiabilityDetail;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClaimLiabilityDetailFactory extends Factory

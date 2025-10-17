@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -17,7 +16,10 @@ class UnifiedPermissionsSeeder extends Seeder
     public function run(): void
     {
         // Clear existing permissions to avoid duplicates
-        Permission::truncate();
+        Permission::where('guard_name', 'web')->delete();
+
+        // Clear permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
             // User Management (4)
@@ -121,20 +123,50 @@ class UnifiedPermissionsSeeder extends Seeder
 
             // Reports (1)
             'report-list',
+
+            // App Settings (4)
+            'app-setting-list',
+            'app-setting-create',
+            'app-setting-edit',
+            'app-setting-delete',
+
+            // Notification Templates (4)
+            'notification-template-list',
+            'notification-template-create',
+            'notification-template-edit',
+            'notification-template-delete',
+
+            // Notification Types (4)
+            'notification-type-list',
+            'notification-type-create',
+            'notification-type-edit',
+            'notification-type-delete',
+
+            // Notification Logs (4)
+            'notification-log-list',
+            'notification-log-view',
+            'notification-log-resend',
+            'notification-log-analytics',
+
+            // Customer Devices (Push Notifications) (4)
+            'customer-device-list',
+            'customer-device-view',
+            'customer-device-deactivate',
+            'customer-device-cleanup',
         ];
 
         // Create all permissions
         foreach ($permissions as $permission) {
             Permission::create([
                 'name' => $permission,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
         }
 
         // Assign all permissions to admin role (ID 1)
         $this->assignPermissionsToAdminRole($permissions);
 
-        $this->command->info('Created ' . count($permissions) . ' permissions successfully.');
+        $this->command->info('Created '.count($permissions).' permissions successfully.');
     }
 
     /**

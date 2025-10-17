@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Customer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -50,7 +49,7 @@ class CustomerPasswordResetMail extends Mailable
             [
                 'customer' => $this->customer,
                 'token' => $this->token,
-                'resetUrl' => route('customer.password.reset', ['token' => $this->token, 'email' => $this->customer->email])
+                'resetUrl' => route('customer.password.reset', ['token' => $this->token, 'email' => $this->customer->email]),
             ] // with
         );
     }

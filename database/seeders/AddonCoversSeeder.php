@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AddonCoversSeeder extends Seeder
 {
@@ -111,6 +111,17 @@ class AddonCoversSeeder extends Seeder
                 'name' => 'Repair of Glass,Rubber and Plastic Part',
                 'description' => 'Covers glass, rubber and plastic parts repair',
                 'order_no' => 5,
+                'status' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+                'created_by' => 1,
+                'updated_by' => 1,
+            ],
+            [
+                'id' => 10,
+                'name' => 'Other',
+                'description' => 'Other addon covers not categorized',
+                'order_no' => 10,
                 'status' => true,
                 'created_at' => $now,
                 'updated_at' => $now,

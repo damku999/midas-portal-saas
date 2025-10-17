@@ -12,16 +12,20 @@ class QuotationGenerated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Quotation $quotation;
+
     public int $companyCount;
+
     public array $companyPremiums;
+
     public ?float $bestPremium;
+
     public ?int $generatedBy;
 
     public function __construct(Quotation $quotation, ?int $generatedBy = null)
     {
         $this->quotation = $quotation;
         $this->generatedBy = $generatedBy ?? auth()->id();
-        
+
         // Calculate quotation metrics
         $this->companyCount = $quotation->quotationCompanies()->count();
         $this->companyPremiums = $quotation->quotationCompanies()
@@ -41,7 +45,7 @@ class QuotationGenerated
             'best_premium' => $this->bestPremium,
             'total_premium_range' => [
                 'min' => $this->bestPremium,
-                'max' => !empty($this->companyPremiums) ? max($this->companyPremiums) : 0,
+                'max' => ! empty($this->companyPremiums) ? max($this->companyPremiums) : 0,
             ],
             'generated_by' => $this->generatedBy,
             'generated_at' => $this->quotation->created_at->format('Y-m-d H:i:s'),

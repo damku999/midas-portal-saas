@@ -2,16 +2,16 @@
 
 namespace App\Modules;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use App\Modules\Customer\Contracts\CustomerServiceInterface;
 use App\Modules\Customer\Services\CustomerService;
-use App\Modules\Quotation\Contracts\QuotationServiceInterface;
-use App\Modules\Quotation\Services\QuotationService;
 use App\Modules\Notification\Contracts\NotificationServiceInterface;
 use App\Modules\Notification\Services\NotificationService;
 use App\Modules\Policy\Contracts\PolicyServiceInterface;
 use App\Modules\Policy\Services\PolicyService;
+use App\Modules\Quotation\Contracts\QuotationServiceInterface;
+use App\Modules\Quotation\Services\QuotationService;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -142,12 +142,12 @@ class ModuleServiceProvider extends ServiceProvider
     private function registerModuleEventListeners(): void
     {
         // Cross-module communication via events
+        // Note: Most event listeners are registered in EventServiceProvider
 
-        // TODO: Create SendCustomerWelcomeNotification listener
-        // $this->app['events']->listen(
-        //     \App\Events\Customer\CustomerRegistered::class,
-        //     [\App\Modules\Notification\Listeners\SendCustomerWelcomeNotification::class, 'handle']
-        // );
+        // Customer welcome notification: Already registered in EventServiceProvider
+        // Event: \App\Events\Customer\CustomerRegistered
+        // Listener: \App\Listeners\Customer\SendOnboardingWhatsApp
+        // This listener sends WhatsApp onboarding message using customer_welcome template
 
         // Quotation WhatsApp notification (active)
         $this->app['events']->listen(
@@ -155,11 +155,10 @@ class ModuleServiceProvider extends ServiceProvider
             [\App\Listeners\Quotation\SendQuotationWhatsApp::class, 'handle']
         );
 
-        // TODO: Create SendPolicyRenewalNotification listener
-        // $this->app['events']->listen(
-        //     \App\Events\Insurance\PolicyExpiringWarning::class,
-        //     [\App\Modules\Notification\Listeners\SendPolicyRenewalNotification::class, 'handle']
-        // );
+        // Policy renewal notification: Already registered in EventServiceProvider
+        // Event: \App\Events\Insurance\PolicyExpiringWarning
+        // Listener: \App\Listeners\Insurance\SendPolicyRenewalReminder
+        // This listener sends multi-channel renewal reminders (Email + WhatsApp)
     }
 
     /**

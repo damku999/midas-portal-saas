@@ -14,10 +14,10 @@ class GenerateQuotationPDF implements ShouldQueue
     public function handle(QuotationGenerated $event): void
     {
         $quotation = $event->quotation;
-        
+
         // Generate PDF filename
-        $fileName = "quotation_{$quotation->quotation_number}_" . date('YmdHis') . '.pdf';
-        
+        $fileName = "quotation_{$quotation->quotation_number}_".date('YmdHis').'.pdf';
+
         // Request PDF generation
         PDFGenerationRequested::dispatch(
             'quotation',

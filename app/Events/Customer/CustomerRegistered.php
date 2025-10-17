@@ -12,7 +12,9 @@ class CustomerRegistered
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Customer $customer;
+
     public array $metadata;
+
     public string $registrationChannel;
 
     public function __construct(Customer $customer, array $metadata = [], string $registrationChannel = 'web')

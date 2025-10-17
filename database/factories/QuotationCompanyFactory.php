@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\QuotationCompany;
-use App\Models\Quotation;
 use App\Models\InsuranceCompany;
+use App\Models\Quotation;
+use App\Models\QuotationCompany;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuotationCompanyFactory extends Factory
@@ -31,7 +31,7 @@ class QuotationCompanyFactory extends Factory
         return [
             'quotation_id' => Quotation::factory(),
             'insurance_company_id' => InsuranceCompany::factory(),
-            'quote_number' => 'QT/' . date('y') . '/' . $this->faker->numerify('########'),
+            'quote_number' => 'QT/'.date('y').'/'.$this->faker->numerify('########'),
             'policy_type' => 'Comprehensive',
             'policy_tenure_years' => 1,
             'idv_vehicle' => $this->faker->numberBetween(300000, 1200000),

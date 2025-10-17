@@ -11,7 +11,7 @@
                     <!-- Auth Header -->
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <img src="{{ asset('images/parth_logo.png') }}" alt="WebMonks" class="img-fluid mb-3" style="max-width: 120px;">
+                            <img src="{{ company_logo_asset() }}" alt="{{ company_logo('alt') }}" class="img-fluid mb-3" style="max-width: 120px;">
                             <h4 class="text-dark fw-bold"><i class="fas fa-shield-alt me-2"></i>Two-Factor Authentication</h4>
                             <p class="text-muted">Enter your verification code to continue</p>
                         </div>

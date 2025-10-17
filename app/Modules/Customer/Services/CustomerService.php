@@ -2,13 +2,13 @@
 
 namespace App\Modules\Customer\Services;
 
-use App\Modules\Customer\Contracts\CustomerServiceInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
-use App\Events\Customer\CustomerRegistered;
 use App\Events\Customer\CustomerProfileUpdated;
+use App\Events\Customer\CustomerRegistered;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
+use App\Modules\Customer\Contracts\CustomerServiceInterface;
 use App\Services\FileUploadService;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,8 +24,7 @@ class CustomerService implements CustomerServiceInterface
     public function __construct(
         private CustomerRepositoryInterface $customerRepository,
         private FileUploadService $fileUploadService
-    ) {
-    }
+    ) {}
 
     public function getCustomers(Request $request): LengthAwarePaginator
     {
@@ -89,7 +88,7 @@ class CustomerService implements CustomerServiceInterface
         try {
             $originalValues = $customer->only([
                 'name', 'email', 'mobile_number', 'status', 'type',
-                'pan_card_number', 'aadhar_card_number', 'gst_number'
+                'pan_card_number', 'aadhar_card_number', 'gst_number',
             ]);
 
             $newValues = [
@@ -121,7 +120,7 @@ class CustomerService implements CustomerServiceInterface
                 }
 
                 // Fire CustomerProfileUpdated event if there are changes
-                if (!empty($changedFields)) {
+                if (! empty($changedFields)) {
                     CustomerProfileUpdated::dispatch(
                         $customer->fresh(),
                         $changedFields,
@@ -133,6 +132,7 @@ class CustomerService implements CustomerServiceInterface
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -158,13 +158,15 @@ class CustomerService implements CustomerServiceInterface
 
         try {
             $updated = $this->customerRepository->updateStatus($customerId, $status);
-            
+
             if ($updated) {
                 DB::commit();
+
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -178,13 +180,15 @@ class CustomerService implements CustomerServiceInterface
 
         try {
             $deleted = $this->customerRepository->delete($customer->id);
-            
+
             if ($deleted) {
                 DB::commit();
+
                 return true;
             }
 
             DB::rollBack();
+
             return false;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -217,7 +221,7 @@ class CustomerService implements CustomerServiceInterface
         $total = $this->customerRepository->count();
         $active = $this->customerRepository->getByType('Retail')->where('status', 1)->count();
         $corporate = $this->customerRepository->getByType('Corporate')->count();
-        
+
         return [
             'total' => $total,
             'active' => $active,
@@ -244,12 +248,14 @@ class CustomerService implements CustomerServiceInterface
     {
         try {
             $message = $this->generateOnboardingMessage($customer);
+
             return $this->whatsAppSendMessage($message, $customer->mobile_number);
         } catch (\Throwable $th) {
             \Log::warning('Failed to send onboarding WhatsApp message', [
                 'customer_id' => $customer->id,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ]);
+
             return false;
         }
     }

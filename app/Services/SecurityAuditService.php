@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SecurityAuditService
 {
@@ -26,7 +25,7 @@ class SecurityAuditService
         $fullContext = array_merge($baseContext, $context);
 
         // Log to security channel
-        Log::channel('security')->info("Authentication Event: {$event}", $fullContext);
+        Log::channel('security')->info('Authentication Event: '.$event, $fullContext);
 
         // Store in database
         $this->storeSecurityEvent($event, $userId, $fullContext, $this->getEventSeverity($event));
@@ -50,7 +49,7 @@ class SecurityAuditService
         $fullContext = array_merge($baseContext, $context);
 
         // Log to security channel
-        Log::channel('security')->warning("Authorization Event: {$event}", $fullContext);
+        Log::channel('security')->warning('Authorization Event: '.$event, $fullContext);
 
         // Store in database
         $this->storeSecurityEvent($event, $userId, $fullContext, 'medium');
@@ -72,11 +71,11 @@ class SecurityAuditService
             'timestamp' => now()->toISOString(),
         ];
 
-        Log::channel('security')->info("Data Access: {$action} {$resourceType} ID:{$resourceId}", $context);
+        Log::channel('security')->info(sprintf('Data Access: %s %s ID:%d', $action, $resourceType, $resourceId), $context);
 
         // Store sensitive data access events
         if ($this->isSensitiveResource($resourceType)) {
-            $this->storeSecurityEvent("data_access_{$action}", $userId, $context, 'low');
+            $this->storeSecurityEvent('data_access_'.$action, $userId, $context, 'low');
         }
     }
 
@@ -98,13 +97,13 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        Log::channel('security')->error("Security Violation: {$violationType}", $fullContext);
+        Log::channel('security')->error('Security Violation: '.$violationType, $fullContext);
 
         // Store high severity events
         $this->storeSecurityEvent($violationType, auth()?->id(), $fullContext, 'high');
 
         // Check for patterns that require immediate action
-        $this->checkForSecurityPatterns($violationType, $fullContext);
+        $this->checkForSecurityPatterns($fullContext);
     }
 
     /**
@@ -122,11 +121,11 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        Log::channel('security')->info("File Operation: {$operation}", $fullContext);
+        Log::channel('security')->info('File Operation: '.$operation, $fullContext);
 
         // Store file upload/download events
         if (in_array($operation, ['upload', 'download', 'delete'])) {
-            $this->storeSecurityEvent("file_{$operation}", $userId, $fullContext, 'low');
+            $this->storeSecurityEvent('file_'.$operation, $userId, $fullContext, 'low');
         }
     }
 
@@ -183,9 +182,9 @@ class SecurityAuditService
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             Log::error('Failed to store security event', [
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'event_type' => $eventType,
                 'context' => $context,
             ]);
@@ -231,7 +230,7 @@ class SecurityAuditService
     /**
      * Check for security patterns requiring action
      */
-    private function checkForSecurityPatterns(string $violationType, array $context): void
+    private function checkForSecurityPatterns(array $context): void
     {
         $userId = $context['user_id'] ?? null;
         $ipAddress = $context['ip_address'] ?? null;
@@ -274,10 +273,10 @@ class SecurityAuditService
      */
     private function triggerSecurityAlert(string $alertType, array $context): void
     {
-        Log::channel('security')->critical("Security Alert: {$alertType}", $context);
+        Log::channel('security')->critical('Security Alert: '.$alertType, $context);
 
         // Store alert
-        $this->storeSecurityEvent("alert_{$alertType}", null, $context, 'critical');
+        $this->storeSecurityEvent('alert_'.$alertType, null, $context, 'critical');
 
         // Send notification if configured
         if ($notificationEmail = config('security.monitoring.notification_email')) {
@@ -294,16 +293,12 @@ class SecurityAuditService
         $trends = [];
 
         // Analyze by hour of day
-        $hourlyDistribution = $events->groupBy(function($event) {
-            return Carbon::parse($event->created_at)->hour;
-        })->map->count();
+        $hourlyDistribution = $events->groupBy(fn ($event) => Carbon::parse($event->created_at)->hour)->map->count();
 
         $trends['hourly_distribution'] = $hourlyDistribution;
 
         // Analyze daily patterns
-        $dailyEvents = $events->groupBy(function($event) {
-            return Carbon::parse($event->created_at)->format('Y-m-d');
-        })->map->count();
+        $dailyEvents = $events->groupBy(fn ($event) => Carbon::parse($event->created_at)->format('Y-m-d'))->map->count();
 
         $trends['daily_patterns'] = $dailyEvents;
 

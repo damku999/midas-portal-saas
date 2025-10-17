@@ -12,9 +12,12 @@ class ClaimFactory extends Factory
 
     public function definition()
     {
+        $insurance = CustomerInsurance::factory()->create();
+
         return [
-            'customer_insurance_id' => CustomerInsurance::factory(),
-            'claim_number' => 'CL-' . $this->faker->unique()->numerify('########'),
+            'customer_id' => $insurance->customer_id,
+            'customer_insurance_id' => $insurance->id,
+            'claim_number' => 'CL-'.$this->faker->unique()->numerify('########'),
             'insurance_type' => $this->faker->randomElement(['Health', 'Vehicle']),
             'incident_date' => $this->faker->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
             'description' => $this->faker->paragraph(),

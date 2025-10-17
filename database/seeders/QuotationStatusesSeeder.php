@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +29,7 @@ class QuotationStatusesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Generated',
@@ -44,7 +43,7 @@ class QuotationStatusesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Sent',
@@ -58,7 +57,7 @@ class QuotationStatusesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Accepted',
@@ -72,7 +71,7 @@ class QuotationStatusesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Rejected',
@@ -86,8 +85,8 @@ class QuotationStatusesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
-            ]
+                'deleted_at' => null,
+            ],
         ]);
     }
 }

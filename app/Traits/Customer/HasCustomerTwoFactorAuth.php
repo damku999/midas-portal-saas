@@ -2,11 +2,11 @@
 
 namespace App\Traits\Customer;
 
-use App\Models\Customer\CustomerTwoFactorAuth;
 use App\Models\Customer\CustomerSecuritySettings;
 use App\Models\Customer\CustomerTrustedDevice;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Models\Customer\CustomerTwoFactorAuth;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -22,7 +22,7 @@ trait HasCustomerTwoFactorAuth
     public function customerTwoFactorAuth(): MorphOne
     {
         return $this->morphOne(CustomerTwoFactorAuth::class, 'authenticatable')
-                   ->where('authenticatable_type', static::class);
+            ->where('authenticatable_type', static::class);
     }
 
     /**
@@ -31,7 +31,7 @@ trait HasCustomerTwoFactorAuth
     public function customerSecuritySettings(): MorphOne
     {
         return $this->morphOne(CustomerSecuritySettings::class, 'settingable')
-                   ->where('settingable_type', static::class);
+            ->where('settingable_type', static::class);
     }
 
     /**
@@ -66,10 +66,10 @@ trait HasCustomerTwoFactorAuth
      */
     public function enableCustomerTwoFactor(): CustomerTwoFactorAuth
     {
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
 
         // Create or get existing 2FA record
-        $twoFactor = $this->customerTwoFactorAuth ?: new CustomerTwoFactorAuth();
+        $twoFactor = $this->customerTwoFactorAuth ?: new CustomerTwoFactorAuth;
         $twoFactor->authenticatable()->associate($this);
 
         // Generate secret and recovery codes
@@ -91,11 +91,11 @@ trait HasCustomerTwoFactorAuth
     {
         $twoFactor = $this->customerTwoFactorAuth;
 
-        if (!$twoFactor || !$twoFactor->secret) {
+        if (! $twoFactor || ! $twoFactor->secret) {
             return false;
         }
 
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
         $isValid = $google2fa->verifyKey($twoFactor->secret, $code);
 
         if ($isValid) {
@@ -121,6 +121,7 @@ trait HasCustomerTwoFactorAuth
             $twoFactor->disable();
             // Also clear from security settings
             $this->disableCustomerTwoFactorInSettings();
+
             return true;
         }
 
@@ -134,11 +135,11 @@ trait HasCustomerTwoFactorAuth
     {
         $twoFactor = $this->customerTwoFactorAuth;
 
-        if (!$twoFactor || !$twoFactor->isFullyConfigured()) {
+        if (! $twoFactor || ! $twoFactor->isFullyConfigured()) {
             return false;
         }
 
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
 
         // Try as TOTP code first
         if ($google2fa->verifyKey($twoFactor->secret, $code)) {
@@ -156,16 +157,16 @@ trait HasCustomerTwoFactorAuth
     {
         $twoFactor = $this->customerTwoFactorAuth;
 
-        if (!$twoFactor || !$twoFactor->secret) {
+        if (! $twoFactor || ! $twoFactor->secret) {
             return null;
         }
 
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
         $companyName = config('app.name', 'Laravel App');
         $userEmail = $this->email ?? $this->name ?? 'Customer';
 
         return $google2fa->getQRCodeUrl(
-            $companyName . ' (Customer Portal)',
+            $companyName.' (Customer Portal)',
             $userEmail,
             $twoFactor->secret
         );
@@ -178,6 +179,7 @@ trait HasCustomerTwoFactorAuth
     {
         $settings = $this->getOrCreateCustomerSecuritySettings();
         $settings->enableTwoFactor();
+
         return true;
     }
 
@@ -190,6 +192,7 @@ trait HasCustomerTwoFactorAuth
         if ($settings) {
             $settings->disableTwoFactor();
         }
+
         return true;
     }
 
@@ -200,7 +203,7 @@ trait HasCustomerTwoFactorAuth
     {
         $settings = $this->customerSecuritySettings;
 
-        if (!$settings) {
+        if (! $settings) {
             $settings = new CustomerSecuritySettings(CustomerSecuritySettings::getDefaults());
             $settings->settingable()->associate($this);
             $settings->save();
@@ -215,7 +218,7 @@ trait HasCustomerTwoFactorAuth
     public function customerTrustedDevices(): MorphMany
     {
         return $this->morphMany(CustomerTrustedDevice::class, 'authenticatable')
-                   ->where('authenticatable_type', static::class);
+            ->where('authenticatable_type', static::class);
     }
 
     /**
@@ -234,9 +237,9 @@ trait HasCustomerTwoFactorAuth
         $deviceId = CustomerTrustedDevice::generateDeviceId($request->userAgent(), $request->ip());
 
         return $this->customerTrustedDevices()
-                   ->where('device_id', $deviceId)
-                   ->active()
-                   ->exists();
+            ->where('device_id', $deviceId)
+            ->active()
+            ->exists();
     }
 
     /**
@@ -250,8 +253,8 @@ trait HasCustomerTwoFactorAuth
 
         // Revoke any existing device with same ID
         $this->customerTrustedDevices()
-             ->where('device_id', $deviceId)
-             ->update(['is_active' => false]);
+            ->where('device_id', $deviceId)
+            ->update(['is_active' => false]);
 
         // Create new trusted device
         $trustedDevice = new CustomerTrustedDevice([
@@ -285,17 +288,18 @@ trait HasCustomerTwoFactorAuth
         if (is_numeric($deviceId)) {
             // Database ID lookup
             $device = $this->customerTrustedDevices()
-                          ->where('id', $deviceId)
-                          ->first();
+                ->where('id', $deviceId)
+                ->first();
         } else {
             // Device ID hash lookup
             $device = $this->customerTrustedDevices()
-                          ->where('device_id', $deviceId)
-                          ->first();
+                ->where('device_id', $deviceId)
+                ->first();
         }
 
         if ($device) {
             $device->revoke();
+
             return true;
         }
 
@@ -308,8 +312,8 @@ trait HasCustomerTwoFactorAuth
     public function revokeAllCustomerTrustedDevices(): int
     {
         return $this->customerTrustedDevices()
-                   ->where('is_active', true)
-                   ->update(['is_active' => false]);
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
     }
 
     /**
@@ -318,9 +322,9 @@ trait HasCustomerTwoFactorAuth
     public function cleanupExpiredCustomerDevices(): int
     {
         return $this->customerTrustedDevices()
-                   ->where('is_active', true)
-                   ->where('expires_at', '<', now())
-                   ->update(['is_active' => false]);
+            ->where('is_active', true)
+            ->where('expires_at', '<', now())
+            ->update(['is_active' => false]);
     }
 
     /**
@@ -329,7 +333,7 @@ trait HasCustomerTwoFactorAuth
     public function customerTwoFactorAttempts(): MorphMany
     {
         return $this->morphMany(\App\Models\TwoFactorAttempt::class, 'authenticatable')
-                   ->where('authenticatable_type', static::class);
+            ->where('authenticatable_type', static::class);
     }
 
     /**
@@ -337,7 +341,7 @@ trait HasCustomerTwoFactorAuth
      */
     public function verifyCustomerRecoveryCode(string $code): bool
     {
-        if (!$this->customerTwoFactorAuth) {
+        if (! $this->customerTwoFactorAuth) {
             return false;
         }
 
@@ -351,7 +355,7 @@ trait HasCustomerTwoFactorAuth
         string $codeType,
         bool $successful,
         \Illuminate\Http\Request $request,
-        string $failureReason = null
+        ?string $failureReason = null
     ): void {
         $this->customerTwoFactorAttempts()->create([
             'code_type' => $codeType,
@@ -369,9 +373,9 @@ trait HasCustomerTwoFactorAuth
     public function getRecentFailedCustomerTwoFactorAttempts(int $minutes = 15): int
     {
         return $this->customerTwoFactorAttempts()
-                   ->where('attempted_at', '>=', now()->subMinutes($minutes))
-                   ->where('successful', false)
-                   ->count();
+            ->where('attempted_at', '>=', now()->subMinutes($minutes))
+            ->where('successful', false)
+            ->count();
     }
 
     /**
@@ -390,7 +394,7 @@ trait HasCustomerTwoFactorAuth
         string $codeType,
         bool $successful,
         \Illuminate\Http\Request $request,
-        string $failureReason = null
+        ?string $failureReason = null
     ): void {
         $this->logCustomerTwoFactorAttempt($codeType, $successful, $request, $failureReason);
     }

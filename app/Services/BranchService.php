@@ -6,13 +6,14 @@ use App\Contracts\Repositories\BranchRepositoryInterface;
 use App\Contracts\Services\BranchServiceInterface;
 use App\Models\Branch;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class BranchService extends BaseService implements BranchServiceInterface
 {
     public function __construct(
-        private BranchRepositoryInterface $branchRepository
+        private readonly BranchRepositoryInterface $branchRepository
     ) {}
 
     public function getBranches(Request $request, int $perPage = 10): LengthAwarePaginator
@@ -22,32 +23,27 @@ class BranchService extends BaseService implements BranchServiceInterface
 
     public function createBranch(array $data): Branch
     {
-        return $this->createInTransaction(function () use ($data) {
-            return $this->branchRepository->create($data);
-        });
+        return $this->createInTransaction(fn (): Model => $this->branchRepository->create($data));
     }
 
     public function updateBranch(Branch $branch, array $data): bool
     {
-        return $this->updateInTransaction(function () use ($branch, $data) {
-            return $this->branchRepository->update($branch, $data);
-        });
+        return $this->updateInTransaction(fn (): Model => $this->branchRepository->update($branch, $data));
     }
 
     public function deleteBranch(Branch $branch): bool
     {
-        return $this->deleteInTransaction(function () use ($branch) {
-            return $this->branchRepository->delete($branch);
-        });
+        return $this->deleteInTransaction(fn (): bool => $this->branchRepository->delete($branch));
     }
 
     public function updateBranchStatus(int $branchId, bool $status): bool
     {
-        return $this->updateInTransaction(function () use ($branchId, $status) {
+        return $this->updateInTransaction(function () use ($branchId, $status): false|Model {
             $branch = $this->branchRepository->findById($branchId);
-            if (!$branch) {
+            if (! $branch instanceof Model) {
                 return false;
             }
+
             return $this->branchRepository->update($branch, ['status' => $status]);
         });
     }

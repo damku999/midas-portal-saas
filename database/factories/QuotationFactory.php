@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Quotation;
 use App\Models\Customer;
+use App\Models\Quotation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuotationFactory extends Factory
@@ -27,7 +27,7 @@ class QuotationFactory extends Factory
                 'Tata Nexon XZ Plus',
             ]),
             'rto_location' => $this->faker->randomElement([
-                'Mumbai Central', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'
+                'Mumbai Central', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad',
             ]),
             'manufacturing_year' => $manufacturingYear,
             'cubic_capacity_kw' => $this->faker->numberBetween(800, 2500),
@@ -49,13 +49,13 @@ class QuotationFactory extends Factory
                 'Key Replacement',
                 'Personal Accident',
                 'Tyre Protection',
-                'Consumables'
+                'Consumables',
             ], $this->faker->numberBetween(2, 5)),
             'policy_type' => $this->faker->randomElement(['Comprehensive', 'Third Party']),
             'policy_tenure_years' => $this->faker->randomElement([1, 2, 3]),
             'status' => $this->faker->randomElement(['Draft', 'Generated', 'Sent']),
             'sent_at' => $this->faker->optional()->dateTimeThisYear(),
-            'whatsapp_number' => '+91' . $this->faker->numerify('##########'),
+            'whatsapp_number' => '+91'.$this->faker->numerify('##########'),
             'notes' => $this->faker->optional()->sentence(),
             'created_at' => now(),
             'updated_at' => now(),

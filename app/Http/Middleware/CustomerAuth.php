@@ -16,14 +16,15 @@ class CustomerAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('customer')->check()) {
+        if (! Auth::guard('customer')->check()) {
             return redirect()->route('customer.login')->with('error', 'Please login to access customer portal.');
         }
 
         // Check if customer is active
         $customer = Auth::guard('customer')->user();
-        if (!$customer || !$customer->status) {
+        if (! $customer || ! $customer->status) {
             Auth::guard('customer')->logout();
+
             return redirect()->route('customer.login')->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
@@ -38,10 +39,10 @@ class CustomerAuth
             'customer.logout',
             // 2FA routes should not require password change check
             'customer.two-factor.challenge',
-            'customer.two-factor.verify'
+            'customer.two-factor.verify',
         ];
 
-        if (!in_array($request->route()->getName(), $excludedRoutes) && $customer->needsPasswordChange()) {
+        if (! in_array($request->route()->getName(), $excludedRoutes) && $customer->needsPasswordChange()) {
             return redirect()->route('customer.change-password')
                 ->with('warning', 'You must change your password before continuing.');
         }

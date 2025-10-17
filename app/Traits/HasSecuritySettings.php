@@ -31,6 +31,7 @@ trait HasSecuritySettings
     public function updateSecuritySetting(string $key, $value): bool
     {
         $settings = $this->getOrCreateSecuritySettings();
+
         return $settings->update([$key => $value]);
     }
 
@@ -40,10 +41,12 @@ trait HasSecuritySettings
     public function getSecuritySetting(string $key, $default = null)
     {
         $settings = $this->securitySettings;
-        if (!$settings) {
+        if (! $settings) {
             $defaults = SecuritySetting::getDefaults();
+
             return $defaults[$key] ?? $default;
         }
+
         return $settings->$key ?? $default;
     }
 
@@ -108,6 +111,7 @@ trait HasSecuritySettings
     {
         $settings = $this->getOrCreateSecuritySettings();
         $settings->updateNotificationPreference($key, $value);
+
         return true;
     }
 

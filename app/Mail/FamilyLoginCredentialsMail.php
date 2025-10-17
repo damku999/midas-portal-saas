@@ -5,7 +5,6 @@ namespace App\Mail;
 use App\Models\Customer;
 use App\Models\FamilyGroup;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -30,7 +29,7 @@ class FamilyLoginCredentialsMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $subject = $this->isHead 
+        $subject = $this->isHead
             ? 'Your Family Group Portal - Family Head Credentials'
             : 'Your Family Group Portal - Login Credentials';
 
@@ -60,7 +59,7 @@ class FamilyLoginCredentialsMail extends Mailable
                 'familyGroup' => $this->familyGroup,
                 'isHead' => $this->isHead,
                 'loginUrl' => route('customer.login'),
-                'verificationUrl' => route('customer.verify-email', $this->customer->email_verification_token)
+                'verificationUrl' => route('customer.verify-email', $this->customer->email_verification_token),
             ] // with
         );
     }

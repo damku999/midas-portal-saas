@@ -1,24 +1,24 @@
 <?php
 
+use App\Http\Controllers\AddonCoverController;
+use App\Http\Controllers\BrokerController;
+use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\CommonController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerInsuranceController;
+use App\Http\Controllers\FuelTypeController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InsuranceCompanyController;
+use App\Http\Controllers\NotificationTemplateController;
+use App\Http\Controllers\PolicyTypeController;
+use App\Http\Controllers\PremiumTypeController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\ReferenceUsersController;
+use App\Http\Controllers\RelationshipManagerController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\BrokerController;
-use App\Http\Controllers\CommonController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\FuelTypeController;
-use App\Http\Controllers\PolicyTypeController;
-use App\Http\Controllers\AddonCoverController;
-use App\Http\Controllers\PremiumTypeController;
-use App\Http\Controllers\ReferenceUsersController;
-use App\Http\Controllers\InsuranceCompanyController;
-use App\Http\Controllers\CustomerInsuranceController;
-use App\Http\Controllers\QuotationController;
-use App\Http\Controllers\RelationshipManagerController;
-use App\Http\Controllers\ClaimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +47,6 @@ Route::get('/health/detailed', [App\Http\Controllers\HealthController::class, 'd
 Route::get('/health/liveness', [App\Http\Controllers\HealthController::class, 'liveness'])->name('health.liveness');
 Route::get('/health/readiness', [App\Http\Controllers\HealthController::class, 'readiness'])->name('health.readiness');
 
-
 // Admin-only monitoring routes
 Route::middleware(['auth', 'role:Super Admin'])->group(function () {
     Route::get('/monitoring/metrics', [App\Http\Controllers\HealthController::class, 'metrics'])->name('monitoring.metrics');
@@ -69,6 +68,58 @@ Route::resource('roles', App\Http\Controllers\RolesController::class);
 // Permissions
 Route::resource('permissions', App\Http\Controllers\PermissionsController::class);
 
+// App Settings
+Route::middleware('auth')->prefix('app-settings')->name('app-settings.')->group(function () {
+    Route::get('/', [App\Http\Controllers\AppSettingController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\AppSettingController::class, 'create'])->name('create');
+    Route::post('/store', [App\Http\Controllers\AppSettingController::class, 'store'])->name('store');
+    Route::get('/show/{id}', [App\Http\Controllers\AppSettingController::class, 'show'])->name('show');
+    Route::get('/edit/{id}', [App\Http\Controllers\AppSettingController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [App\Http\Controllers\AppSettingController::class, 'update'])->name('update');
+    Route::get('/update/status/{id}/{status}', [App\Http\Controllers\AppSettingController::class, 'updateStatus'])->name('status');
+    Route::delete('/delete/{id}', [App\Http\Controllers\AppSettingController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/decrypt', [App\Http\Controllers\AppSettingController::class, 'getDecryptedValue'])->name('decrypt');
+    Route::post('/clear-cache', [App\Http\Controllers\AppSettingController::class, 'clearCache'])->name('clear-cache');
+});
+
+// Notification Templates
+Route::middleware('auth')->prefix('notification-templates')->name('notification-templates.')->group(function () {
+    Route::get('/', [NotificationTemplateController::class, 'index'])->name('index');
+    Route::get('/create', [NotificationTemplateController::class, 'create'])->name('create');
+    Route::post('/store', [NotificationTemplateController::class, 'store'])->name('store');
+    Route::get('/edit/{template}', [NotificationTemplateController::class, 'edit'])->name('edit');
+    Route::put('/update/{template}', [NotificationTemplateController::class, 'update'])->name('update');
+    Route::delete('/delete/{template}', [NotificationTemplateController::class, 'delete'])->name('delete');
+    Route::get('/variables', [NotificationTemplateController::class, 'getAvailableVariables'])->name('variables');
+    Route::post('/preview', [NotificationTemplateController::class, 'preview'])->name('preview');
+    Route::post('/send-test', [NotificationTemplateController::class, 'sendTest'])->name('send-test');
+    Route::get('/customer-data', [NotificationTemplateController::class, 'getCustomerData'])->name('customer-data');
+});
+
+// Notification Logs
+Route::middleware('auth')->prefix('admin/notification-logs')->name('admin.notification-logs.')->group(function () {
+    Route::get('/', [App\Http\Controllers\NotificationLogController::class, 'index'])->name('index');
+    Route::get('/analytics', [App\Http\Controllers\NotificationLogController::class, 'analytics'])->name('analytics');
+    Route::get('/{log}', [App\Http\Controllers\NotificationLogController::class, 'show'])->name('show');
+    Route::post('/{log}/resend', [App\Http\Controllers\NotificationLogController::class, 'resend'])->name('resend');
+    Route::post('/bulk-resend', [App\Http\Controllers\NotificationLogController::class, 'bulkResend'])->name('bulk-resend');
+    Route::post('/cleanup', [App\Http\Controllers\NotificationLogController::class, 'cleanup'])->name('cleanup');
+});
+
+// Customer Devices (Push Notification Management)
+Route::middleware('auth')->prefix('admin/customer-devices')->name('admin.customer-devices.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CustomerDeviceController::class, 'index'])->name('index');
+    Route::get('/{device}', [App\Http\Controllers\CustomerDeviceController::class, 'show'])->name('show');
+    Route::post('/{device}/deactivate', [App\Http\Controllers\CustomerDeviceController::class, 'deactivate'])->name('deactivate');
+    Route::post('/cleanup-invalid', [App\Http\Controllers\CustomerDeviceController::class, 'cleanupInvalid'])->name('cleanup-invalid');
+});
+
+// Notification Webhooks (no auth required - external providers)
+Route::prefix('webhooks')->name('webhooks.')->group(function () {
+    Route::post('/whatsapp/delivery-status', [App\Http\Controllers\NotificationWebhookController::class, 'whatsappDeliveryStatus'])->name('whatsapp.delivery-status');
+    Route::post('/email/delivery-status', [App\Http\Controllers\NotificationWebhookController::class, 'emailDeliveryStatus'])->name('email.delivery-status');
+    Route::any('/test', [App\Http\Controllers\NotificationWebhookController::class, 'test'])->name('test');
+});
 
 // Customer
 Route::middleware('auth')->prefix('customers')->name('customers.')->group(function () {
@@ -158,8 +209,6 @@ Route::middleware('auth')->prefix('users')->name('users.')->group(function () {
     // Route::delete('/delete/{user}', [UserController::class, 'delete'])->name('destroy');
     Route::get('/update/status/{user_id}/{status}', [UserController::class, 'updateStatus'])->name('status');
 
-
-
     Route::get('export/', [UserController::class, 'export'])->name('export');
 });
 
@@ -215,7 +264,6 @@ Route::middleware('auth')->prefix('premium_type')->name('premium_type.')->group(
     Route::get('export/', [PremiumTypeController::class, 'export'])->name('export');
 });
 
-
 // Fuel Type
 Route::middleware('auth')->prefix('fuel_type')->name('fuel_type.')->group(function () {
     Route::get('/', [FuelTypeController::class, 'index'])->name('index');
@@ -226,7 +274,6 @@ Route::middleware('auth')->prefix('fuel_type')->name('fuel_type.')->group(functi
     Route::get('/update/status/{fuel_type_id}/{status}', [FuelTypeController::class, 'updateStatus'])->name('status');
     Route::get('export/', [FuelTypeController::class, 'export'])->name('export');
 });
-
 
 // Quotations
 Route::middleware('auth')->prefix('quotations')->name('quotations.')->group(function () {
@@ -240,6 +287,7 @@ Route::middleware('auth')->prefix('quotations')->name('quotations.')->group(func
     Route::post('/send-whatsapp/{quotation}', [QuotationController::class, 'sendToWhatsApp'])->name('send-whatsapp');
     Route::get('/download-pdf/{quotation}', [QuotationController::class, 'downloadPdf'])->name('download-pdf');
     Route::get('/get-quote-form', [QuotationController::class, 'getQuoteFormHtml'])->name('get-quote-form');
+    Route::get('/export', [QuotationController::class, 'export'])->name('export');
     Route::delete('/delete/{quotation}', [QuotationController::class, 'delete'])->name('delete');
 });
 

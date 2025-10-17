@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 abstract class SecureFormRequest extends FormRequest
 {
@@ -14,7 +13,7 @@ abstract class SecureFormRequest extends FormRequest
     {
         $rules = ['string', "max:{$maxLength}"];
 
-        if (!$allowHtml) {
+        if (! $allowHtml) {
             $rules[] = 'regex:/^[^<>]*$/'; // No HTML tags
         }
 
@@ -24,7 +23,7 @@ abstract class SecureFormRequest extends FormRequest
     /**
      * Get secure email validation rules
      */
-    protected function getSecureEmailRules(string $table = null, string $column = 'email', $except = null): string
+    protected function getSecureEmailRules(?string $table = null, string $column = 'email', $except = null): string
     {
         $rules = ['email:rfc,dns', 'max:255'];
 
@@ -50,7 +49,7 @@ abstract class SecureFormRequest extends FormRequest
     /**
      * Get secure numeric validation rules
      */
-    protected function getSecureNumericRules(int $min = null, int $max = null): string
+    protected function getSecureNumericRules(?int $min = null, ?int $max = null): string
     {
         $rules = ['numeric'];
 
@@ -68,12 +67,12 @@ abstract class SecureFormRequest extends FormRequest
     /**
      * Get secure file upload validation rules
      */
-    protected function getSecureFileRules(array $allowedTypes = null, int $maxSize = 2048): string
+    protected function getSecureFileRules(?array $allowedTypes = null, int $maxSize = 2048): string
     {
         $allowedTypes = $allowedTypes ?? config('security.file_uploads.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf']);
         $maxSize = min($maxSize, config('security.file_uploads.max_size', 10240));
 
-        return "file|max:{$maxSize}|mimes:" . implode(',', $allowedTypes);
+        return "file|max:{$maxSize}|mimes:".implode(',', $allowedTypes);
     }
 
     /**
@@ -83,11 +82,11 @@ abstract class SecureFormRequest extends FormRequest
     {
         $rules = ['date'];
 
-        if (!$allowFuture) {
+        if (! $allowFuture) {
             $rules[] = 'before_or_equal:today';
         }
 
-        if (!$allowPast) {
+        if (! $allowPast) {
             $rules[] = 'after_or_equal:today';
         }
 
@@ -113,7 +112,7 @@ abstract class SecureFormRequest extends FormRequest
                 }
 
                 // Basic XSS protection for non-HTML fields
-                if (!$this->isHtmlField($key)) {
+                if (! $this->isHtmlField($key)) {
                     $value = strip_tags($value);
                 }
 
@@ -132,6 +131,7 @@ abstract class SecureFormRequest extends FormRequest
     protected function isHtmlField(string $field): bool
     {
         $htmlFields = $this->getAllowedHtmlFields();
+
         return in_array($field, $htmlFields);
     }
 
@@ -149,7 +149,7 @@ abstract class SecureFormRequest extends FormRequest
     public function authorize(): bool
     {
         // Check if user is authenticated
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return false;
         }
 

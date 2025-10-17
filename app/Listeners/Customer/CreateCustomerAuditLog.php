@@ -2,9 +2,9 @@
 
 namespace App\Listeners\Customer;
 
-use App\Events\Customer\CustomerRegistered;
-use App\Events\Customer\CustomerProfileUpdated;
 use App\Events\Customer\CustomerEmailVerified;
+use App\Events\Customer\CustomerProfileUpdated;
+use App\Events\Customer\CustomerRegistered;
 use App\Events\Quotation\QuotationRequested;
 use App\Models\CustomerAuditLog;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,7 +17,7 @@ class CreateCustomerAuditLog implements ShouldQueue
     public function handle(object $event): void
     {
         $auditData = $this->prepareAuditData($event);
-        
+
         if ($auditData) {
             CustomerAuditLog::create($auditData);
         }
@@ -26,9 +26,10 @@ class CreateCustomerAuditLog implements ShouldQueue
     private function prepareAuditData(object $event): ?array
     {
         $customer = $event->customer ?? null;
-        
-        if (!$customer) {
+
+        if (! $customer) {
             \Log::warning('Audit log event missing customer', ['event_class' => get_class($event)]);
+
             return null;
         }
 
@@ -57,7 +58,7 @@ class CreateCustomerAuditLog implements ShouldQueue
                 return [
                     'customer_id' => $customer->id,
                     'action' => 'profile_updated',
-                    'description' => "Customer profile updated. Changed fields: " . implode(', ', $event->changedFields),
+                    'description' => 'Customer profile updated. Changed fields: '.implode(', ', $event->changedFields),
                     'metadata' => [
                         'changed_fields' => $event->changedFields,
                         'original_values' => $event->originalValues,
@@ -73,7 +74,7 @@ class CreateCustomerAuditLog implements ShouldQueue
                 return [
                     'customer_id' => $customer->id,
                     'action' => 'email_verified',
-                    'description' => "Customer email address verified",
+                    'description' => 'Customer email address verified',
                     'metadata' => $eventData,
                     'ip_address' => $ipAddress,
                     'user_agent' => $userAgent,
@@ -84,7 +85,7 @@ class CreateCustomerAuditLog implements ShouldQueue
                 return [
                     'customer_id' => $customer->id,
                     'action' => 'quotation_requested',
-                    'description' => "Customer requested insurance quotation",
+                    'description' => 'Customer requested insurance quotation',
                     'metadata' => $eventData,
                     'ip_address' => $ipAddress,
                     'user_agent' => $userAgent,
@@ -94,8 +95,9 @@ class CreateCustomerAuditLog implements ShouldQueue
             default:
                 \Log::warning('Unknown event type for customer audit log', [
                     'event_class' => get_class($event),
-                    'customer_id' => $customer->id ?? 'unknown'
+                    'customer_id' => $customer->id ?? 'unknown',
                 ]);
+
                 return null;
         }
     }
@@ -104,7 +106,7 @@ class CreateCustomerAuditLog implements ShouldQueue
     {
         $customer = $event->customer ?? null;
         $eventData = method_exists($event, 'getEventData') ? $event->getEventData() : [];
-        
+
         \Log::error('Failed to create customer audit log', [
             'event_class' => get_class($event),
             'customer_id' => $customer->id ?? 'unknown',

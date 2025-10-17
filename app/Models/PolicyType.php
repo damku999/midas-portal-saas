@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
-use App\Models\CustomerInsurance;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\TableRecordObserver;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Database\Factories\PolicyTypeFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\Models\PolicyType
@@ -18,46 +27,57 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int $id
  * @property string $name
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CustomerInsurance> $customerInsurances
+ * @property-read Collection<int, CustomerInsurance> $customerInsurances
  * @property-read int|null $customer_insurances_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType query()
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PolicyType withoutTrashed()
- * @mixin \Eloquent
+ *
+ * @method static PolicyTypeFactory factory($count = null, $state = [])
+ * @method static Builder|PolicyType newModelQuery()
+ * @method static Builder|PolicyType newQuery()
+ * @method static Builder|PolicyType onlyTrashed()
+ * @method static Builder|PolicyType permission($permissions)
+ * @method static Builder|PolicyType query()
+ * @method static Builder|PolicyType role($roles, $guard = null)
+ * @method static Builder|PolicyType whereCreatedAt($value)
+ * @method static Builder|PolicyType whereCreatedBy($value)
+ * @method static Builder|PolicyType whereDeletedAt($value)
+ * @method static Builder|PolicyType whereDeletedBy($value)
+ * @method static Builder|PolicyType whereId($value)
+ * @method static Builder|PolicyType whereName($value)
+ * @method static Builder|PolicyType whereStatus($value)
+ * @method static Builder|PolicyType whereUpdatedAt($value)
+ * @method static Builder|PolicyType whereUpdatedBy($value)
+ * @method static Builder|PolicyType withTrashed()
+ * @method static Builder|PolicyType withoutTrashed()
+ *
+ * @mixin Model
  */
 class PolicyType extends Authenticatable
 {
-    use  HasFactory, Notifiable, HasRoles, SoftDeletes, TableRecordObserver, LogsActivity;
+    use HasFactory;
+    use HasRoles;
+    use LogsActivity;
+    use Notifiable;
+    use SoftDeletes;
+    use TableRecordObserver;
+
     protected static $logAttributes = ['*'];
+
     protected static $logOnlyDirty = true;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -71,6 +91,7 @@ class PolicyType extends Authenticatable
     {
         return $this->hasMany(CustomerInsurance::class, 'policy_type_id');
     }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults();

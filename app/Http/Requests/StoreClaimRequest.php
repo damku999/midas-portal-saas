@@ -26,11 +26,11 @@ class StoreClaimRequest extends FormRequest
             $dateValue = $this->incident_date;
             if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateValue)) {
                 $dateParts = explode('/', $dateValue);
-                $data['incident_date'] = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+                $data['incident_date'] = $dateParts[2].'-'.$dateParts[1].'-'.$dateParts[0];
             }
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -55,8 +55,6 @@ class StoreClaimRequest extends FormRequest
 
     /**
      * Get custom messages for validator errors.
-     *
-     * @return array
      */
     public function messages(): array
     {
@@ -78,8 +76,6 @@ class StoreClaimRequest extends FormRequest
 
     /**
      * Get custom attributes for validator errors.
-     *
-     * @return array
      */
     public function attributes(): array
     {

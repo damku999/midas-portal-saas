@@ -2,21 +2,19 @@
 
 namespace App\Exports;
 
-use App\Models\CustomerInsurance;
 use App\Models\Report;
-use Carbon\Carbon;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class CustomerInsurancesExport1 implements WithMultipleSheets
 {
@@ -30,7 +28,7 @@ class CustomerInsurancesExport1 implements WithMultipleSheets
     public function sheets(): array
     {
         $reportType = $this->filters['report_name'] ?? 'Insurance Detail';
-        
+
         return [
             'Summary' => new InsuranceSummarySheet($this->filters, $reportType),
             'Detailed Data' => new InsuranceDataSheet($this->filters),
@@ -38,11 +36,12 @@ class CustomerInsurancesExport1 implements WithMultipleSheets
     }
 }
 
-class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithEvents
+class InsuranceSummarySheet implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithStyles
 {
     protected $filters;
+
     protected $reportType;
-    
+
     public function __construct(array $filters, string $reportType)
     {
         $this->filters = $filters;
@@ -52,38 +51,38 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
     public function collection()
     {
         $customerInsurances = Report::getInsuranceReport($this->filters);
-        
+
         $summary = [];
         $summary[] = ['Total Policies', $customerInsurances->count()];
-        $summary[] = ['Total Premium Amount', '₹ ' . number_format($customerInsurances->sum('final_premium_with_gst'), 2)];
-        $summary[] = ['Total Actual Earnings', '₹ ' . number_format($customerInsurances->sum('actual_earnings'), 2)];
-        $summary[] = ['Average Premium', '₹ ' . number_format($customerInsurances->avg('final_premium_with_gst'), 2)];
-        
+        $summary[] = ['Total Premium Amount', '₹ '.number_format($customerInsurances->sum('final_premium_with_gst'), 2)];
+        $summary[] = ['Total Actual Earnings', '₹ '.number_format($customerInsurances->sum('actual_earnings'), 2)];
+        $summary[] = ['Average Premium', '₹ '.number_format($customerInsurances->avg('final_premium_with_gst'), 2)];
+
         $summary[] = ['', '']; // Empty row
-        
+
         // Premium type breakdown
         $premiumTypeBreakdown = $customerInsurances->groupBy('premiumType.name');
         foreach ($premiumTypeBreakdown as $type => $policies) {
-            $summary[] = [$type . ' - Count', $policies->count()];
-            $summary[] = [$type . ' - Total Premium', '₹ ' . number_format($policies->sum('final_premium_with_gst'), 2)];
+            $summary[] = [$type.' - Count', $policies->count()];
+            $summary[] = [$type.' - Total Premium', '₹ '.number_format($policies->sum('final_premium_with_gst'), 2)];
             $summary[] = ['', '']; // Empty row
         }
-        
+
         // Insurance company breakdown
         $companyBreakdown = $customerInsurances->groupBy('insuranceCompany.name');
         $summary[] = ['Insurance Companies:', ''];
         foreach ($companyBreakdown as $company => $policies) {
-            $summary[] = [$company, $policies->count() . ' policies - ₹' . number_format($policies->sum('final_premium_with_gst'), 2)];
+            $summary[] = [$company, $policies->count().' policies - ₹'.number_format($policies->sum('final_premium_with_gst'), 2)];
         }
-        
+
         $summary[] = ['', '']; // Empty row
-        
+
         // Status breakdown
         $activeCount = $customerInsurances->where('status', 1)->count();
         $notRenewedCount = $customerInsurances->where('status', 0)->count();
         $summary[] = ['Active Policies', $activeCount];
         $summary[] = ['Not Renewed', $notRenewedCount];
-        
+
         return collect($summary);
     }
 
@@ -98,7 +97,7 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
             1 => [
                 'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2B7EC8']], // WebMonks Blue
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ],
         ];
     }
@@ -108,10 +107,10 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
-                
+
                 // Style all data rows with alternating colors
                 $lastRow = $sheet->getHighestRow();
-                
+
                 // Header styling
                 $sheet->getStyle('A1:B1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -121,7 +120,7 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
                     ],
                 ]);
-                
+
                 // Alternate row colors for data
                 for ($row = 2; $row <= $lastRow; $row++) {
                     $fillColor = ($row % 2 == 0) ? 'E8F4FD' : 'FFFFFF'; // Light blue and white alternating
@@ -130,15 +129,15 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
                         'borders' => [
                             'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'CCCCCC']],
                         ],
-                        'font' => ['size' => 11]
+                        'font' => ['size' => 11],
                     ]);
                 }
-                
+
                 // Make metric column bold
                 $sheet->getStyle("A2:A{$lastRow}")->applyFromArray([
-                    'font' => ['bold' => true]
+                    'font' => ['bold' => true],
                 ]);
-                
+
                 // Auto-fit columns
                 $sheet->getColumnDimension('A')->setAutoSize(true);
                 $sheet->getColumnDimension('B')->setAutoSize(true);
@@ -147,10 +146,10 @@ class InsuranceSummarySheet implements FromCollection, WithHeadings, ShouldAutoS
     }
 }
 
-class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithEvents
+class InsuranceDataSheet implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithStyles
 {
     protected $filters;
-    
+
     public function __construct(array $filters)
     {
         $this->filters = $filters;
@@ -159,6 +158,7 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
     public function collection()
     {
         $customerInsurances = Report::getInsuranceReport($this->filters);
+
         return $customerInsurances->map(function ($customerInsurance) {
             return [
                 'Customer' => $customerInsurance->customer->name,
@@ -249,7 +249,7 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
             1 => [
                 'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2B7EC8']], // WebMonks Blue
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ],
         ];
     }
@@ -259,10 +259,10 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
-                
+
                 $lastRow = $sheet->getHighestRow();
                 $lastColumn = $sheet->getHighestColumn();
-                
+
                 // Header styling
                 $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
@@ -272,7 +272,7 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
                     ],
                 ]);
-                
+
                 // Alternate row colors for data
                 for ($row = 2; $row <= $lastRow; $row++) {
                     $fillColor = ($row % 2 == 0) ? 'F0F8FF' : 'FFFFFF'; // Very light blue and white alternating
@@ -281,10 +281,10 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
                         'borders' => [
                             'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']],
                         ],
-                        'font' => ['size' => 10]
+                        'font' => ['size' => 10],
                     ]);
                 }
-                
+
                 // Auto-fit all columns
                 $columnIndex = 'A';
                 while ($columnIndex !== $lastColumn) {
@@ -293,10 +293,10 @@ class InsuranceDataSheet implements FromCollection, WithHeadings, ShouldAutoSize
                 }
                 // Don't forget the last column
                 $sheet->getColumnDimension($lastColumn)->setAutoSize(true);
-                
+
                 // Add auto-filter to header row
                 $sheet->setAutoFilter("A1:{$lastColumn}1");
-                
+
                 // Set page orientation
                 $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
             },

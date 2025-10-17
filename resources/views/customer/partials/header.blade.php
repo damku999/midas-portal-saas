@@ -4,7 +4,7 @@
         <!-- Brand Logo -->
         @auth('customer')
             <a class="navbar-brand" href="{{ route('customer.dashboard') }}">
-                <img src="{{ asset('images/parth_logo.png') }}" style="max-height: 40px;" alt="Company Logo">
+                <img src="{{ company_logo_asset() }}" style="max-height: 40px;" alt="{{ company_logo('alt') }}">
             </a>
             <!-- Mobile toggle button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"

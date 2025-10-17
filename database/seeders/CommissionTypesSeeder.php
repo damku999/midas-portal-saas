@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +27,7 @@ class CommissionTypesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'od_premium',
@@ -40,7 +39,7 @@ class CommissionTypesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
             [
                 'name' => 'tp_premium',
@@ -52,8 +51,8 @@ class CommissionTypesSeeder extends Seeder
                 'created_by' => null,
                 'updated_by' => null,
                 'deleted_by' => null,
-                'deleted_at' => null
-            ]
+                'deleted_at' => null,
+            ],
         ]);
     }
 }

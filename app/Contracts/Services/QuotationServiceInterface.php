@@ -2,8 +2,6 @@
 
 namespace App\Contracts\Services;
 
-use App\Http\Requests\CreateQuotationRequest;
-use App\Http\Requests\UpdateQuotationRequest;
 use App\Models\Quotation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
