@@ -124,7 +124,7 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
         $direction = $request->input('direction', 'desc');
         $query->orderBy($sort, $direction);
 
-        return $query->paginate(config('app.pagination_default', 15));
+        return $query->paginate(pagination_per_page());
     }
 
     /**

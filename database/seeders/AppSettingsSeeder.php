@@ -73,6 +73,24 @@ class AppSettingsSeeder extends Seeder
                 'description' => 'Session Timeout in Minutes',
                 'is_encrypted' => false,
             ],
+            'system_admin_emails' => [
+                'value' => 'webmonks.in@gmail.com,admin@webmonks.in',
+                'type' => 'string',
+                'description' => 'System Administrator Emails (comma-separated) - Users with these emails get full system access',
+                'is_encrypted' => false,
+            ],
+            'notification_test_phone' => [
+                'value' => '919727793123',
+                'type' => 'string',
+                'description' => 'Default Test Phone Number for Notification Testing',
+                'is_encrypted' => false,
+            ],
+            'notification_test_email' => [
+                'value' => 'test@example.com',
+                'type' => 'email',
+                'description' => 'Default Test Email for Notification Testing',
+                'is_encrypted' => false,
+            ],
         ];
 
         AppSettingService::setBulk($applicationSettings, 'application');
@@ -245,42 +263,23 @@ class AppSettingsSeeder extends Seeder
         // CATEGORY: CDN Configuration
         // ========================================
         $cdnSettings = [
-            'cdn_bootstrap_version' => [
-                'value' => '5.3.0',
-                'type' => 'string',
-                'description' => 'Bootstrap CSS Framework Version',
-                'is_encrypted' => false,
-            ],
-            'cdn_bootstrap_css' => [
-                'value' => 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-                'type' => 'url',
-                'description' => 'Bootstrap CSS CDN URL',
-                'is_encrypted' => false,
-            ],
+            // Bootstrap
             'cdn_bootstrap_js' => [
                 'value' => 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
                 'type' => 'url',
                 'description' => 'Bootstrap JavaScript Bundle CDN URL',
                 'is_encrypted' => false,
             ],
-            'cdn_jquery_version' => [
-                'value' => '3.7.1',
-                'type' => 'string',
-                'description' => 'jQuery Library Version',
-                'is_encrypted' => false,
-            ],
+
+            // jQuery
             'cdn_jquery_url' => [
                 'value' => 'https://code.jquery.com/jquery-3.7.1.min.js',
                 'type' => 'url',
                 'description' => 'jQuery CDN URL',
                 'is_encrypted' => false,
             ],
-            'cdn_select2_version' => [
-                'value' => '4.1.0-rc.0',
-                'type' => 'string',
-                'description' => 'Select2 Library Version',
-                'is_encrypted' => false,
-            ],
+
+            // Select2
             'cdn_select2_css' => [
                 'value' => 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
                 'type' => 'url',
@@ -293,6 +292,14 @@ class AppSettingsSeeder extends Seeder
                 'description' => 'Select2 JavaScript CDN URL',
                 'is_encrypted' => false,
             ],
+            'cdn_select2_bootstrap_theme_css' => [
+                'value' => 'https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css',
+                'type' => 'url',
+                'description' => 'Select2 Bootstrap 5 Theme CSS CDN URL',
+                'is_encrypted' => false,
+            ],
+
+            // Flatpickr Date Picker
             'cdn_flatpickr_css' => [
                 'value' => 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
                 'type' => 'url',
@@ -317,40 +324,28 @@ class AppSettingsSeeder extends Seeder
                 'description' => 'Flatpickr Month Select Plugin JavaScript CDN URL',
                 'is_encrypted' => false,
             ],
-            'cdn_chartjs_version' => [
-                'value' => '3.9.1',
-                'type' => 'string',
-                'description' => 'Chart.js Library Version',
-                'is_encrypted' => false,
-            ],
+
+            // Chart.js
             'cdn_chartjs_url' => [
                 'value' => 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js',
                 'type' => 'url',
                 'description' => 'Chart.js CDN URL',
                 'is_encrypted' => false,
             ],
-            'cdn_fontawesome_version' => [
-                'value' => '6.6.0',
-                'type' => 'string',
-                'description' => 'Font Awesome Icons Version',
-                'is_encrypted' => false,
-            ],
+
+            // Font Awesome Icons
             'cdn_fontawesome_css' => [
                 'value' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css',
                 'type' => 'url',
                 'description' => 'Font Awesome CSS CDN URL',
                 'is_encrypted' => false,
             ],
+
+            // Google Fonts
             'cdn_google_fonts_inter' => [
                 'value' => 'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
                 'type' => 'url',
                 'description' => 'Google Fonts - Inter Family CDN URL',
-                'is_encrypted' => false,
-            ],
-            'cdn_google_fonts_nunito' => [
-                'value' => 'https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap',
-                'type' => 'url',
-                'description' => 'Google Fonts - Nunito Family CDN URL',
                 'is_encrypted' => false,
             ],
             'cdn_google_fonts_combined' => [
@@ -359,12 +354,8 @@ class AppSettingsSeeder extends Seeder
                 'description' => 'Google Fonts - Combined Inter & Nunito CDN URL',
                 'is_encrypted' => false,
             ],
-            'cdn_select2_bootstrap_theme_css' => [
-                'value' => 'https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css',
-                'type' => 'url',
-                'description' => 'Select2 Bootstrap 5 Theme CSS CDN URL',
-                'is_encrypted' => false,
-            ],
+
+            // Bootstrap Datepicker
             'cdn_bootstrap_datepicker_css' => [
                 'value' => 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css',
                 'type' => 'url',
@@ -375,18 +366,6 @@ class AppSettingsSeeder extends Seeder
                 'value' => 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js',
                 'type' => 'url',
                 'description' => 'Bootstrap Datepicker JavaScript CDN URL',
-                'is_encrypted' => false,
-            ],
-            'cdn_toastr_css' => [
-                'value' => 'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css',
-                'type' => 'url',
-                'description' => 'Toastr Notifications CSS CDN URL',
-                'is_encrypted' => false,
-            ],
-            'cdn_toastr_js' => [
-                'value' => 'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js',
-                'type' => 'url',
-                'description' => 'Toastr Notifications JavaScript CDN URL',
                 'is_encrypted' => false,
             ],
         ];
@@ -483,12 +462,6 @@ class AppSettingsSeeder extends Seeder
                 'value' => 'true',
                 'type' => 'boolean',
                 'description' => 'Enable Cache Busting for CSS/JS Files',
-                'is_encrypted' => false,
-            ],
-            'assets_version_method' => [
-                'value' => 'query',
-                'type' => 'string',
-                'description' => 'Version Method: query (?v=1.0.0), filename (_v1.0.0), or hash',
                 'is_encrypted' => false,
             ],
         ];
@@ -588,70 +561,24 @@ class AppSettingsSeeder extends Seeder
                 'description' => 'Secondary Font Family',
                 'is_encrypted' => false,
             ],
-            'theme_font_size_base' => [
-                'value' => '14px',
-                'type' => 'string',
-                'description' => 'Base Font Size',
-                'is_encrypted' => false,
-            ],
-            'theme_font_size_small' => [
-                'value' => '12px',
-                'type' => 'string',
-                'description' => 'Small Font Size',
-                'is_encrypted' => false,
-            ],
-            'theme_font_size_large' => [
-                'value' => '16px',
-                'type' => 'string',
-                'description' => 'Large Font Size',
-                'is_encrypted' => false,
-            ],
 
             // Component Styles
             'theme_border_radius' => [
                 'value' => '0.35rem',
                 'type' => 'string',
-                'description' => 'Default Border Radius for Components',
+                'description' => 'Border Radius for All Components (buttons, cards, inputs)',
                 'is_encrypted' => false,
             ],
             'theme_box_shadow' => [
                 'value' => '0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15)',
                 'type' => 'string',
-                'description' => 'Default Box Shadow for Cards',
+                'description' => 'Box Shadow for Cards and Elevated Elements',
                 'is_encrypted' => false,
             ],
             'theme_animation_speed' => [
                 'value' => '0.3s',
                 'type' => 'string',
-                'description' => 'Default Animation/Transition Speed',
-                'is_encrypted' => false,
-            ],
-
-            // Button Styles
-            'theme_button_border_radius' => [
-                'value' => '0.35rem',
-                'type' => 'string',
-                'description' => 'Button Border Radius',
-                'is_encrypted' => false,
-            ],
-            'theme_button_font_weight' => [
-                'value' => '500',
-                'type' => 'string',
-                'description' => 'Button Font Weight',
-                'is_encrypted' => false,
-            ],
-
-            // Card Styles
-            'theme_card_border_radius' => [
-                'value' => '0.35rem',
-                'type' => 'string',
-                'description' => 'Card Border Radius',
-                'is_encrypted' => false,
-            ],
-            'theme_card_padding' => [
-                'value' => '1.25rem',
-                'type' => 'string',
-                'description' => 'Card Default Padding',
+                'description' => 'Animation/Transition Speed (0.2s = fast, 0.3s = normal, 0.5s = slow)',
                 'is_encrypted' => false,
             ],
 
@@ -714,7 +641,157 @@ class AppSettingsSeeder extends Seeder
 
         AppSettingService::setBulk($themeSettings, 'theme');
 
+        // ========================================
+        // CATEGORY: SMS Configuration
+        // ========================================
+        $smsSettings = [
+            'sms_enabled' => [
+                'value' => 'false',
+                'type' => 'boolean',
+                'description' => 'Enable SMS Notifications',
+                'is_encrypted' => false,
+            ],
+            'sms_provider' => [
+                'value' => 'twilio',
+                'type' => 'string',
+                'description' => 'SMS Provider (twilio, nexmo, sns)',
+                'is_encrypted' => false,
+            ],
+            'sms_sender_id' => [
+                'value' => '',
+                'type' => 'string',
+                'description' => 'SMS Sender ID/Phone Number',
+                'is_encrypted' => false,
+            ],
+            'sms_character_limit' => [
+                'value' => '160',
+                'type' => 'numeric',
+                'description' => 'SMS Character Limit Per Message',
+                'is_encrypted' => false,
+            ],
+            'sms_twilio_account_sid' => [
+                'value' => env('TWILIO_ACCOUNT_SID', ''),
+                'type' => 'text',
+                'description' => 'Twilio Account SID',
+                'is_encrypted' => true,
+            ],
+            'sms_twilio_auth_token' => [
+                'value' => env('TWILIO_AUTH_TOKEN', ''),
+                'type' => 'text',
+                'description' => 'Twilio Auth Token',
+                'is_encrypted' => true,
+            ],
+            'sms_twilio_from_number' => [
+                'value' => env('TWILIO_FROM', ''),
+                'type' => 'string',
+                'description' => 'Twilio From Phone Number',
+                'is_encrypted' => false,
+            ],
+        ];
+
+        AppSettingService::setBulk($smsSettings, 'sms');
+
+        // ========================================
+        // CATEGORY: Push Notification Configuration
+        // ========================================
+        $pushSettings = [
+            'push_enabled' => [
+                'value' => 'false',
+                'type' => 'boolean',
+                'description' => 'Enable Push Notifications',
+                'is_encrypted' => false,
+            ],
+            'push_fcm_server_key' => [
+                'value' => env('FCM_SERVER_KEY', ''),
+                'type' => 'text',
+                'description' => 'Firebase Cloud Messaging Server Key',
+                'is_encrypted' => true,
+            ],
+            'push_fcm_sender_id' => [
+                'value' => env('FCM_SENDER_ID', ''),
+                'type' => 'string',
+                'description' => 'Firebase Cloud Messaging Sender ID',
+                'is_encrypted' => false,
+            ],
+            'push_fcm_api_url' => [
+                'value' => 'https://fcm.googleapis.com/fcm/send',
+                'type' => 'url',
+                'description' => 'FCM API Endpoint URL',
+                'is_encrypted' => false,
+            ],
+            'push_deep_linking_enabled' => [
+                'value' => 'true',
+                'type' => 'boolean',
+                'description' => 'Enable Deep Linking in Push Notifications',
+                'is_encrypted' => false,
+            ],
+            'push_action_buttons_enabled' => [
+                'value' => 'true',
+                'type' => 'boolean',
+                'description' => 'Enable Action Buttons in Push Notifications',
+                'is_encrypted' => false,
+            ],
+        ];
+
+        AppSettingService::setBulk($pushSettings, 'push');
+
+        // ========================================
+        // CATEGORY: Chart Colors Configuration
+        // ========================================
+        $chartSettings = [
+            'chart_color_primary' => [
+                'value' => 'rgba(79, 70, 229, 0.8)',
+                'type' => 'color',
+                'description' => 'Chart Primary Color',
+                'is_encrypted' => false,
+            ],
+            'chart_color_success' => [
+                'value' => 'rgba(34, 197, 94, 0.8)',
+                'type' => 'color',
+                'description' => 'Chart Success Color',
+                'is_encrypted' => false,
+            ],
+            'chart_color_warning' => [
+                'value' => 'rgba(251, 146, 60, 0.8)',
+                'type' => 'color',
+                'description' => 'Chart Warning Color',
+                'is_encrypted' => false,
+            ],
+            'chart_color_info' => [
+                'value' => 'rgba(14, 165, 233, 0.8)',
+                'type' => 'color',
+                'description' => 'Chart Info Color',
+                'is_encrypted' => false,
+            ],
+            'chart_color_danger' => [
+                'value' => 'rgba(239, 68, 68, 0.8)',
+                'type' => 'color',
+                'description' => 'Chart Danger Color',
+                'is_encrypted' => false,
+            ],
+            'chart_grid_color' => [
+                'value' => '#f1f5f9',
+                'type' => 'color',
+                'description' => 'Chart Grid Line Color',
+                'is_encrypted' => false,
+            ],
+            'chart_text_color' => [
+                'value' => '#64748b',
+                'type' => 'color',
+                'description' => 'Chart Text/Label Color',
+                'is_encrypted' => false,
+            ],
+            'chart_tooltip_bg' => [
+                'value' => 'rgba(255, 255, 255, 0.95)',
+                'type' => 'color',
+                'description' => 'Chart Tooltip Background Color',
+                'is_encrypted' => false,
+            ],
+        ];
+
+        AppSettingService::setBulk($chartSettings, 'chart');
+
         $this->command->info('✅ App Settings seeded successfully!');
-        $this->command->info('📊 Categories: application, whatsapp, mail, notifications, company, cdn, branding, footer, assets, theme');
+        $this->command->info('📊 Categories: application, whatsapp, mail, notifications, company, cdn, branding, footer, assets, theme, sms, push, chart');
     }
 }

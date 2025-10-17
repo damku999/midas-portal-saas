@@ -105,9 +105,9 @@ class AppSettingController extends AbstractBaseCrudController
 
             // Apply sorting with secondary sort by key
             if ($sortBy === 'category') {
-                $settings = $query->orderBy($sortBy, $sortOrder)->orderBy('key', 'asc')->paginate(config('app.pagination_default', 15));
+                $settings = $query->orderBy($sortBy, $sortOrder)->orderBy('key', 'asc')->paginate(pagination_per_page());
             } else {
-                $settings = $query->orderBy($sortBy, $sortOrder)->paginate(config('app.pagination_default', 15));
+                $settings = $query->orderBy($sortBy, $sortOrder)->paginate(pagination_per_page());
             }
 
             $settings->appends($request->except('page'));

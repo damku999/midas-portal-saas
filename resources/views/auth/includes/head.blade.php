@@ -36,22 +36,22 @@
     @turnstileScripts()
 
     <!-- Dynamic Theme Styles -->
-    <style>
+    <style nonce="{{ $cspNonce ?? '' }}">
         :root {
             {{ theme_styles() }}
         }
     </style>
 
     <!-- Modern Auth Styles - Exact Match with Customer Portal -->
-    <style>
+    <style nonce="{{ $cspNonce ?? '' }}">
         body {
             font-family: {{ theme_primary_font() }}, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, {{ theme_color('light') }} 0%, {{ theme_body_bg_color() }} 100%);
             min-height: 100vh;
         }
 
         .auth-container {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, {{ theme_color('light') }} 0%, {{ theme_body_bg_color() }} 100%);
             min-height: 100vh;
         }
 
@@ -60,7 +60,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             max-width: 500px;
             width: 100%;
-            border-top: 4px solid #2563eb;
+            border-top: 4px solid {{ theme_primary_color() }};
             border-radius: 1rem;
             transition: all 0.3s ease;
         }
@@ -87,14 +87,14 @@
 
         .form-control {
             border-radius: 0.5rem;
-            border: 1px solid #e3e6f0;
+            border: 1px solid {{ theme_color('light') }};
             padding: 0.75rem 1rem;
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .form-control:focus {
-            border-color: #2563eb;
+            border-color: {{ theme_primary_color() }};
             box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.1);
             background-color: #fff;
         }
@@ -107,13 +107,13 @@
         }
 
         .btn-primary {
-            background: #2563eb;
+            background: {{ theme_primary_color() }};
             border: none;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #1d4ed8;
+            background: {{ theme_link_hover_color() }};
             transform: translateY(-1px);
             box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
         }
@@ -125,7 +125,7 @@
 
         .form-group label {
             font-weight: 500;
-            color: #5a5c69;
+            color: {{ theme_color('dark') }};
             margin-bottom: 0.5rem;
         }
 
@@ -134,7 +134,7 @@
         }
 
         .text-muted {
-            color: #6c757d !important;
+            color: {{ theme_color('secondary') }} !important;
         }
 
         .fw-bold {

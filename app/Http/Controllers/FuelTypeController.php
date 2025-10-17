@@ -40,7 +40,7 @@ class FuelTypeController extends AbstractBaseCrudController
             $builder->where('name', 'LIKE', '%'.trim((string) $request->search).'%');
         }
 
-        $fuel_type = $builder->paginate(config('app.pagination_default', 15));
+        $fuel_type = $builder->paginate(pagination_per_page());
 
         return view('fuel_type.index', ['fuel_type' => $fuel_type, 'request' => $request->all()]);
     }

@@ -69,7 +69,7 @@
                         <p class="small">If you need assistance, please contact our support team:</p>
                         <div class="contact-info small">
                             <p><i class="fas fa-phone text-primary me-2"></i><strong>Phone:</strong> <a
-                                    href="tel:+919727793123">+91 97277 93123</a></p>
+                                    href="tel:{{ str_replace(['+', ' '], '', company_phone()) }}">{{ company_phone() }}</a></p>
                             <p><i class="fas fa-envelope text-primary me-2"></i><strong>Email:</strong>
                                 <a href="mailto:webmonks.in">darshan@webmonks.in</a>
                             </p>

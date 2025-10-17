@@ -229,10 +229,10 @@
     </div>
 
 
-    <!-- SYSTEM LOGS (Conditional Visibility for WebMonks emails only) -->
+    <!-- SYSTEM LOGS (Conditional Visibility for System Admins only) -->
     @php
         $userEmail = auth()->user()->email ?? '';
-        $showSystemLogs = $userEmail === 'webmonks.in@gmail.com' || str_ends_with($userEmail, '@webmonks.in');
+        $showSystemLogs = is_system_admin($userEmail);
     @endphp
     @if($showSystemLogs)
     <div class="nav-item">

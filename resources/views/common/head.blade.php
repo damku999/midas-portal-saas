@@ -44,21 +44,80 @@
     <style>
         :root {
             {{ theme_styles() }}
+
+            /* Map theme colors to Bootstrap CSS variables */
+            --bs-primary: var(--theme-primary);
+            --bs-secondary: var(--theme-secondary);
+            --bs-success: var(--theme-success);
+            --bs-info: var(--theme-info);
+            --bs-warning: var(--theme-warning);
+            --bs-danger: var(--theme-danger);
+            --bs-light: var(--theme-light);
+            --bs-dark: var(--theme-dark);
+
+            /* Bootstrap component customization */
+            --bs-body-bg: var(--theme-body-bg);
+            --bs-body-color: var(--theme-dark);
+            --bs-link-color: var(--theme-link-color);
+            --bs-link-hover-color: var(--theme-link-hover);
+            --bs-border-radius: var(--theme-border-radius);
+            --bs-border-radius-sm: calc(var(--theme-border-radius) * 0.75);
+            --bs-border-radius-lg: calc(var(--theme-border-radius) * 1.5);
+            --bs-box-shadow: var(--theme-box-shadow);
         }
     </style>
 
-    <!-- Performance optimization for critical rendering path -->
+    <!-- Theme-aware Critical CSS -->
     <style>
-        /* Critical CSS for above-the-fold content */
+        /* Apply theme variables to components */
+        body {
+            background-color: var(--theme-body-bg);
+        }
+
         .sidebar {
-            transition: width 0.3s ease;
-            background-color: {{ theme_sidebar_bg_color() }} !important;
+            transition: width var(--theme-animation-speed) ease;
+            background-color: var(--theme-sidebar-bg) !important;
         }
+
         .sidebar .nav-link {
-            color: {{ theme_sidebar_text_color() }};
+            color: var(--theme-sidebar-text);
+            transition: background-color var(--theme-animation-speed) ease;
         }
-        .topbar { box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
-        .card { box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--theme-sidebar-hover);
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link.active:hover {
+            background-color: var(--theme-sidebar-active);
+        }
+
+        .topbar {
+            background-color: var(--theme-topbar-bg);
+            color: var(--theme-topbar-text);
+            box-shadow: var(--theme-box-shadow);
+        }
+
+        .card {
+            background-color: var(--theme-content-bg);
+            border-radius: var(--theme-border-radius);
+            box-shadow: var(--theme-box-shadow);
+        }
+
+        .btn {
+            border-radius: var(--theme-border-radius);
+            transition: all var(--theme-animation-speed) ease;
+        }
+
+        a {
+            color: var(--theme-link-color);
+            transition: color var(--theme-animation-speed) ease;
+        }
+
+        a:hover {
+            color: var(--theme-link-hover);
+        }
 
         /* Simple Date Picker Calendar Icon */
         .form-control.datepicker {
@@ -67,6 +126,10 @@
             background-position: right 12px center;
             background-size: 16px;
             padding-right: 40px;
+        }
+
+        input.form-control, select.form-control, textarea.form-control {
+            border-radius: var(--theme-border-radius);
         }
     </style>
 </head>

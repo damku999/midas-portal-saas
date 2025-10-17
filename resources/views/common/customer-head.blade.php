@@ -41,14 +41,66 @@
     <style>
         :root {
             {{ theme_styles() }}
+
+            /* Map theme colors to Bootstrap CSS variables */
+            --bs-primary: var(--theme-primary);
+            --bs-secondary: var(--theme-secondary);
+            --bs-success: var(--theme-success);
+            --bs-info: var(--theme-info);
+            --bs-warning: var(--theme-warning);
+            --bs-danger: var(--theme-danger);
+            --bs-light: var(--theme-light);
+            --bs-dark: var(--theme-dark);
+
+            /* Bootstrap component customization */
+            --bs-body-bg: var(--theme-body-bg);
+            --bs-body-color: var(--theme-dark);
+            --bs-link-color: var(--theme-link-color);
+            --bs-link-hover-color: var(--theme-link-hover);
+            --bs-border-radius: var(--theme-border-radius);
+            --bs-border-radius-sm: calc(var(--theme-border-radius) * 0.75);
+            --bs-border-radius-lg: calc(var(--theme-border-radius) * 1.5);
+            --bs-box-shadow: var(--theme-box-shadow);
         }
     </style>
 
-    <!-- Performance optimization for critical rendering path -->
+    <!-- Theme-aware Critical CSS -->
     <style>
-        /* Critical CSS for above-the-fold content */
-        .navbar { box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .card { border-radius: 1rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
-        .btn { border-radius: 0.5rem; font-weight: 500; transition: all 0.3s ease; }
+        /* Apply theme variables to customer portal components */
+        body {
+            background-color: var(--theme-body-bg);
+        }
+
+        .navbar {
+            background-color: var(--theme-topbar-bg);
+            color: var(--theme-topbar-text);
+            box-shadow: var(--theme-box-shadow);
+        }
+
+        .card {
+            background-color: var(--theme-content-bg);
+            border-radius: var(--theme-border-radius);
+            box-shadow: var(--theme-box-shadow);
+            transition: all var(--theme-animation-speed) ease;
+        }
+
+        .btn {
+            border-radius: var(--theme-border-radius);
+            font-weight: 500;
+            transition: all var(--theme-animation-speed) ease;
+        }
+
+        a {
+            color: var(--theme-link-color);
+            transition: color var(--theme-animation-speed) ease;
+        }
+
+        a:hover {
+            color: var(--theme-link-hover);
+        }
+
+        input.form-control, select.form-control, textarea.form-control {
+            border-radius: var(--theme-border-radius);
+        }
     </style>
 </head>

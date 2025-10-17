@@ -22,9 +22,6 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
-
-            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
-
             $table->index('notification_type_id');
             $table->index('channel');
             $table->index('is_active');

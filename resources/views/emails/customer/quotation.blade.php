@@ -23,7 +23,7 @@
         <div class="content">
             <p><strong>Dear {{ $customer_name ?? 'Valued Customer' }},</strong></p>
             
-            <p>Thank you for requesting an insurance quotation from <strong>{{ config('app.name') }}</strong>. Please find your personalized quote attached to this email.</p>
+            <p>Thank you for requesting an insurance quotation from <strong>{{ company_name() }}</strong>. Please find your personalized quote attached to this email.</p>
 
             @if(isset($quotation_details))
                 <div class="details">
@@ -47,7 +47,7 @@
         </div>
 
         <div class="footer">
-            <p>Thanks,<br><strong>{{ config('app.name') }} Team</strong></p>
+            <p>Thanks,<br><strong>{{ company_name() }} Team</strong></p>
         </div>
     </div>
 </body>

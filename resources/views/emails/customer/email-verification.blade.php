@@ -3,7 +3,7 @@
 
 Dear {{ $customer->name ?? 'Valued Customer' }},
 
-Welcome to the **Parth Rawal Insurance Advisory** Customer Portal! We're excited to have you join our family of satisfied customers.
+Welcome to the **{{ company_name() }}** Customer Portal! We're excited to have you join our family of satisfied customers.
 
 To complete your account setup and ensure secure access to your insurance information, please verify your email address by clicking the button below:
 
@@ -29,9 +29,9 @@ If you're having trouble with the button above, you can also copy and paste the 
 **Questions?** We're here to help with your insurance needs and account setup.
 
 Best regards,<br>
-**Parth Rawal**<br>
+**{{ company_advisor_name() }}**<br>
 Insurance Advisor<br>
-Professional Insurance Solutions
+{{ company_name() }}
 
 @slot('subcopy')
 If you did not create an account with us, please ignore this email. No further action is required, and your email address will not be added to our system.

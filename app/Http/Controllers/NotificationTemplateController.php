@@ -86,7 +86,7 @@ class NotificationTemplateController extends AbstractBaseCrudController
 
         $builder->orderBy($sortBy, $sortOrder);
 
-        $lengthAwarePaginator = $builder->paginate(config('app.pagination_default', 15));
+        $lengthAwarePaginator = $builder->paginate(pagination_per_page());
         $lengthAwarePaginator->appends($request->except('page'));
 
         // Get unique categories for filter

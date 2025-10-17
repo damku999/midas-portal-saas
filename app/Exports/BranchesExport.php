@@ -34,7 +34,7 @@ class BranchesExport implements FromCollection, WithHeadings, WithMapping
             $branch->email,
             $branch->mobile_number,
             $branch->status == 1 ? 'Active' : 'Inactive',
-            $branch->created_at ? $branch->created_at->format('d-m-Y H:i:s') : '',
+            $branch->created_at ? format_app_datetime($branch->created_at) : '',
         ];
     }
 }

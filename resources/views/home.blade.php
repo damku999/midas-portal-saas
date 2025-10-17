@@ -639,19 +639,8 @@
         const data = {!! $json_data !!};
 
         const labels = Object.keys(data);
-        const colors = [
-            'rgba(79, 70, 229, 0.8)', // Primary
-            'rgba(34, 197, 94, 0.8)', // Success
-            'rgba(251, 146, 60, 0.8)', // Warning
-            'rgba(14, 165, 233, 0.8)' // Info
-        ];
-
-        const borderColors = [
-            'rgba(79, 70, 229, 1)',
-            'rgba(34, 197, 94, 1)',
-            'rgba(251, 146, 60, 1)',
-            'rgba(14, 165, 233, 1)'
-        ];
+        const colors = {!! json_encode(chart_colors_array()) !!};
+        const borderColors = {!! json_encode(chart_border_colors_array()) !!};
 
         const datasets = Object.keys(data[labels[0]]).map((key, index) => ({
             label: key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
@@ -689,9 +678,9 @@
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backgroundColor: '{{ chart_tooltip_bg() }}',
                         titleColor: '#1e293b',
-                        bodyColor: '#64748b',
+                        bodyColor: '{{ chart_text_color() }}',
                         borderColor: '#e2e8f0',
                         borderWidth: 1,
                         cornerRadius: 8,
@@ -711,7 +700,7 @@
                             display: false
                         },
                         ticks: {
-                            color: '#64748b',
+                            color: '{{ chart_text_color() }}',
                             font: {
                                 size: 11,
                                 weight: '500'
@@ -721,11 +710,11 @@
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: '#f1f5f9',
+                            color: '{{ chart_grid_color() }}',
                             lineWidth: 1
                         },
                         ticks: {
-                            color: '#64748b',
+                            color: '{{ chart_text_color() }}',
                             font: {
                                 size: 11
                             },

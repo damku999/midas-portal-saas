@@ -60,7 +60,7 @@
         </div>
 
         <div class="footer">
-            <p>Thanks,<br><strong>{{ config('app.name') }} Team</strong></p>
+            <p>Thanks,<br><strong>{{ company_name() }} Team</strong></p>
         </div>
     </div>
 </body>

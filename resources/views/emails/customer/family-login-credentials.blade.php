@@ -4,7 +4,7 @@
 Dear {{ $customer->name }},
 
 @if($isHead)
-**Congratulations!** You have been designated as the **Family Head** for the family group "**{{ $familyGroup->name }}**" in the Parth Rawal Insurance Advisory Customer Portal.
+**Congratulations!** You have been designated as the **Family Head** for the family group "**{{ $familyGroup->name }}**" in the {{ company_name() }} Customer Portal.
 
 ## 👑 Your Family Head Responsibilities
 
@@ -19,7 +19,7 @@ As the family head, you are the primary contact and administrator for your entir
 
 **Important:** Family member login credentials have been created but NOT emailed to them directly. You are responsible for securely sharing their login information with them.
 @else
-**Welcome to the family!** You have been added to the family group "**{{ $familyGroup->name }}**" in the Parth Rawal Insurance Advisory Customer Portal.
+**Welcome to the family!** You have been added to the family group "**{{ $familyGroup->name }}**" in the {{ company_name() }} Customer Portal.
 
 Your family head is **{{ $familyGroup->familyHead->name }}**, who can help you with any questions about your account or insurance policies.
 @endif
@@ -86,9 +86,9 @@ All login attempts and account activities are logged for your security. You can 
 If you have any questions about your account or need assistance with logging in, please contact our support team.
 
 Best regards,<br>
-**Parth Rawal**<br>
+**{{ company_advisor_name() }}**<br>
 Insurance Advisor<br>
-Professional Insurance Solutions
+{{ company_name() }}
 
 @slot('subcopy')
 **Security Reminder:** This email contains sensitive login information. Please ensure you're viewing this email in a secure environment and delete it after you've successfully logged in and changed your password.

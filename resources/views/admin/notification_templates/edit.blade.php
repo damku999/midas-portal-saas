@@ -183,7 +183,7 @@
                                 <label class="form-label fw-semibold mb-1"><i class="fas fa-paper-plane me-1"></i> Send Test Message</label>
                                 <div class="input-group input-group-sm">
                                     <input type="text" class="form-control form-control-sm" id="test_recipient"
-                                           placeholder="Phone: 919727793123 or Email: test@example.com">
+                                           placeholder="Phone: {{ app_setting('notification_test_phone', 'application', '919727793123') }} or Email: {{ app_setting('notification_test_email', 'application', 'test@example.com') }}">
                                     <button type="button" class="btn btn-warning btn-sm" id="sendTestBtn">
                                         <i class="fas fa-paper-plane"></i> Send
                                     </button>
@@ -336,16 +336,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 insertBtn.style.fontWeight = '500';
                 insertBtn.setAttribute('title', variable.description + ' (Click to insert)');
 
-                // Set color-specific styles for better readability
+                // Set color-specific styles for better readability (using theme colors)
                 const colorMap = {
-                    'primary': { bg: '#0d6efd', border: '#0d6efd', text: '#ffffff' },
-                    'success': { bg: '#198754', border: '#198754', text: '#ffffff' },
-                    'info': { bg: '#0dcaf0', border: '#0dcaf0', text: '#000000' },
-                    'warning': { bg: '#ffc107', border: '#ffc107', text: '#000000' },
-                    'danger': { bg: '#dc3545', border: '#dc3545', text: '#ffffff' },
-                    'secondary': { bg: '#6c757d', border: '#6c757d', text: '#ffffff' },
-                    'dark': { bg: '#212529', border: '#212529', text: '#ffffff' },
-                    'light': { bg: '#f8f9fa', border: '#dee2e6', text: '#000000' }
+                    'primary': { bg: '{{ theme_color("primary") }}', border: '{{ theme_color("primary") }}', text: '#ffffff' },
+                    'success': { bg: '{{ theme_color("success") }}', border: '{{ theme_color("success") }}', text: '#ffffff' },
+                    'info': { bg: '{{ theme_color("info") }}', border: '{{ theme_color("info") }}', text: '#000000' },
+                    'warning': { bg: '{{ theme_color("warning") }}', border: '{{ theme_color("warning") }}', text: '#000000' },
+                    'danger': { bg: '{{ theme_color("danger") }}', border: '{{ theme_color("danger") }}', text: '#ffffff' },
+                    'secondary': { bg: '{{ theme_color("secondary") }}', border: '{{ theme_color("secondary") }}', text: '#ffffff' },
+                    'dark': { bg: '{{ theme_color("dark") }}', border: '{{ theme_color("dark") }}', text: '#ffffff' },
+                    'light': { bg: '{{ theme_color("light") }}', border: '{{ theme_color("light") }}', text: '#000000' }
                 };
 
                 const colors = colorMap[variable.color] || colorMap['secondary'];
@@ -431,8 +431,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Clear and set success state
             buttonElement.innerHTML = '';
-            buttonElement.style.backgroundColor = '#198754';
-            buttonElement.style.borderColor = '#198754';
+            buttonElement.style.backgroundColor = '{{ theme_color("success") }}';
+            buttonElement.style.borderColor = '{{ theme_color("success") }}';
             buttonElement.style.color = '#ffffff';
 
             const checkIcon = document.createElement('i');
@@ -500,8 +500,8 @@ document.addEventListener('DOMContentLoaded', function() {
             checkIcon.className = 'fas fa-check';
             buttonElement.innerHTML = '';
             buttonElement.appendChild(checkIcon);
-            buttonElement.style.background = '#28a745';
-            buttonElement.style.borderColor = '#28a745';
+            buttonElement.style.background = '{{ theme_color("success") }}';
+            buttonElement.style.borderColor = '{{ theme_color("success") }}';
             buttonElement.style.color = 'white';
 
             setTimeout(() => {

@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: @json(array_keys($metrics['events_by_category'])),
             datasets: [{
                 data: @json(array_values($metrics['events_by_category'])),
-                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d']
+                backgroundColor: {!! json_encode(chart_colors_array()) !!}
             }]
         },
         options: {
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: @json(array_keys($metrics['risk_distribution'])),
             datasets: [{
                 data: @json(array_values($metrics['risk_distribution'])),
-                backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545']
+                backgroundColor: {!! json_encode(chart_colors_array()) !!}
             }]
         },
         options: {
@@ -297,8 +297,8 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Activity Count',
                 data: activities,
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderColor: '{{ chart_color("primary") }}',
+                backgroundColor: '{{ preg_replace("/0\.\d+\)/", "0.1)", chart_color("primary")) }}',
                 fill: true
             }]
         },

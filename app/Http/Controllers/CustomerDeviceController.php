@@ -55,7 +55,7 @@ class CustomerDeviceController extends Controller
             });
         }
 
-        $builder->paginate(50);
+        $devices = $builder->paginate(pagination_per_page());
 
         // Statistics
         $stats = [

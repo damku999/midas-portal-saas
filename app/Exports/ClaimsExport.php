@@ -105,14 +105,14 @@ class ClaimsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMappi
             $claim->customerInsurance->registration_no ?? 'N/A',
             $claim->customerInsurance->insuranceCompany->name ?? 'N/A',
             $claim->insurance_type,
-            $claim->incident_date ? $claim->incident_date->format('d/m/Y') : 'N/A',
+            $claim->incident_date ? format_app_date($claim->incident_date) : 'N/A',
             $claim->currentStage->stage_name ?? 'No Stage',
             $claim->whatsapp_number ?? 'N/A',
             $claim->send_email_notifications ? 'Yes' : 'No',
             $claim->status ? 'Active' : 'Inactive',
             $claim->description ?? 'N/A',
-            $claim->created_at ? $claim->created_at->format('d/m/Y H:i') : 'N/A',
-            $claim->updated_at ? $claim->updated_at->format('d/m/Y H:i') : 'N/A',
+            $claim->created_at ? format_app_datetime($claim->created_at) : 'N/A',
+            $claim->updated_at ? format_app_datetime($claim->updated_at) : 'N/A',
         ];
     }
 
