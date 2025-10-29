@@ -40,7 +40,7 @@ class PremiumTypeController extends AbstractBaseCrudController
             $builder->where('name', 'LIKE', '%'.trim((string) $request->search).'%');
         }
 
-        $premium_type = $builder->paginate(config('app.pagination_default', 15));
+        $premium_type = $builder->paginate(pagination_per_page());
 
         return view('premium_type.index', ['premium_type' => $premium_type]);
     }

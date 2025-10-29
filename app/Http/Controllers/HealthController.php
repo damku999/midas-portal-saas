@@ -18,7 +18,7 @@ class HealthController extends Controller
         return response()->json([
             'status' => 'healthy',
             'timestamp' => now()->toISOString(),
-            'application' => config('app.name'),
+            'application' => company_name(),
             'version' => '1.0.0',
             'environment' => app()->environment(),
         ]);
@@ -161,7 +161,7 @@ class HealthController extends Controller
                 'opcache_enabled' => function_exists('opcache_get_status') ? opcache_get_status()['opcache_enabled'] : false,
             ],
             'application' => [
-                'name' => config('app.name'),
+                'name' => company_name(),
                 'environment' => app()->environment(),
                 'debug' => config('app.debug'),
                 'timezone' => config('app.timezone'),

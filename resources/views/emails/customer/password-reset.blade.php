@@ -55,9 +55,9 @@
 
         <div class="footer">
             <p>Best regards,<br>
-            <strong>Parth Rawal</strong><br>
+            <strong>{{ company_advisor_name() }}</strong><br>
             Insurance Advisor<br>
-            Professional Insurance Solutions</p>
+            {{ company_name() }}</p>
             
             <p style="font-size: 12px; color: #999; margin-top: 20px;">
                 This is an automated security email from your Customer Portal. If you have any concerns about your account security, please contact our support team immediately.

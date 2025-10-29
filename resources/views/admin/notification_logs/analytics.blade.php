@@ -297,12 +297,7 @@ new Chart(channelCtx, {
         labels: {!! json_encode(array_keys($statistics['channel_counts'])) !!},
         datasets: [{
             data: {!! json_encode(array_values($statistics['channel_counts'])) !!},
-            backgroundColor: [
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(255, 206, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-            ]
+            backgroundColor: {!! json_encode(chart_colors_array()) !!}
         }]
     },
     options: {
@@ -319,13 +314,7 @@ new Chart(statusCtx, {
         labels: {!! json_encode(array_keys($statistics['status_counts'])) !!},
         datasets: [{
             data: {!! json_encode(array_values($statistics['status_counts'])) !!},
-            backgroundColor: [
-                'rgba(255, 206, 86, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)',
-                'rgba(255, 99, 132, 0.8)',
-            ]
+            backgroundColor: {!! json_encode(chart_colors_array()) !!}
         }]
     },
     options: {
@@ -343,8 +332,8 @@ new Chart(volumeCtx, {
         datasets: [{
             label: 'Notifications',
             data: {!! json_encode($dailyVolume->pluck('count')->toArray()) !!},
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: '{{ chart_color("primary") }}',
+            backgroundColor: '{{ preg_replace("/0\.\d+\)/", "0.2)", chart_color("primary")) }}',
             tension: 0.1,
             fill: true
         }]

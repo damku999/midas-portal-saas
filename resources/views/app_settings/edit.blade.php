@@ -28,18 +28,18 @@
                         <h6 class="text-muted fw-bold mb-3"><i class="fas fa-cog me-2"></i>Basic Information</h6>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold"><span class="text-danger">*</span> Key</label>
+                                <label for="key" class="form-label fw-semibold"><span class="text-danger">*</span> Key</label>
                                 <input type="text" class="form-control form-control-sm @error('key') is-invalid @enderror"
-                                    name="key" placeholder="e.g., whatsapp.api_token" value="{{ old('key', $setting->key) }}">
+                                    name="key" id="key" placeholder="e.g., whatsapp.api_token" value="{{ old('key', $setting->key) }}">
                                 <small class="text-muted">Unique identifier for this setting (use dot notation for grouping)</small>
                                 @error('key')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold"><span class="text-danger">*</span> Category</label>
+                                <label for="category" class="form-label fw-semibold"><span class="text-danger">*</span> Category</label>
                                 <select class="form-control form-control-sm @error('category') is-invalid @enderror"
-                                    name="category">
+                                    name="category" id="category">
                                     <option value="">Select Category</option>
                                     @foreach($categories as $key => $value)
                                         <option value="{{ $key }}" {{ old('category', $setting->category) == $key ? 'selected' : '' }}>
@@ -66,7 +66,7 @@
                         @endif
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold"><span class="text-danger">*</span> Type</label>
+                                <label for="type" class="form-label fw-semibold"><span class="text-danger">*</span> Type</label>
                                 <select class="form-control form-control-sm @error('type') is-invalid @enderror"
                                     name="type" id="type">
                                     <option value="">Select Type</option>
@@ -82,7 +82,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">
+                                <label for="value-string" class="form-label fw-semibold">
                                     <span class="text-danger">*</span> Value
                                     @if($setting->is_encrypted)
                                         <span class="badge bg-warning text-dark ms-1">
@@ -111,28 +111,28 @@
 
                                 <!-- String Input -->
                                 <input type="text" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
-                                    name="value" id="value-string" placeholder="Enter text value"
-                                    value="{{ $currentValue }}" data-type="string" style="{{ $setting->type === 'string' ? '' : 'display: none;' }}">
+                                    {{ $setting->type === 'string' ? 'name=value' : '' }} data-name="value" id="value-string" placeholder="Enter text value"
+                                    value="{{ $setting->type === 'string' ? $currentValue : '' }}" data-type="string" style="{{ $setting->type === 'string' ? '' : 'display: none;' }}">
 
                                 <!-- Text/Textarea Input -->
                                 <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
-                                    name="value" rows="3" id="value-text" placeholder="Enter text content"
-                                    data-type="text" style="{{ $setting->type === 'text' ? '' : 'display: none;' }}">{{ $currentValue }}</textarea>
+                                    {{ $setting->type === 'text' ? 'name=value' : '' }} data-name="value" rows="3" id="value-text" placeholder="Enter text content"
+                                    data-type="text" style="{{ $setting->type === 'text' ? '' : 'display: none;' }}">{{ $setting->type === 'text' ? $currentValue : '' }}</textarea>
 
                                 <!-- JSON Input -->
                                 <textarea class="form-control form-control-sm @error('value') is-invalid @enderror value-input font-monospace"
-                                    name="value" rows="4" id="value-json" placeholder='{"key": "value"}'
-                                    data-type="json" style="{{ $setting->type === 'json' ? '' : 'display: none;' }}">{{ $currentValue }}</textarea>
+                                    {{ $setting->type === 'json' ? 'name=value' : '' }} data-name="value" rows="4" id="value-json" placeholder='{"key": "value"}'
+                                    data-type="json" style="{{ $setting->type === 'json' ? '' : 'display: none;' }}">{{ $setting->type === 'json' ? $currentValue : '' }}</textarea>
 
                                 <!-- Number Input -->
                                 <input type="number" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
-                                    name="value" id="value-numeric" placeholder="Enter number"
-                                    value="{{ $currentValue }}" data-type="numeric" style="{{ $setting->type === 'numeric' ? '' : 'display: none;' }}">
+                                    {{ $setting->type === 'numeric' ? 'name=value' : '' }} data-name="value" id="value-numeric" placeholder="Enter number"
+                                    value="{{ $setting->type === 'numeric' ? $currentValue : '' }}" data-type="numeric" style="{{ $setting->type === 'numeric' ? '' : 'display: none;' }}">
 
                                 <!-- Boolean Input -->
                                 <div class="value-input" id="value-boolean" data-type="boolean" style="{{ $setting->type === 'boolean' ? '' : 'display: none;' }}">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="value" id="boolean-checkbox"
+                                        <input class="form-check-input" type="checkbox" {{ $setting->type === 'boolean' ? 'name=value' : '' }} data-name="value" id="boolean-checkbox"
                                             value="1" {{ ($currentValue == 'true' || $currentValue == '1') ? 'checked' : '' }}>
                                         <label class="form-check-label" for="boolean-checkbox">
                                             <span class="badge bg-success" id="boolean-label-yes" {{ ($currentValue == 'true' || $currentValue == '1') ? '' : 'style=display:none;' }}>Yes / Enabled</span>
@@ -145,28 +145,28 @@
                                 <div class="value-input" id="value-color" data-type="color" style="{{ $setting->type === 'color' ? '' : 'display: none;' }}">
                                     <div class="input-group input-group-sm">
                                         <input type="color" class="form-control form-control-sm form-control-color"
-                                            name="value" id="color-picker" value="{{ $currentValue && str_starts_with($currentValue, '#') ? $currentValue : '#4e73df' }}">
+                                            id="color-picker" value="{{ $setting->type === 'color' && $currentValue && str_starts_with($currentValue, '#') ? $currentValue : theme_primary_color() }}">
                                         <input type="text" class="form-control form-control-sm"
-                                            id="color-hex" placeholder="Enter color value" value="{{ $currentValue }}">
+                                            {{ $setting->type === 'color' ? 'name=value' : '' }} data-name="value" id="color-hex" placeholder="Enter hex or rgba value" value="{{ $setting->type === 'color' ? $currentValue : '' }}">
                                     </div>
-                                    <small class="text-muted">Supports hex (#4e73df) and rgba (rgba(255,255,255,0.1))</small>
+                                    <small class="text-muted">Supports hex ({{ theme_primary_color() }}) and rgba (rgba(255,255,255,0.1))</small>
                                 </div>
 
                                 <!-- URL Input -->
                                 <input type="url" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
-                                    name="value" id="value-url" placeholder="https://example.com"
-                                    value="{{ $currentValue }}" data-type="url" style="{{ $setting->type === 'url' ? '' : 'display: none;' }}">
+                                    {{ $setting->type === 'url' ? 'name=value' : '' }} data-name="value" id="value-url" placeholder="https://example.com"
+                                    value="{{ $setting->type === 'url' ? $currentValue : '' }}" data-type="url" style="{{ $setting->type === 'url' ? '' : 'display: none;' }}">
 
                                 <!-- Email Input -->
                                 <input type="email" class="form-control form-control-sm @error('value') is-invalid @enderror value-input"
-                                    name="value" id="value-email" placeholder="email@example.com"
-                                    value="{{ $currentValue }}" data-type="email" style="{{ $setting->type === 'email' ? '' : 'display: none;' }}">
+                                    {{ $setting->type === 'email' ? 'name=value' : '' }} data-name="value" id="value-email" placeholder="email@example.com"
+                                    value="{{ $setting->type === 'email' ? $currentValue : '' }}" data-type="email" style="{{ $setting->type === 'email' ? '' : 'display: none;' }}">
 
                                 <!-- Image Upload Input -->
                                 <div class="value-input" id="value-image" data-type="image" style="{{ $setting->type === 'image' ? '' : 'display: none;' }}">
                                     @if($setting->type === 'image' && $setting->value)
                                         <div class="mb-2">
-                                            <label class="form-label fw-semibold small">Current Image:</label>
+                                            <label for="image-file-input" class="form-label fw-semibold small">Current Image:</label>
                                             <div>
                                                 <img src="{{ Storage::url($setting->value) }}" alt="Current Image" class="img-thumbnail" style="max-height: 150px; max-width: 200px;">
                                             </div>
@@ -188,7 +188,7 @@
                                 <div class="value-input" id="value-file" data-type="file" style="{{ $setting->type === 'file' ? '' : 'display: none;' }}">
                                     @if($setting->type === 'file' && $setting->value)
                                         <div class="mb-2">
-                                            <label class="form-label fw-semibold small">Current File:</label>
+                                            <label for="file-upload-input" class="form-label fw-semibold small">Current File:</label>
                                             <div>
                                                 <a href="{{ Storage::url($setting->value) }}" target="_blank" class="btn btn-sm btn-outline-info">
                                                     <i class="fas fa-file"></i> {{ basename($setting->value) }}
@@ -227,9 +227,9 @@
                         <h6 class="text-muted fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Description and Options</h6>
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold">Description</label>
+                                <label for="description" class="form-label fw-semibold">Description</label>
                                 <textarea class="form-control form-control-sm @error('description') is-invalid @enderror"
-                                    name="description" rows="3" placeholder="Describe the purpose of this setting">{{ old('description', $setting->description) }}</textarea>
+                                    name="description" id="description" rows="3" placeholder="Describe the purpose of this setting">{{ old('description', $setting->description) }}</textarea>
                                 @error('description')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -283,7 +283,7 @@
 @endsection
 
 @section('scripts')
-<script>
+<script nonce="{{ $cspNonce ?? '' }}">
     document.addEventListener('DOMContentLoaded', function() {
         const typeSelect = document.getElementById('type');
         const valueInputs = document.querySelectorAll('.value-input');
@@ -308,25 +308,23 @@
         typeSelect.addEventListener('change', function() {
             const selectedType = this.value;
 
-            // Hide all inputs
+            // Hide all inputs and remove name attribute
             valueInputs.forEach(input => {
                 input.style.display = 'none';
-                // Disable hidden inputs to prevent submission
                 const inputEl = input.querySelector('input, textarea');
-                if (inputEl && inputEl.name === 'value') {
-                    inputEl.disabled = true;
+                if (inputEl && inputEl.getAttribute('data-name') === 'value') {
+                    inputEl.removeAttribute('name');
                 }
             });
 
-            // Show selected input
+            // Show selected input and add name attribute
             if (selectedType) {
                 const activeInput = document.querySelector(`[data-type="${selectedType}"]`);
                 if (activeInput) {
                     activeInput.style.display = 'block';
-                    // Enable the active input
                     const inputEl = activeInput.querySelector('input, textarea');
-                    if (inputEl && inputEl.name === 'value') {
-                        inputEl.disabled = false;
+                    if (inputEl && inputEl.getAttribute('data-name') === 'value') {
+                        inputEl.setAttribute('name', 'value');
                     }
                 }
 
@@ -410,6 +408,26 @@
         // Initialize correct input on page load
         if (typeSelect.value) {
             typeSelect.dispatchEvent(new Event('change'));
+        }
+
+        // Form validation and submission
+        const form = document.querySelector('form');
+        if (form) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Validate form
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return false;
+                    }
+
+                    // Submit form
+                    form.submit();
+                });
+            }
         }
     });
 

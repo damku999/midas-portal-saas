@@ -56,7 +56,7 @@ class NotificationLogController extends Controller
             });
         }
 
-        $builder->paginate(25);
+        $logs = $builder->paginate(pagination_per_page());
 
         $notificationTypes = NotificationType::query()->where('is_active', true)
             ->orderBy('name')

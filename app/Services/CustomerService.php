@@ -493,12 +493,12 @@ class CustomerService extends BaseService implements CustomerServiceInterface
                 'customer_email' => $customer->email,
                 'customer_type' => $customer->type,
                 'portal_url' => config('app.url').'/customer',
-                'support_email' => config('mail.from.address'),
-                'company_name' => config('app.name'),
+                'support_email' => email_from_address(),
+                'company_name' => company_name(),
             ], static function ($message) use ($customer): void {
                 $message->to($customer->email, $customer->name)
-                    ->subject('Welcome to '.config('app.name').' - Your Customer Account is Ready!');
-                $message->from(config('mail.from.address'), config('app.name'));
+                    ->subject('Welcome to '.company_name().' - Your Customer Account is Ready!');
+                $message->from(email_from_address(), company_name());
             });
 
             Log::info('Welcome email sent successfully', [

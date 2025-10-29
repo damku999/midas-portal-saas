@@ -1587,7 +1587,7 @@
                         labels: ['Total Premium', 'Total Earnings'],
                         datasets: [{
                             data: [totalPremium, totalEarnings],
-                            backgroundColor: ['#2B7EC8', '#28a745'],
+                            backgroundColor: ['{{ chart_color("primary") }}', '{{ chart_color("success") }}'],
                             borderWidth: 2,
                             borderColor: '#fff'
                         }]
@@ -1836,7 +1836,7 @@
                         labels: ['Critical (≤7 days)', 'Urgent (8-30 days)', 'Normal (>30 days)'],
                         datasets: [{
                             data: [criticalCount, urgentCount, normalCount],
-                            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+                            backgroundColor: ['{{ chart_color("danger") }}', '{{ chart_color("warning") }}', '{{ chart_color("success") }}'],
                             borderWidth: 2,
                             borderColor: '#fff'
                         }]
@@ -1866,8 +1866,8 @@
                         datasets: [{
                             label: 'Due Policies',
                             data: topCompanies.map(item => item[1]),
-                            backgroundColor: '#17a2b8',
-                            borderColor: '#138496',
+                            backgroundColor: '{{ chart_color("info") }}',
+                            borderColor: '{{ preg_replace("/0\.\d+\)/", "1)", chart_color("info")) }}',
                             borderWidth: 1
                         }]
                     },
@@ -2169,7 +2169,7 @@
                         labels: ['Active Policies', 'Not Renewed'],
                         datasets: [{
                             data: [activeCount, notRenewedCount],
-                            backgroundColor: ['#28a745', '#dc3545'],
+                            backgroundColor: ['{{ chart_color("success") }}', '{{ chart_color("danger") }}'],
                             borderWidth: 2,
                             borderColor: '#fff'
                         }]
@@ -2199,8 +2199,8 @@
                         datasets: [{
                             label: 'Policy Count',
                             data: topCompanies.map(item => item[1]),
-                            backgroundColor: '#007bff',
-                            borderColor: '#0056b3',
+                            backgroundColor: '{{ chart_color("primary") }}',
+                            borderColor: '{{ preg_replace("/0\.\d+\)/", "1)", chart_color("primary")) }}',
                             borderWidth: 1
                         }]
                     },
@@ -2237,8 +2237,8 @@
                         datasets: [{
                             label: 'Premium Amount',
                             data: timelineEntries.map(([, amount]) => amount),
-                            borderColor: '#ffc107',
-                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            borderColor: '{{ chart_color("warning") }}',
+                            backgroundColor: '{{ preg_replace("/0\.\d+\)/", "0.1)", chart_color("warning")) }}',
                             fill: true,
                             tension: 0.4
                         }]

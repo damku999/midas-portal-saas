@@ -40,7 +40,7 @@ class PolicyTypeController extends AbstractBaseCrudController
             $builder->where('name', 'LIKE', '%'.trim((string) $request->search).'%');
         }
 
-        $policy_type = $builder->paginate(config('app.pagination_default', 15));
+        $policy_type = $builder->paginate(pagination_per_page());
 
         return view('policy_type.index', ['policy_type' => $policy_type]);
     }

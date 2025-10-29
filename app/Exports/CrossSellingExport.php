@@ -172,7 +172,7 @@ class CrossSellingDataSheet implements FromCollection, ShouldAutoSize, WithEvent
             $customer_obj = $customer_obj->whereHas('insurance', function ($query) {
                 if (! empty($this->filters['issue_start_date'])) {
                     try {
-                        $startDate = Carbon::createFromFormat('d/m/Y', $this->filters['issue_start_date'])->format('Y-m-d');
+                        $startDate = Carbon::createFromFormat(app_date_format(), $this->filters['issue_start_date'])->format('Y-m-d');
                         $query->where('start_date', '>=', $startDate);
                     } catch (\Exception $e) {
                         $query->where('start_date', '>=', $this->filters['issue_start_date']);
@@ -180,7 +180,7 @@ class CrossSellingDataSheet implements FromCollection, ShouldAutoSize, WithEvent
                 }
                 if (! empty($this->filters['issue_end_date'])) {
                     try {
-                        $endDate = Carbon::createFromFormat('d/m/Y', $this->filters['issue_end_date'])->format('Y-m-d');
+                        $endDate = Carbon::createFromFormat(app_date_format(), $this->filters['issue_end_date'])->format('Y-m-d');
                         $query->where('start_date', '<=', $endDate);
                     } catch (\Exception $e) {
                         $query->where('start_date', '<=', $this->filters['issue_end_date']);

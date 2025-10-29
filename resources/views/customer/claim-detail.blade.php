@@ -142,7 +142,7 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <td class="fw-semibold">Incident Date:</td>
-                                    <td>{{ $claim->incident_date ? $claim->incident_date->format('d/m/Y') : 'N/A' }}</td>
+                                    <td>{{ $claim->incident_date ? format_app_date($claim->incident_date) : 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-semibold">Email Notifications:</td>
@@ -154,11 +154,11 @@
                                 </tr>
                                 <tr>
                                     <td class="fw-semibold">Claim Created:</td>
-                                    <td>{{ $claim->created_at ? $claim->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                    <td>{{ $claim->created_at ? format_app_datetime($claim->created_at) : 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-semibold">Last Updated:</td>
-                                    <td>{{ $claim->updated_at ? $claim->updated_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                    <td>{{ $claim->updated_at ? format_app_datetime($claim->updated_at) : 'N/A' }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -253,7 +253,7 @@
                                         @if($stage->stage_date)
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar me-1"></i>
-                                                {{ $stage->stage_date->format('d/m/Y H:i') }}
+                                                {{ format_app_datetime($stage->stage_date) }}
                                             </small>
                                         @endif
                                         @if($stage->notes)
@@ -325,7 +325,7 @@
                                     @if($document->submitted_date)
                                         <small class="text-success d-block">
                                             <i class="fas fa-check me-1"></i>
-                                            Submitted: {{ $document->submitted_date->format('d/m/Y H:i') }}
+                                            Submitted: {{ format_app_datetime($document->submitted_date) }}
                                         </small>
                                     @endif
                                 </div>
@@ -431,20 +431,20 @@
                 <div class="card-body text-center">
                     <p class="mb-3">For any questions about your claim, please contact us:</p>
                     <div class="mb-3">
-                        <strong>Parth Rawal</strong><br>
-                        <small class="text-muted">Your Trusted Insurance Advisor</small>
+                        <strong>{{ company_advisor_name() }}</strong><br>
+                        <small class="text-muted">{{ company_title() }}</small>
                     </div>
                     <div class="mb-3">
-                        <a href="tel:+919727793123" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-phone me-1"></i>+91 97277 93123
+                        <a href="tel:{{ str_replace(['+', ' '], '', company_phone()) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-phone me-1"></i>{{ company_phone() }}
                         </a>
                     </div>
                     <div class="mb-2">
-                        <a href="https://parthrawal.in" target="_blank" class="text-muted text-decoration-none">
-                            <i class="fas fa-globe me-1"></i>parthrawal.in
+                        <a href="{{ company_website() }}" target="_blank" class="text-muted text-decoration-none">
+                            <i class="fas fa-globe me-1"></i>{{ str_replace(['https://', 'http://'], '', company_website()) }}
                         </a>
                     </div>
-                    <small class="text-muted font-italic">"Think of Insurance, Think of Us."</small>
+                    <small class="text-muted font-italic">"{{ company_tagline() }}"</small>
                 </div>
             </div>
         </div>

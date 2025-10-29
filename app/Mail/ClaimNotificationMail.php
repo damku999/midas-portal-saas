@@ -39,7 +39,7 @@ class ClaimNotificationMail extends Mailable implements ShouldQueue
 
         return new Envelope(
             subject: $subject,
-            from: config('mail.from.address'),
+            from: email_from_address(),
             to: [$this->claim->customer->email],
         );
     }

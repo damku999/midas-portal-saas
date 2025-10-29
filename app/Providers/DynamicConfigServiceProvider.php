@@ -25,6 +25,12 @@ class DynamicConfigServiceProvider extends ServiceProvider
             // Load Notification Settings
             $this->loadNotificationSettings();
 
+            // Load SMS Settings
+            $this->loadSmsSettings();
+
+            // Load Push Notification Settings
+            $this->loadPushSettings();
+
         } catch (\Exception $e) {
             // Silently fail during migration/installation
             \Log::debug('DynamicConfigServiceProvider failed: '.$e->getMessage());
@@ -103,6 +109,45 @@ class DynamicConfigServiceProvider extends ServiceProvider
                 'notifications.whatsapp_enabled' => filter_var($settings['whatsapp_notifications_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
                 'notifications.renewal_reminder_days' => $settings['renewal_reminder_days'] ?? '30,15,7,1',
                 'notifications.birthday_wishes_enabled' => filter_var($settings['birthday_wishes_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+
+    /**
+     * Load SMS Settings
+     */
+    protected function loadSmsSettings(): void
+    {
+        $settings = AppSettingService::getByCategory('sms');
+
+        if (! empty($settings)) {
+            config([
+                'sms.enabled' => filter_var($settings['sms_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'sms.provider' => $settings['sms_provider'] ?? 'twilio',
+                'sms.sender_id' => $settings['sms_sender_id'] ?? '',
+                'sms.character_limit' => (int) ($settings['sms_character_limit'] ?? 160),
+                'sms.twilio.account_sid' => $settings['sms_twilio_account_sid'] ?? env('TWILIO_ACCOUNT_SID', ''),
+                'sms.twilio.auth_token' => $settings['sms_twilio_auth_token'] ?? env('TWILIO_AUTH_TOKEN', ''),
+                'sms.twilio.from' => $settings['sms_twilio_from_number'] ?? env('TWILIO_FROM', ''),
+            ]);
+        }
+    }
+
+    /**
+     * Load Push Notification Settings
+     */
+    protected function loadPushSettings(): void
+    {
+        $settings = AppSettingService::getByCategory('push');
+
+        if (! empty($settings)) {
+            config([
+                'push.enabled' => filter_var($settings['push_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'push.fcm.server_key' => $settings['push_fcm_server_key'] ?? env('FCM_SERVER_KEY', ''),
+                'push.fcm.sender_id' => $settings['push_fcm_sender_id'] ?? env('FCM_SENDER_ID', ''),
+                'push.fcm.api_url' => $settings['push_fcm_api_url'] ?? 'https://fcm.googleapis.com/fcm/send',
+                'push.deep_linking_enabled' => filter_var($settings['push_deep_linking_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'push.action_buttons_enabled' => filter_var($settings['push_action_buttons_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
     }

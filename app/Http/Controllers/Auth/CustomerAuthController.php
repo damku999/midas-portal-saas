@@ -1334,7 +1334,7 @@ class CustomerAuthController extends Controller
                 $claimsQuery->where('customer_id', $customer->id);
             }
 
-            $claims = $claimsQuery->orderBy('created_at', 'desc')->paginate(config('app.pagination_default', 15));
+            $claims = $claimsQuery->orderBy('created_at', 'desc')->paginate(pagination_per_page());
 
             CustomerAuditLog::logAction('view_claims', 'Customer viewed claims list', [
                 'total_claims' => $claims->total(),

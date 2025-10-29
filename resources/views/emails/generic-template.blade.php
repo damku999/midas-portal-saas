@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name') }}</title>
+    <title>{{ company_name() }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
 </head>
 <body>
     <div class="header">
-        <h2>{{ config('app.name') }}</h2>
+        <h2>{{ company_name() }}</h2>
     </div>
 
     <div class="content">
@@ -47,7 +47,7 @@
     </div>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} {{ company_name() }}. All rights reserved.</p>
         <p>This is an automated message. Please do not reply to this email.</p>
     </div>
 </body>

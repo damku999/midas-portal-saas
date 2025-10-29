@@ -112,11 +112,11 @@
                                 <div class="value-input" id="value-color" data-type="color" style="display: none;">
                                     <div class="input-group input-group-sm">
                                         <input type="color" class="form-control form-control-sm form-control-color"
-                                            name="value" id="color-picker" value="{{ old('value', '#4e73df') }}">
+                                            name="value" id="color-picker" value="{{ old('value', theme_primary_color()) }}">
                                         <input type="text" class="form-control form-control-sm"
-                                            id="color-hex" placeholder="#4e73df" value="{{ old('value', '#4e73df') }}" readonly>
+                                            id="color-hex" placeholder="{{ theme_primary_color() }}" value="{{ old('value', theme_primary_color()) }}" readonly>
                                     </div>
-                                    <small class="text-muted">Supports hex (#4e73df) and rgba (rgba(255,255,255,0.1))</small>
+                                    <small class="text-muted">Supports hex ({{ theme_primary_color() }}) and rgba (rgba(255,255,255,0.1))</small>
                                 </div>
 
                                 <!-- URL Input -->

@@ -43,7 +43,7 @@ class ReferenceUsersController extends AbstractBaseCrudController
                 ->orWhere('mobile_number', 'LIKE', $searchTerm);
         }
 
-        $query->paginate(config('app.pagination_default', 15));
+        $reference_users = $query->paginate(pagination_per_page());
 
         return view('reference_users.index', ['reference_users' => $reference_users]);
     }

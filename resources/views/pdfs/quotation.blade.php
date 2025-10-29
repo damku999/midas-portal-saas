@@ -10,13 +10,13 @@
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 10px;
             margin: 10px;
-            color: #333;
+            color: {{ theme_color('dark') }};
         }
 
         .header {
             text-align: center;
             margin-bottom: 10px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid {{ theme_color('dark') }};
             padding-bottom: 8px;
         }
 
@@ -28,16 +28,16 @@
 
         .customer-info {
             margin-bottom: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid {{ theme_body_bg_color() }};
             padding: 6px;
         }
 
         .customer-info h3 {
             margin: 0 0 6px 0;
             font-size: 11px;
-            background: #f5f5f5;
+            background: {{ theme_color('light') }};
             padding: 3px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid {{ theme_body_bg_color() }};
         }
 
         .info-grid {
@@ -53,14 +53,14 @@
         .info-item {
             display: table-cell;
             padding: 2px 3px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid {{ theme_color('light') }};
             width: 25%;
             vertical-align: top;
         }
 
         .info-label {
             font-weight: bold;
-            color: #555;
+            color: {{ theme_color('secondary') }};
         }
 
         .info-value {
@@ -75,29 +75,29 @@
         }
 
         .comparison-table th {
-            background: #333;
+            background: {{ theme_color('dark') }};
             color: white;
             padding: 4px 2px;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #333;
+            border: 1px solid {{ theme_color('dark') }};
         }
 
         .comparison-table td {
             padding: 3px 2px;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid {{ theme_body_bg_color() }};
         }
 
         .section-header {
-            background: #666 !important;
+            background: {{ theme_color('secondary') }} !important;
             color: white !important;
             font-weight: bold;
             text-align: left !important;
         }
 
         .row-header {
-            background: #f5f5f5;
+            background: {{ theme_color('light') }};
             font-weight: bold;
             text-align: left !important;
             padding-left: 5px !important;
@@ -106,38 +106,38 @@
         .currency {
             text-align: right;
             font-weight: bold;
-            color: #2c5f2d;
+            color: {{ theme_color('success') }};
         }
 
         .total-row {
-            background: #e8e8e8 !important;
+            background: {{ theme_color('light') }} !important;
             font-weight: bold;
         }
 
         .final-total {
-            background: #2c5f2d !important;
+            background: {{ theme_color('success') }} !important;
             color: white !important;
             font-weight: bold;
             font-size: 10px;
         }
 
         .ranking {
-            background: #d4862a !important;
+            background: {{ theme_primary_color() }} !important;
             color: white !important;
             font-weight: bold;
             font-size: 10px;
         }
 
         .rank-1 {
-            background: #d4862a !important;
+            background: {{ theme_primary_color() }} !important;
         }
 
         .rank-2 {
-            background: #95a5a6 !important;
+            background: {{ theme_color('secondary') }} !important;
         }
 
         .rank-3 {
-            background: #e67e22 !important;
+            background: {{ theme_color('warning') }} !important;
         }
 
         .company-column {
@@ -152,8 +152,8 @@
             margin-top: 10px;
             text-align: center;
             font-size: 8px;
-            color: #666;
-            border-top: 1px solid #ddd;
+            color: {{ theme_color('secondary') }};
+            border-top: 1px solid {{ theme_body_bg_color() }};
             padding-top: 5px;
         }
     </style>
@@ -197,7 +197,7 @@
                 <div class="info-item">
                     <span class="info-label">NCB Percentage:</span>
                     <span class="info-value"
-                        style="font-weight: bold; color: #2c5f2d;">{{ $quotation->ncb_percentage ?? 0 }}%</span>
+                        style="font-weight: bold; color: {{ theme_color('success') }};">{{ $quotation->ncb_percentage ?? 0 }}%</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Total IDV:</span>
@@ -222,7 +222,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">NCB Discount:</span>
-                    <span class="info-value" style="font-weight: bold; color: #2c5f2d;">{{ $quotation->ncb_percentage ?? 0 }}%</span>
+                    <span class="info-value" style="font-weight: bold; color: {{ theme_color('success') }};">{{ $quotation->ncb_percentage ?? 0 }}%</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Status:</span>
@@ -230,7 +230,7 @@
                 </div>
             </div>
             @if ($quotation->addon_covers && count($quotation->addon_covers) > 0)
-            <div class="info-row" style="border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px;">
+            <div class="info-row" style="border-top: 1px solid {{ theme_body_bg_color() }}; padding-top: 8px; margin-top: 8px;">
                 <div class="info-item" style="width: 100%;">
                     <span class="info-label">Add-on Covers Selected:</span>
                     <span class="info-value">{{ implode(', ', $quotation->addon_covers) }}</span>
@@ -469,7 +469,7 @@
                 <td class="row-header">Recommended</td>
                 @foreach ($quotation->quotationCompanies as $company)
                     <td
-                        style="text-align: center; {{ $company->is_recommended ? 'background: #27ae60; color: white; font-weight: bold;' : '' }}">
+                        style="text-align: center; {{ $company->is_recommended ? 'background: {{ theme_color('success') }}; color: white; font-weight: bold;' : '' }}">
                         {{ $company->is_recommended ? 'YES' : 'NO' }}
                     </td>
                 @endforeach
@@ -490,18 +490,18 @@
     <!-- Insurance Coverage Details - Company Wise -->
     @if ($quotation->quotationCompanies->count() > 0)
         <div style="page-break-inside: avoid; margin-top: 15px;">
-            <h3 style="background: #333; color: white; padding: 8px; margin: 10px 0 8px 0; font-size: 12px; text-align: center;">
+            <h3 style="background: {{ theme_color('dark') }}; color: white; padding: 8px; margin: 10px 0 8px 0; font-size: 12px; text-align: center;">
                 INSURANCE COVERAGE DETAILS (COMPANY-WISE)
             </h3>
             
             @foreach ($quotation->quotationCompanies->sortBy('ranking') as $company)
-                <div style="border: 1px solid #ddd; margin: 8px 0; padding: 8px; page-break-inside: avoid;">
+                <div style="border: 1px solid {{ theme_body_bg_color() }}; margin: 8px 0; padding: 8px; page-break-inside: avoid;">
                     <!-- Company Header -->
-                    <div style="background: #f5f5f5; padding: 5px; border-bottom: 1px solid #ddd; margin-bottom: 6px;">
+                    <div style="background: {{ theme_color('light') }}; padding: 5px; border-bottom: 1px solid {{ theme_body_bg_color() }}; margin-bottom: 6px;">
                         <table width="100%" style="border-collapse: collapse;">
                             <tr>
                                 <td style="font-weight: bold; font-size: 11px;">
-                                    <span style="background: #333; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px;">{{ $company->ranking }}</span>
+                                    <span style="background: {{ theme_color('dark') }}; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px;">{{ $company->ranking }}</span>
                                     {{ $company->insuranceCompany->name }}
                                     @if($company->plan_name) - {{ $company->plan_name }}@endif
                                     @if($company->is_recommended)
@@ -518,12 +518,12 @@
 
                     <!-- Coverage Details Table -->
                     <table width="100%" style="border-collapse: collapse; font-size: 9px;">
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 3px; font-weight: bold; color: #666;">Plan Name:</td>
+                        <tr style="background: {{ theme_color('light') }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('secondary') }};">Plan Name:</td>
                             <td style="padding: 3px;">{{ $company->plan_name ?? 'Standard Plan' }}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 3px; font-weight: bold; color: #666;">Quote Number:</td>
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('secondary') }};">Quote Number:</td>
                             <td style="padding: 3px;">
                                 @if($company->quote_number)
                                     {{ $company->quote_number }}
@@ -532,41 +532,41 @@
                                 @endif
                             </td>
                         </tr>
-                        <tr style="border-top: 1px solid #ddd; background: #f0f9ff;">
-                            <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">Basic OD Premium:</td>
+                        <tr style="border-top: 1px solid {{ theme_body_bg_color() }}; background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('success') }};">Basic OD Premium:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->basic_od_premium ?? 0) }}</td>
                         </tr>
-                        <tr style="background: #f0f9ff;">
-                            <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">TP Premium:</td>
+                        <tr style="background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('success') }};">TP Premium:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->tp_premium ?? 0) }}</td>
                         </tr>
-                        <tr style="background: #f0f9ff;">
-                            <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">Add-on Premium:</td>
+                        <tr style="background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('success') }};">Add-on Premium:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->total_addon_premium ?? 0) }}</td>
                         </tr>
                         @if($company->cng_lpg_premium > 0)
-                        <tr style="background: #f0f9ff;">
-                            <td style="padding: 3px; font-weight: bold; color: #2c5f2d;">CNG/LPG Premium:</td>
+                        <tr style="background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('success') }};">CNG/LPG Premium:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->cng_lpg_premium) }}</td>
                         </tr>
                         @endif
-                        <tr style="border-top: 1px solid #ddd; background: #e3f2fd;">
-                            <td style="padding: 3px; font-weight: bold; color: #1976d2;">Net Premium:</td>
-                            <td style="padding: 3px; font-weight: bold; color: #1976d2;">{{ format_indian_currency($company->net_premium ?? 0) }}</td>
+                        <tr style="border-top: 1px solid {{ theme_body_bg_color() }}; background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('info') }};">Net Premium:</td>
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('info') }};">{{ format_indian_currency($company->net_premium ?? 0) }}</td>
                         </tr>
-                        <tr style="background: #fff3cd;">
-                            <td style="padding: 3px; font-weight: bold; color: #856404;">Total GST:</td>
+                        <tr style="background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('warning') }};">Total GST:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency(($company->sgst_amount ?? 0) + ($company->cgst_amount ?? 0)) }}</td>
                         </tr>
                         @if($company->roadside_assistance > 0)
-                        <tr style="background: #d1ecf1;">
-                            <td style="padding: 3px; font-weight: bold; color: #0c5460;">RSA:</td>
+                        <tr style="background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 3px; font-weight: bold; color: {{ theme_color('info') }};">RSA:</td>
                             <td style="padding: 3px; font-weight: bold;">{{ format_indian_currency($company->roadside_assistance) }}</td>
                         </tr>
                         @endif
-                        <tr style="border-top: 2px solid #dc3545; background: #f8d7da;">
-                            <td style="padding: 4px; font-weight: bold; color: #721c24; font-size: 10px;">Final Premium:</td>
-                            <td style="padding: 4px; font-weight: bold; color: #721c24; font-size: 10px;">{{ format_indian_currency($company->final_premium ?? 0) }}</td>
+                        <tr style="border-top: 2px solid {{ theme_color('danger') }}; background: {{ theme_content_bg_color() }};">
+                            <td style="padding: 4px; font-weight: bold; color: {{ theme_color('danger') }}; font-size: 10px;">Final Premium:</td>
+                            <td style="padding: 4px; font-weight: bold; color: {{ theme_color('danger') }}; font-size: 10px;">{{ format_indian_currency($company->final_premium ?? 0) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -576,7 +576,7 @@
 
     <div class="footer">
         <p>This quotation comparison is generated automatically. Please verify all details before making any decisions.
-            Generated by <a href="https://midastech.in/" target="_blank">MIDAS</a> - {{ format_app_date(now()) }} {{ now()->format('H:i:s') }}
+            Generated by <a href="{{ footer_developer_url() }}" target="_blank">{{ footer_developer_name() }}</a> - {{ format_app_date(now()) }} {{ now()->format('H:i:s') }}
         </p>
     </div>
 </body>

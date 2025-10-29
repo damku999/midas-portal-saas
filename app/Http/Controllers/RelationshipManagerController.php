@@ -40,7 +40,7 @@ class RelationshipManagerController extends AbstractBaseCrudController
             $builder->where('name', 'LIKE', '%'.trim((string) $request->search).'%')->orWhere('email', 'LIKE', '%'.trim((string) $request->search).'%')->orWhere('mobile_number', 'LIKE', '%'.trim((string) $request->search).'%');
         }
 
-        $relationship_managers = $builder->paginate(config('app.pagination_default', 15));
+        $relationship_managers = $builder->paginate(pagination_per_page());
 
         return view('relationship_managers.index', ['relationship_managers' => $relationship_managers]);
     }

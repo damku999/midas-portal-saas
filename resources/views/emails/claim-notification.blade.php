@@ -124,8 +124,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">Insurance Solutions</div>
-            <p>Your Trusted Insurance Advisor</p>
+            <div class="logo">{{ company_name() }}</div>
+            <p>{{ company_title() }}</p>
         </div>
 
         <div class="content">
@@ -146,7 +146,7 @@
                     </div>
                     <div class="info-row">
                         <span class="label">Incident Date:</span>
-                        <span class="value">{{ $claim->incident_date ? $claim->incident_date->format('d/m/Y') : 'N/A' }}</span>
+                        <span class="value">{{ $claim->incident_date ? format_app_date($claim->incident_date) : 'N/A' }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Policy Number:</span>
@@ -262,18 +262,27 @@
 
         <div class="contact-info">
             <h4>Contact Information</h4>
-            <p><strong>Parth Rawal</strong><br>
-            Your Trusted Insurance Advisor<br>
-            Phone: +91 97277 93123<br>
-            Website: <a href="https://parthrawal.in">https://parthrawal.in</a></p>
+            <p><strong>{{ company_advisor_name() }}</strong><br>
+            {{ company_title() }}<br>
+            Phone: {{ company_phone() }}<br>
+            Website: <a href="{{ company_website() }}">{{ company_website() }}</a></p>
             <p style="font-style: italic; margin-top: 15px;">
-                "Think of Insurance, Think of Us."
+                "{{ company_tagline() }}"
             </p>
         </div>
 
         <div class="footer">
             <p>This is an automated notification. Please do not reply to this email.</p>
-            <p>© {{ date('Y') }} Insurance Solutions. All rights reserved.</p>
+            <p>
+                @if(show_footer_year())
+                    {{ footer_copyright_text() }} - {{ date('Y') }}
+                @else
+                    {{ footer_copyright_text() }}
+                @endif
+                @if(show_footer_developer())
+                    | Developed by <a href="{{ footer_developer_url() }}" style="color: #007bff; text-decoration: none;">{{ footer_developer_name() }}</a>
+                @endif
+            </p>
         </div>
     </div>
 </body>

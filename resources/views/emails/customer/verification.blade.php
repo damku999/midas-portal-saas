@@ -22,7 +22,7 @@
         <div class="content">
             <p><strong>Dear {{ $customer_name ?? 'Valued Customer' }},</strong></p>
             
-            <p>Thank you for registering with <strong>{{ config('app.name') }}</strong>. To complete your account setup, please verify your email address by clicking the button below.</p>
+            <p>Thank you for registering with <strong>{{ company_name() }}</strong>. To complete your account setup, please verify your email address by clicking the button below.</p>
 
             @if(isset($verification_url))
                 <div style="text-align: center; margin: 30px 0;">
@@ -36,7 +36,7 @@
         </div>
 
         <div class="footer">
-            <p>Thanks,<br><strong>{{ config('app.name') }} Team</strong></p>
+            <p>Thanks,<br><strong>{{ company_name() }} Team</strong></p>
         </div>
     </div>
 </body>

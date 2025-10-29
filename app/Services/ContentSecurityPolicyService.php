@@ -39,7 +39,7 @@ class ContentSecurityPolicyService
             'img-src' => $this->getImageSrc(),
             'font-src' => $this->getFontSrc(),
             'connect-src' => $this->getConnectSrc(),
-            'frame-src' => "'none'",
+            'frame-src' => $this->getFrameSrc(),
             'object-src' => "'none'",
             'media-src' => "'self'",
             'form-action' => "'self'",
@@ -143,6 +143,10 @@ class ContentSecurityPolicyService
             $sources[] = "'unsafe-eval'"; // Only for development
         }
 
+        // Add Cloudflare Turnstile domains
+        $sources[] = 'https://challenges.cloudflare.com';
+        $sources[] = 'https://static.cloudflare.com';
+
         return implode(' ', $sources);
     }
 
@@ -189,6 +193,16 @@ class ContentSecurityPolicyService
         if ($whatsappDomain = config('whatsapp.api_domain')) {
             $sources[] = $whatsappDomain;
         }
+
+        return implode(' ', $sources);
+    }
+
+    private function getFrameSrc(): string
+    {
+        $sources = ["'self'"];
+
+        // Add Cloudflare Turnstile iframe domains
+        $sources[] = 'https://challenges.cloudflare.com';
 
         return implode(' ', $sources);
     }
