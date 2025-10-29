@@ -308,16 +308,17 @@
         typeSelect.addEventListener('change', function() {
             const selectedType = this.value;
 
-            // Hide all inputs and remove name attribute
+            // Hide all inputs and disable them
             valueInputs.forEach(input => {
                 input.style.display = 'none';
                 const inputEl = input.querySelector('input, textarea');
                 if (inputEl && inputEl.getAttribute('data-name') === 'value') {
                     inputEl.removeAttribute('name');
+                    inputEl.disabled = true;
                 }
             });
 
-            // Show selected input and add name attribute
+            // Show selected input and enable it
             if (selectedType) {
                 const activeInput = document.querySelector(`[data-type="${selectedType}"]`);
                 if (activeInput) {
@@ -325,6 +326,7 @@
                     const inputEl = activeInput.querySelector('input, textarea');
                     if (inputEl && inputEl.getAttribute('data-name') === 'value') {
                         inputEl.setAttribute('name', 'value');
+                        inputEl.disabled = false;
                     }
                 }
 
@@ -408,26 +410,6 @@
         // Initialize correct input on page load
         if (typeSelect.value) {
             typeSelect.dispatchEvent(new Event('change'));
-        }
-
-        // Form validation and submission
-        const form = document.querySelector('form');
-        if (form) {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Validate form
-                    if (!form.checkValidity()) {
-                        form.reportValidity();
-                        return false;
-                    }
-
-                    // Submit form
-                    form.submit();
-                });
-            }
         }
     });
 
