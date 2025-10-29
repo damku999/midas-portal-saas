@@ -111,10 +111,10 @@
                 </div>
             </div>
         </div>
-
-        <!-- Midastech Credit -->
-        @include('common.midastech-credit')
     </div>
+
+    <!-- Midastech Credit -->
+    @include('common.midastech-credit')
 </div>
 @endsection
 
