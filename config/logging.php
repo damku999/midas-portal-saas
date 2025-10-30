@@ -50,7 +50,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily', 'structured'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -65,59 +65,6 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 30,
-        ],
-
-        // Structured logging for monitoring and analytics
-        'structured' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/structured.log'),
-            'level' => 'info',
-            'days' => 30,
-            // 'tap' => [\App\Logging\StructuredLogFormatter::class], // Temporarily disabled
-        ],
-
-        // Performance monitoring logs
-        'performance' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/performance.log'),
-            'level' => 'info',
-            'days' => 14,
-            'tap' => [\App\Logging\PerformanceLogFormatter::class],
-        ],
-
-        // Error tracking logs
-        'errors' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/errors.log'),
-            'level' => 'warning',
-            'days' => 60,
-            'tap' => [\App\Logging\ErrorLogFormatter::class],
-        ],
-
-        // Security events logs
-        'security' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/security.log'),
-            'level' => 'info',
-            'days' => 90,
-            'tap' => [\App\Logging\SecurityLogFormatter::class],
-        ],
-
-        // Business events logs
-        'business' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/business.log'),
-            'level' => 'info',
-            'days' => 90,
-            'tap' => [\App\Logging\BusinessLogFormatter::class],
-        ],
-
-        // Browser logs for JavaScript errors and debugging
-        'browser' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/browser.log'),
-            'level' => 'debug',
-            'days' => 7,
         ],
 
         'slack' => [

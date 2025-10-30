@@ -308,7 +308,7 @@ class EnhancedAuthorizationMiddleware
             'timestamp' => now()->toISOString(),
         ];
 
-        Log::channel('security')->warning("Security Event: {$event}", array_merge($logData, $context));
+        Log::warning("Security Event: {$event}", array_merge($logData, $context));
 
         // Store in database for monitoring
         if (config('security.monitoring.log_to_database', true)) {

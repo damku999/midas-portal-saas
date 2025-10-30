@@ -144,9 +144,9 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
      */
     public function updateFamilyGroup(FamilyGroup $familyGroup, array $data): bool
     {
-        return $this->updateInTransaction(function () use ($familyGroup, $data): Model {
+        return $this->executeInTransaction(function () use ($familyGroup, $data): bool {
             // Update basic family group data
-            $model = $this->familyGroupRepository->update($familyGroup, [
+            $updated = $this->familyGroupRepository->update($familyGroup, [
                 'name' => $data['name'],
                 'status' => $data['status'] ?? $familyGroup->status,
             ]);
@@ -161,14 +161,14 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
                 $this->updateFamilyMembers($familyGroup, $data['member_ids'], $data['relationships'] ?? []);
             }
 
-            if ($model) {
+            if ($updated) {
                 Log::info('Family group updated successfully', [
                     'family_group_id' => $familyGroup->id,
                     'user_id' => auth()->id(),
                 ]);
             }
 
-            return $model;
+            return (bool) $updated;
         });
     }
 
@@ -326,13 +326,33 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     {
         try {
             foreach ($passwordNotifications as $passwordNotification) {
-                // Send WhatsApp notification if enabled
-                if ($passwordNotification['customer']->mobile_number) {
-                    // Implementation would depend on WhatsApp service
-                    Log::info('Password notification sent', [
-                        'customer_id' => $passwordNotification['customer']->id,
+                $customer = $passwordNotification['customer'];
+
+                // Send email notification if customer has email
+                if ($customer->email) {
+                    \Illuminate\Support\Facades\Mail::to($customer->email)
+                        ->send(new \App\Mail\FamilyLoginCredentialsMail(
+                            $customer,
+                            $passwordNotification['password'],
+                            $familyGroup,
+                            $passwordNotification['is_head']
+                        ));
+
+                    Log::info('Password email notification sent', [
+                        'customer_id' => $customer->id,
+                        'email' => $customer->email,
                         'family_group_id' => $familyGroup->id,
                         'is_head' => $passwordNotification['is_head'],
+                    ]);
+                }
+
+                // Send WhatsApp notification if enabled and mobile number exists
+                if ($customer->mobile_number) {
+                    // TODO: Implement WhatsApp notification service
+                    Log::info('WhatsApp notification pending implementation', [
+                        'customer_id' => $customer->id,
+                        'mobile_number' => $customer->mobile_number,
+                        'family_group_id' => $familyGroup->id,
                     ]);
                 }
             }
@@ -342,6 +362,7 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
             Log::error('Failed to send password notifications', [
                 'family_group_id' => $familyGroup->id,
                 'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return false;

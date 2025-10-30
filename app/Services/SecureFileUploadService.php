@@ -418,7 +418,7 @@ class SecureFileUploadService
      */
     private function logFileOperation(string $operation, string $filename, ?int $userId = null, array $context = []): void
     {
-        Log::channel('security')->info('File Operation: '.$operation, [
+        Log::info('File Operation: '.$operation, [
             'operation' => $operation,
             'filename' => $filename,
             'user_id' => $userId,

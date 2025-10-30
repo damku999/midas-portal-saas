@@ -53,7 +53,7 @@ class VerifyCsrfToken extends Middleware
      */
     private function logCsrfFailure($request): void
     {
-        Log::channel('security')->warning('CSRF Token Verification Failed', [
+        Log::warning('CSRF Token Verification Failed', [
             'url' => $request->fullUrl(),
             'method' => $request->method(),
             'ip_address' => $request->ip(),
@@ -108,7 +108,7 @@ class VerifyCsrfToken extends Middleware
         $referer = $request->header('Referer');
 
         if ($origin && ! $this->isValidOrigin($origin, $request)) {
-            Log::channel('security')->warning('Invalid Origin header detected', [
+            Log::warning('Invalid Origin header detected', [
                 'origin' => $origin,
                 'expected_host' => $request->getHost(),
                 'url' => $request->fullUrl(),
@@ -119,7 +119,7 @@ class VerifyCsrfToken extends Middleware
 
         // Validate Referer header
         if ($referer && ! $this->isValidReferer($referer, $request)) {
-            Log::channel('security')->warning('Suspicious Referer header detected', [
+            Log::warning('Suspicious Referer header detected', [
                 'referer' => $referer,
                 'expected_host' => $request->getHost(),
                 'url' => $request->fullUrl(),

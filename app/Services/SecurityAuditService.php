@@ -24,8 +24,8 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        // Log to security channel
-        Log::channel('security')->info('Authentication Event: '.$event, $fullContext);
+        // Log to default channel
+        Log::info('Authentication Event: '.$event, $fullContext);
 
         // Store in database
         $this->storeSecurityEvent($event, $userId, $fullContext, $this->getEventSeverity($event));
@@ -48,8 +48,8 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        // Log to security channel
-        Log::channel('security')->warning('Authorization Event: '.$event, $fullContext);
+        // Log to default channel
+        Log::warning('Authorization Event: '.$event, $fullContext);
 
         // Store in database
         $this->storeSecurityEvent($event, $userId, $fullContext, 'medium');
@@ -71,7 +71,7 @@ class SecurityAuditService
             'timestamp' => now()->toISOString(),
         ];
 
-        Log::channel('security')->info(sprintf('Data Access: %s %s ID:%d', $action, $resourceType, $resourceId), $context);
+        Log::info(sprintf('Data Access: %s %s ID:%d', $action, $resourceType, $resourceId), $context);
 
         // Store sensitive data access events
         if ($this->isSensitiveResource($resourceType)) {
@@ -97,7 +97,7 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        Log::channel('security')->error('Security Violation: '.$violationType, $fullContext);
+        Log::error('Security Violation: '.$violationType, $fullContext);
 
         // Store high severity events
         $this->storeSecurityEvent($violationType, auth()?->id(), $fullContext, 'high');
@@ -121,7 +121,7 @@ class SecurityAuditService
 
         $fullContext = array_merge($baseContext, $context);
 
-        Log::channel('security')->info('File Operation: '.$operation, $fullContext);
+        Log::info('File Operation: '.$operation, $fullContext);
 
         // Store file upload/download events
         if (in_array($operation, ['upload', 'download', 'delete'])) {
@@ -273,7 +273,7 @@ class SecurityAuditService
      */
     private function triggerSecurityAlert(string $alertType, array $context): void
     {
-        Log::channel('security')->critical('Security Alert: '.$alertType, $context);
+        Log::critical('Security Alert: '.$alertType, $context);
 
         // Store alert
         $this->storeSecurityEvent('alert_'.$alertType, null, $context, 'critical');

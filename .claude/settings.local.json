@@ -20,7 +20,9 @@
       "Bash(npm audit fix:*)",
       "Bash(npm outdated)",
       "Bash(npm update:*)",
-      "Bash(npm run production)"
+      "Bash(npm run production)",
+      "mcp__laravel-boost__get-config",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

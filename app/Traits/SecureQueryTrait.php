@@ -241,7 +241,7 @@ trait SecureQueryTrait
      */
     private function logSecurityWarning(string $message, array $context = []): void
     {
-        Log::channel('security')->warning($message, array_merge($context, [
+        Log::warning($message, array_merge($context, [
             'user_id' => auth()->id(),
             'ip_address' => request()?->ip(),
             'user_agent' => request()?->header('User-Agent'),
@@ -255,7 +255,7 @@ trait SecureQueryTrait
      */
     private function logSecurityInfo(string $message, array $context = []): void
     {
-        Log::channel('security')->info($message, array_merge($context, [
+        Log::info($message, array_merge($context, [
             'user_id' => auth()->id(),
             'ip_address' => request()?->ip(),
             'timestamp' => now()->toISOString(),

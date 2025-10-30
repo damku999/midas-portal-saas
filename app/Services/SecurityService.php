@@ -56,6 +56,6 @@ class SecurityService
 
     public function logSecurityEvent(string $event, array $context = []): void
     {
-        Log::channel('security')->warning($event, $context);
+        Log::warning($event, $context);
     }
 }

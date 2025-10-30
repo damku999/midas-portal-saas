@@ -249,7 +249,7 @@ class ContentSecurityPolicyService
 
     public function logCspViolation(array $violationData): void
     {
-        Log::channel('security')->warning('CSP Violation detected', [
+        Log::warning('CSP Violation detected', [
             'violation' => $violationData,
             'user_id' => auth()->id(),
             'ip' => request()->ip(),
