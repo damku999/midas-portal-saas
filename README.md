@@ -91,16 +91,16 @@
 - **Icons**: Font Awesome
 
 ### Key Packages
-| Package | Purpose |
-|---------|---------|
-| `maatwebsite/excel` | Excel export/import functionality |
-| `barryvdh/laravel-dompdf` | PDF generation |
-| `simplesoftwareio/simple-qrcode` | QR code generation for 2FA |
-| `pragmarx/google2fa-laravel` | Two-factor authentication |
-| `spatie/laravel-permission` | Role & permission management |
-| `spatie/laravel-activitylog` | Activity logging |
-| `guzzlehttp/guzzle` | HTTP client for WhatsApp API |
-| `opcodesio/log-viewer` | Log viewing interface |
+| Package                          | Purpose                           |
+| -------------------------------- | --------------------------------- |
+| `maatwebsite/excel`              | Excel export/import functionality |
+| `barryvdh/laravel-dompdf`        | PDF generation                    |
+| `simplesoftwareio/simple-qrcode` | QR code generation for 2FA        |
+| `pragmarx/google2fa-laravel`     | Two-factor authentication         |
+| `spatie/laravel-permission`      | Role & permission management      |
+| `spatie/laravel-activitylog`     | Activity logging                  |
+| `guzzlehttp/guzzle`              | HTTP client for WhatsApp API      |
+| `opcodesio/log-viewer`           | Log viewing interface             |
 
 ---
 
@@ -123,8 +123,8 @@
 
 ### 1. Clone Repository
 ```bash
-git clone <repository-url> insurance-admin-panel
-cd insurance-admin-panel
+git clone <repository-url> insurance-midas-portal
+cd insurance-midas-portal
 ```
 
 ### 2. Install Dependencies
@@ -246,20 +246,20 @@ MAIL_ENCRYPTION=tls
 All detailed documentation is located in the `/claudedocs/` directory.
 
 #### 🎯 Quick Start Guides
-| Document | Description | Best For |
-|----------|-------------|----------|
-| [**DOCUMENTATION_INDEX.md**](claudedocs/DOCUMENTATION_INDEX.md) | 📇 **Master Index** - Find any documentation quickly | Everyone |
-| [**PROJECT_DOCUMENTATION.md**](claudedocs/PROJECT_DOCUMENTATION.md) | 📘 **Master Reference** - Complete system overview | New developers |
-| [**MODULES.md**](claudedocs/MODULES.md) | 📦 **All Modules** - 25+ modules reference | Module development |
+| Document                                                            | Description                                         | Best For           |
+| ------------------------------------------------------------------- | --------------------------------------------------- | ------------------ |
+| [**DOCUMENTATION_INDEX.md**](claudedocs/DOCUMENTATION_INDEX.md)     | 📇 **Master Index** - Find any documentation quickly | Everyone           |
+| [**PROJECT_DOCUMENTATION.md**](claudedocs/PROJECT_DOCUMENTATION.md) | 📘 **Master Reference** - Complete system overview   | New developers     |
+| [**MODULES.md**](claudedocs/MODULES.md)                             | 📦 **All Modules** - 25+ modules reference           | Module development |
 
 #### 🗂️ Core Documentation
-| Category | Documents Available |
-|----------|---------------------|
-| **System** | [SYSTEM_ARCHITECTURE.md](claudedocs/SYSTEM_ARCHITECTURE.md) - Complete architecture |
-| **Database** | [DATABASE_DOCUMENTATION.md](claudedocs/DATABASE_DOCUMENTATION.md), [SEEDERS_GUIDE.md](claudedocs/SEEDERS_GUIDE.md), [SEEDERS_ANALYSIS.md](claudedocs/SEEDERS_ANALYSIS.md) |
-| **Customer Portal** | [CUSTOMER_PORTAL_GUIDE.md](claudedocs/CUSTOMER_PORTAL_GUIDE.md), [CUSTOMER_PORTAL_QUICK_REFERENCE.md](claudedocs/CUSTOMER_PORTAL_QUICK_REFERENCE.md) |
-| **Infrastructure** | [APP_SETTINGS_DOCUMENTATION.md](claudedocs/APP_SETTINGS_DOCUMENTATION.md), [IMPLEMENTATION_GUIDE.md](claudedocs/IMPLEMENTATION_GUIDE.md) |
-| **Operations** | [BACKGROUND_JOBS.md](claudedocs/BACKGROUND_JOBS.md), [DEPLOYMENT_SUMMARY.md](claudedocs/DEPLOYMENT_SUMMARY.md) |
+| Category            | Documents Available                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **System**          | [SYSTEM_ARCHITECTURE.md](claudedocs/SYSTEM_ARCHITECTURE.md) - Complete architecture                                                                                       |
+| **Database**        | [DATABASE_DOCUMENTATION.md](claudedocs/DATABASE_DOCUMENTATION.md), [SEEDERS_GUIDE.md](claudedocs/SEEDERS_GUIDE.md), [SEEDERS_ANALYSIS.md](claudedocs/SEEDERS_ANALYSIS.md) |
+| **Customer Portal** | [CUSTOMER_PORTAL_GUIDE.md](claudedocs/CUSTOMER_PORTAL_GUIDE.md), [CUSTOMER_PORTAL_QUICK_REFERENCE.md](claudedocs/CUSTOMER_PORTAL_QUICK_REFERENCE.md)                      |
+| **Infrastructure**  | [APP_SETTINGS_DOCUMENTATION.md](claudedocs/APP_SETTINGS_DOCUMENTATION.md), [IMPLEMENTATION_GUIDE.md](claudedocs/IMPLEMENTATION_GUIDE.md)                                  |
+| **Operations**      | [BACKGROUND_JOBS.md](claudedocs/BACKGROUND_JOBS.md), [DEPLOYMENT_SUMMARY.md](claudedocs/DEPLOYMENT_SUMMARY.md)                                                            |
 
 > 💡 **Tip**: Start with [DOCUMENTATION_INDEX.md](claudedocs/DOCUMENTATION_INDEX.md) to navigate all 20+ documentation files, or go directly to [PROJECT_DOCUMENTATION.md](claudedocs/PROJECT_DOCUMENTATION.md) for a complete system overview.
 
@@ -360,7 +360,7 @@ class CustomerController extends Controller {
 
 ### Project Structure
 ```
-admin-panel/
+midas-portal/
 ├── app/
 │   ├── Console/Commands/      # Artisan commands (renewal reminders, birthday wishes)
 │   ├── Exports/               # Export classes
