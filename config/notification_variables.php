@@ -557,6 +557,28 @@ return [
             'requires' => ['claim'],
         ],
 
+        'settlement_amount' => [
+            'label' => 'Settlement Amount',
+            'description' => 'Final claim settlement amount',
+            'category' => 'claim',
+            'source' => 'claim.settlement_amount',
+            'type' => 'currency',
+            'format' => 'currency',
+            'sample' => '₹25,000',
+            'requires' => ['claim'],
+        ],
+
+        'settlement_date' => [
+            'label' => 'Settlement Date',
+            'description' => 'Date when claim was settled',
+            'category' => 'claim',
+            'source' => 'claim.settlement_date',
+            'type' => 'date',
+            'format' => 'd-M-Y',
+            'sample' => '15-Jan-2025',
+            'requires' => ['claim'],
+        ],
+
         'pending_documents_list' => [
             'label' => 'Pending Documents',
             'description' => 'List of documents pending for claim',
@@ -761,6 +783,26 @@ return [
         'claim_stage_update' => [
             'required_context' => ['customer', 'claim'],
             'suggested_variables' => ['customer_name', 'claim_number', 'stage_name', 'notes', 'pending_documents_list'],
+        ],
+        'claim_closed' => [
+            'required_context' => ['customer', 'claim'],
+            'suggested_variables' => ['customer_name', 'claim_number', 'settlement_amount', 'settlement_date', 'advisor_name', 'company_website'],
+        ],
+        'claim_registered' => [
+            'required_context' => ['customer', 'claim'],
+            'suggested_variables' => ['customer_name', 'claim_number', 'vehicle_number', 'advisor_name', 'company_website'],
+        ],
+        'document_request_health' => [
+            'required_context' => ['customer'],
+            'suggested_variables' => ['advisor_name', 'company_website'],
+        ],
+        'document_request_vehicle' => [
+            'required_context' => ['customer'],
+            'suggested_variables' => ['advisor_name', 'company_website'],
+        ],
+        'document_request_reminder' => [
+            'required_context' => ['customer'],
+            'suggested_variables' => ['pending_documents_list', 'advisor_name', 'company_website'],
         ],
         'wedding_anniversary' => [
             'required_context' => ['customer'],
