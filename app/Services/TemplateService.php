@@ -339,6 +339,57 @@ class TemplateService
     }
 
     /**
+     * Get notification template model by type code and channel.
+     *
+     * Retrieves the NotificationTemplate instance for a given notification type code
+     * and channel. This method is used when the actual template model is needed,
+     * not just the rendered content (e.g., for logging template_id).
+     *
+     * Returns null if notification type or template not found.
+     *
+     * @param  string  $notificationTypeCode  Notification type code (e.g., 'policy_created', 'renewal_7_days')
+     * @param  string  $channel  Template channel ('whatsapp', 'email', 'sms', 'push')
+     * @return NotificationTemplate|null Template model instance or null if not found
+     */
+    public function getTemplateByCode(string $notificationTypeCode, string $channel): ?NotificationTemplate
+    {
+        try {
+            // Find notification type by code
+            $notificationType = NotificationType::query()->where('code', $notificationTypeCode)
+                ->where('is_active', true)
+                ->first();
+
+            if (! $notificationType) {
+                Log::debug('Notification type not found for template lookup: '.$notificationTypeCode);
+
+                return null;
+            }
+
+            // Find active template for this type and channel
+            $template = NotificationTemplate::query()->where('notification_type_id', $notificationType->id)
+                ->where('channel', $channel)
+                ->where('is_active', true)
+                ->first();
+
+            if (! $template) {
+                Log::debug(sprintf('No active template found for %s (%s)', $notificationTypeCode, $channel));
+
+                return null;
+            }
+
+            return $template;
+
+        } catch (\Exception $exception) {
+            Log::error('Template lookup failed for '.$notificationTypeCode, [
+                'channel' => $channel,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
      * Load active application settings for template variable resolution.
      *
      * Fetches all active settings and restructures into hierarchical array
