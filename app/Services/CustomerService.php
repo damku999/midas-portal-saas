@@ -296,16 +296,43 @@ class CustomerService extends BaseService implements CustomerServiceInterface
      */
     public function sendOnboardingMessage(Customer $customer): bool
     {
+        $notificationLogger = app(NotificationLoggerService::class);
+        $notificationLog = null;
+
         try {
             $message = $this->generateOnboardingMessage($customer);
 
-            return $this->whatsAppSendMessage($message, $customer->mobile_number);
+            // Log the notification before sending
+            $notificationLog = $notificationLogger->logNotification(
+                $customer,
+                'whatsapp',
+                $customer->mobile_number,
+                $message,
+                ['notification_type_code' => 'customer_welcome']
+            );
+
+            // Send the message
+            $result = $this->whatsAppSendMessage($message, $customer->mobile_number);
+
+            // Update log status based on result
+            if ($result) {
+                $notificationLogger->markAsSent($notificationLog, ['channel' => 'whatsapp']);
+                return true;
+            } else {
+                $notificationLogger->markAsFailed($notificationLog, 'WhatsApp API returned false');
+                return false;
+            }
         } catch (\Throwable $throwable) {
             // Log the error but don't fail the customer creation
             Log::warning('Failed to send onboarding WhatsApp message', [
                 'customer_id' => $customer->id,
                 'error' => $throwable->getMessage(),
             ]);
+
+            // Update notification log if it was created
+            if ($notificationLog) {
+                $notificationLogger->markAsFailed($notificationLog, $throwable->getMessage());
+            }
 
             return false;
         }

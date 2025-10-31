@@ -8,6 +8,7 @@ use App\Services\EmailService;
 use App\Services\PushNotificationService;
 use App\Services\SmsService;
 use App\Services\TemplateService;
+use App\Traits\LogsNotificationsTrait;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Support\Facades\Log;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ChannelManager
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, LogsNotificationsTrait;
 
     public function __construct(
         protected SmsService $smsService,
@@ -234,14 +235,28 @@ class ChannelManager
             return false;
         }
 
-        // Send WhatsApp
-        try {
-            $this->whatsAppSendMessage($message, $customer->mobile, $customer->id, $notificationTypeCode);
+        // Get template for logging
+        $template = $this->templateService->getTemplateByCode($notificationTypeCode, 'whatsapp');
 
-            return true;
+        // Send WhatsApp with notification logging
+        try {
+            // Use trait method to log and send
+            $result = $this->logAndSendWhatsApp(
+                $customer,
+                $message,
+                $customer->mobile,
+                [
+                    'notification_type_code' => $notificationTypeCode,
+                    'template_id' => $template->id ?? null,
+                ]
+            );
+
+            return $result['success'];
         } catch (\Exception $exception) {
             Log::error('WhatsApp sending failed in ChannelManager', [
                 'error' => $exception->getMessage(),
+                'customer_id' => $customer->id,
+                'notification_type' => $notificationTypeCode,
             ]);
 
             return false;

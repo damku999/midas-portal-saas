@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Services\MarketingWhatsAppServiceInterface;
+use App\Models\Customer;
+use App\Traits\LogsNotificationsTrait;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class MarketingWhatsAppService extends BaseService implements MarketingWhatsAppServiceInterface
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, LogsNotificationsTrait;
 
     /**
      * Constructor
@@ -154,17 +156,36 @@ class MarketingWhatsAppService extends BaseService implements MarketingWhatsAppS
     public function sendTextMessage(string $message, string $mobileNumber, int $customerId): bool
     {
         try {
-            $response = $this->whatsAppSendMessage($message, $mobileNumber);
+            $customer = Customer::find($customerId);
+
+            if (! $customer) {
+                Log::error('Customer not found for marketing message', [
+                    'customer_id' => $customerId,
+                ]);
+
+                return false;
+            }
+
+            // Use trait method to log and send
+            $result = $this->logAndSendWhatsApp(
+                $customer,
+                $message,
+                $mobileNumber,
+                [
+                    'notification_type_code' => 'marketing_message',
+                    'template_id' => null,
+                ]
+            );
 
             Log::info('Marketing WhatsApp text sent', [
                 'customer_id' => $customerId,
                 'mobile_number' => $mobileNumber,
                 'message_type' => 'text',
-                'response' => $response,
+                'result' => $result,
                 'sent_by' => auth()->id(),
             ]);
 
-            return true;
+            return $result['success'];
         } catch (\Exception $exception) {
             Log::error('Marketing WhatsApp text failed', [
                 'customer_id' => $customerId,
@@ -183,18 +204,38 @@ class MarketingWhatsAppService extends BaseService implements MarketingWhatsAppS
     public function sendImageMessage(string $message, string $mobileNumber, string $imagePath, int $customerId): bool
     {
         try {
-            $response = $this->whatsAppSendMessageWithAttachment($message, $mobileNumber, $imagePath);
+            $customer = Customer::find($customerId);
+
+            if (! $customer) {
+                Log::error('Customer not found for marketing image', [
+                    'customer_id' => $customerId,
+                ]);
+
+                return false;
+            }
+
+            // Use trait method to log and send with attachment
+            $result = $this->logAndSendWhatsAppWithAttachment(
+                $customer,
+                $message,
+                $mobileNumber,
+                $imagePath,
+                [
+                    'notification_type_code' => 'marketing_image',
+                    'template_id' => null,
+                ]
+            );
 
             Log::info('Marketing WhatsApp image sent', [
                 'customer_id' => $customerId,
                 'mobile_number' => $mobileNumber,
                 'message_type' => 'image',
                 'image_path' => $imagePath,
-                'response' => $response,
+                'result' => $result,
                 'sent_by' => auth()->id(),
             ]);
 
-            return true;
+            return $result['success'];
         } catch (\Exception $exception) {
             Log::error('Marketing WhatsApp image failed', [
                 'customer_id' => $customerId,

@@ -15,6 +15,7 @@ use App\Models\PolicyType;
 use App\Models\PremiumType;
 use App\Models\ReferenceUser;
 use App\Models\RelationshipManager;
+use App\Traits\LogsNotificationsTrait;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,7 +31,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CustomerInsuranceService extends BaseService implements CustomerInsuranceServiceInterface
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, LogsNotificationsTrait;
 
     public function __construct(
         private CustomerInsuranceRepositoryInterface $customerInsuranceRepository,
@@ -589,6 +590,7 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
             // Try to get message from template, fallback to hardcoded
             $templateService = app(TemplateService::class);
             $message = $templateService->renderFromInsurance('policy_created', 'whatsapp', $customerInsurance);
+            $template = $templateService->getTemplateByCode('policy_created', 'whatsapp');
 
             if (! $message) {
                 // Fallback to old hardcoded message
@@ -601,17 +603,27 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
                 throw new \Exception('Policy document file not found: '.$filePath);
             }
 
-            $response = $this->whatsAppSendMessageWithAttachment($message, $customerInsurance->customer->mobile_number, $filePath);
+            // Use trait method to log and send with attachment
+            $result = $this->logAndSendWhatsAppWithAttachment(
+                $customerInsurance,
+                $message,
+                $customerInsurance->customer->mobile_number,
+                $filePath,
+                [
+                    'notification_type_code' => 'policy_created',
+                    'template_id' => $template->id ?? null,
+                ]
+            );
 
             Log::info('WhatsApp document sent successfully', [
                 'customer_insurance_id' => $customerInsurance->id,
                 'policy_no' => $customerInsurance->policy_no,
                 'mobile_number' => $customerInsurance->customer->mobile_number,
-                'response' => $response,
+                'result' => $result,
                 'user_id' => auth()->user()->id ?? 'System',
             ]);
 
-            return true;
+            return $result['success'];
 
         } catch (\Exception $exception) {
             Log::error('WhatsApp document send failed', [
@@ -753,6 +765,7 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
             // Try to get message from template, fallback to hardcoded
             $templateService = app(TemplateService::class);
             $messageText = $templateService->renderFromInsurance($notificationTypeCode, 'whatsapp', $customerInsurance);
+            $template = $templateService->getTemplateByCode($notificationTypeCode, 'whatsapp');
 
             if (! $messageText) {
                 // Fallback to old hardcoded message
@@ -762,17 +775,27 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
             }
 
             $receiverId = $customerInsurance->customer->mobile_number;
-            $response = $this->whatsAppSendMessage($messageText, $receiverId);
+
+            // Use trait method to log and send
+            $result = $this->logAndSendWhatsApp(
+                $customerInsurance,
+                $messageText,
+                $receiverId,
+                [
+                    'notification_type_code' => $notificationTypeCode,
+                    'template_id' => $template->id ?? null,
+                ]
+            );
 
             Log::info('WhatsApp renewal reminder sent successfully', [
                 'customer_insurance_id' => $customerInsurance->id,
                 'policy_no' => $customerInsurance->policy_no,
                 'mobile_number' => $receiverId,
-                'response' => $response,
+                'result' => $result,
                 'user_id' => auth()->user()->id ?? 'System',
             ]);
 
-            return true;
+            return $result['success'];
 
         } catch (\Exception $exception) {
             Log::error('WhatsApp renewal reminder send failed', [
@@ -898,9 +921,21 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
         $documentPath = Storage::path('public'.DIRECTORY_SEPARATOR.$customerInsurance->policy_document_path);
         $message = sprintf('Dear %s, Please find your policy document for Policy No: %s', $customerInsurance->customer->name, $customerInsurance->policy_no);
 
-        $response = $this->whatsAppSendMessageWithAttachment($message, $whatsappNumber, $documentPath);
+        // Use trait method to log and send with attachment
+        $result = $this->logAndSendWhatsAppWithAttachment(
+            $customerInsurance,
+            $message,
+            $whatsappNumber,
+            $documentPath,
+            [
+                'notification_type_code' => 'policy_shared',
+                'template_id' => null,
+            ]
+        );
 
-        return json_decode((string) $response, true) ?: ['response' => $response];
+        return $result['success']
+            ? ['success' => true, 'result' => $result]
+            : ['success' => false, 'error' => $result['error'] ?? 'Unknown error'];
     }
 
     /**

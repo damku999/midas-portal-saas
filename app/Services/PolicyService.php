@@ -6,6 +6,7 @@ use App\Contracts\Repositories\PolicyRepositoryInterface;
 use App\Contracts\Services\PolicyServiceInterface;
 use App\Models\Customer;
 use App\Models\CustomerInsurance;
+use App\Traits\LogsNotificationsTrait;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class PolicyService extends BaseService implements PolicyServiceInterface
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, LogsNotificationsTrait;
 
     public function __construct(
         private PolicyRepositoryInterface $policyRepository
@@ -132,24 +133,35 @@ class PolicyService extends BaseService implements PolicyServiceInterface
             // Try to get message from template, fallback to hardcoded
             $templateService = app(TemplateService::class);
             $message = $templateService->renderFromInsurance($notificationTypeCode, 'whatsapp', $customerInsurance);
+            $template = $templateService->getTemplateByCode($notificationTypeCode, 'whatsapp');
 
             if (! $message) {
                 // Fallback to old hardcoded message
                 $message = $this->generateRenewalReminderMessage($customerInsurance);
             }
 
-            $result = $this->whatsAppSendMessage($message, $customerInsurance->customer->mobile_number);
+            // Use trait method to log and send
+            $result = $this->logAndSendWhatsApp(
+                $customerInsurance,
+                $message,
+                $customerInsurance->customer->mobile_number,
+                [
+                    'notification_type_code' => $notificationTypeCode,
+                    'template_id' => $template->id ?? null,
+                ]
+            );
 
-            if ($result) {
+            if ($result['success']) {
                 Log::info('Renewal reminder sent successfully', [
                     'policy_id' => $customerInsurance->id,
                     'customer_id' => $customerInsurance->customer_id,
                     'policy_number' => $customerInsurance->policy_number,
                     'notification_type' => $notificationTypeCode,
+                    'result' => $result,
                 ]);
             }
 
-            return $result;
+            return $result['success'];
         } catch (\Throwable $throwable) {
             Log::error('Failed to send renewal reminder', [
                 'policy_id' => $customerInsurance->id,

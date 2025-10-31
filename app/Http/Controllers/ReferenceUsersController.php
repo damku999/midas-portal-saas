@@ -118,7 +118,7 @@ class ReferenceUsersController extends AbstractBaseCrudController
      */
     public function edit(ReferenceUser $referenceUser)
     {
-        return view('reference_users.edit', ['reference_user' => $reference_user]);
+        return view('reference_users.edit', ['reference_user' => $referenceUser]);
     }
 
     /**

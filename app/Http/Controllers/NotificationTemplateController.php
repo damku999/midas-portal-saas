@@ -86,8 +86,8 @@ class NotificationTemplateController extends AbstractBaseCrudController
 
         $builder->orderBy($sortBy, $sortOrder);
 
-        $lengthAwarePaginator = $builder->paginate(pagination_per_page());
-        $lengthAwarePaginator->appends($request->except('page'));
+        $templates = $builder->paginate(pagination_per_page());
+        $templates->appends($request->except('page'));
 
         // Get unique categories for filter
         $categories = DB::table('notification_types')
@@ -155,9 +155,9 @@ class NotificationTemplateController extends AbstractBaseCrudController
     /**
      * Show the form for editing the specified template
      */
-    public function edit(NotificationTemplate $notificationTemplate): View
+    public function edit(NotificationTemplate $template): View
     {
-        $notificationTemplate->load('notificationType');
+        $template->load('notificationType');
         $notificationTypes = NotificationType::query()->where('is_active', true)
             ->orderBy('category')
             ->orderBy('order_no')
@@ -174,7 +174,7 @@ class NotificationTemplateController extends AbstractBaseCrudController
     /**
      * Update the specified template
      */
-    public function update(Request $request, NotificationTemplate $notificationTemplate): RedirectResponse
+    public function update(Request $request, NotificationTemplate $template): RedirectResponse
     {
         $request->validate([
             'notification_type_id' => 'required|exists:notification_types,id',
@@ -186,7 +186,7 @@ class NotificationTemplateController extends AbstractBaseCrudController
         ]);
 
         try {
-            $notificationTemplate->update([
+            $template->update([
                 'notification_type_id' => $request->notification_type_id,
                 'channel' => $request->channel,
                 'subject' => $request->subject,
@@ -208,10 +208,10 @@ class NotificationTemplateController extends AbstractBaseCrudController
     /**
      * Remove the specified template
      */
-    public function delete(NotificationTemplate $notificationTemplate): RedirectResponse
+    public function delete(NotificationTemplate $template): RedirectResponse
     {
         try {
-            $notificationTemplate->delete();
+            $template->delete();
 
             return $this->redirectWithSuccess('notification-templates.index',
                 $this->getSuccessMessage('Notification Template', 'deleted'));

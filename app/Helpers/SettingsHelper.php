@@ -180,7 +180,7 @@ if (! function_exists('email_from_address')) {
     function email_from_address(): string
     {
         return app(\App\Services\AppSettingService::class)
-            ->get('email_from_address', 'email', 'noreply@example.com');
+            ->get('email_from_address', config('mail.from.address', 'noreply@example.com'));
     }
 }
 
@@ -188,7 +188,7 @@ if (! function_exists('email_from_name')) {
     function email_from_name(): string
     {
         return app(\App\Services\AppSettingService::class)
-            ->get('email_from_name', 'email', company_name());
+            ->get('email_from_name', config('mail.from.name', company_name()));
     }
 }
 
@@ -196,7 +196,7 @@ if (! function_exists('email_reply_to')) {
     function email_reply_to(): string
     {
         return app(\App\Services\AppSettingService::class)
-            ->get('email_reply_to', 'email', email_from_address());
+            ->get('email_reply_to', email_from_address());
     }
 }
 

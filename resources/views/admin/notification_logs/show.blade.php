@@ -110,7 +110,13 @@
                             <table class="table table-bordered">
                                 <tr>
                                     <th width="40%">Created At</th>
-                                    <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                                    <td>
+                                        @if($log->created_at)
+                                            {{ $log->created_at->format('Y-m-d H:i:s') }}
+                                        @else
+                                            <span class="text-muted">N/A</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th>Sent At</th>

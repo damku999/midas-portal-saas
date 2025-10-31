@@ -72,7 +72,7 @@ class NotificationLogController extends Controller
     {
         $notificationLog->load(['notificationType', 'template', 'sender', 'deliveryTracking', 'notifiable']);
 
-        return view('admin.notification_logs.show', ['log' => $log]);
+        return view('admin.notification_logs.show', ['log' => $notificationLog]);
     }
 
     /**

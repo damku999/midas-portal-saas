@@ -1,9 +1,24 @@
 {
-    "permissions": {
-        "allow": [],
-        "deny": [],
-        "ask": []
-    },
-    "enableAllProjectMcpServers": true,
-    "enabledMcpjsonServers": ["laravel-boost"]
+  "permissions": {
+    "allow": [
+      "mcp__laravel-boost__tinker",
+      "mcp__laravel-boost__get-config",
+      "mcp__laravel-boost__list-routes",
+      "mcp__laravel-boost__read-log-entries",
+      "mcp__laravel-boost__last-error",
+      "Bash(php artisan route:list:*)",
+      "Bash(php artisan:*)",
+      "mcp__laravel-boost__database-schema",
+      "mcp__laravel-boost__database-query",
+      "Bash(cat:*)",
+      "Bash(php:*)",
+      "Bash(dir:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }

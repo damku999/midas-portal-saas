@@ -43,6 +43,12 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // API Routes (for mobile app)
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/api.php'));
+
             // Load web routes first (admin routes have priority)
             Route::middleware('web')
                 ->namespace($this->namespace)

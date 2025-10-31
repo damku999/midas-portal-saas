@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\InsuranceCompany;
 use App\Models\Quotation;
 use App\Models\QuotationCompany;
+use App\Traits\LogsNotificationsTrait;
 use App\Traits\WhatsAppApiTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ use Illuminate\Support\Str;
 
 class QuotationService extends BaseService implements QuotationServiceInterface
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, LogsNotificationsTrait;
 
     public function __construct(
         private PdfGenerationService $pdfGenerationService,
@@ -311,20 +312,38 @@ class QuotationService extends BaseService implements QuotationServiceInterface
         $pdfPath = $this->pdfGenerationService->generateQuotationPdfForWhatsApp($quotation);
 
         try {
-            $response = $this->whatsAppSendMessageWithAttachment($message, $quotation->whatsapp_number, $pdfPath);
+            // Get template information
+            $templateService = app(TemplateService::class);
+            $template = $templateService->getTemplateByCode('quotation_ready', 'whatsapp');
 
-            Log::info('WhatsApp quotation sent successfully', [
-                'quotation_id' => $quotation->id,
-                'quotation_number' => $quotation->quotation_number,
-                'whatsapp_number' => $quotation->whatsapp_number,
-                'response' => $response,
-                'user_id' => auth()->user()->id ?? 'System',
-            ]);
+            // Use trait method to log and send with attachment
+            $result = $this->logAndSendWhatsAppWithAttachment(
+                $quotation,
+                $message,
+                $quotation->whatsapp_number,
+                $pdfPath,
+                [
+                    'notification_type_code' => 'quotation_ready',
+                    'template_id' => $template->id ?? null,
+                ]
+            );
 
-            $quotation->update([
-                'status' => 'Sent',
-                'sent_at' => now(),
-            ]);
+            if ($result['success']) {
+                Log::info('WhatsApp quotation sent successfully', [
+                    'quotation_id' => $quotation->id,
+                    'quotation_number' => $quotation->quotation_number,
+                    'whatsapp_number' => $quotation->whatsapp_number,
+                    'result' => $result,
+                    'user_id' => auth()->user()->id ?? 'System',
+                ]);
+
+                $quotation->update([
+                    'status' => 'Sent',
+                    'sent_at' => now(),
+                ]);
+            } else {
+                throw new \Exception($result['error'] ?? 'Unknown error occurred while sending quotation');
+            }
         } catch (\Exception $exception) {
             Log::error('WhatsApp quotation send failed', [
                 'quotation_id' => $quotation->id,
