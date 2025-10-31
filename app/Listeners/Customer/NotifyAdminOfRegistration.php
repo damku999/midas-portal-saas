@@ -24,11 +24,11 @@ class NotifyAdminOfRegistration implements ShouldQueue
         foreach ($adminUsers as $admin) {
             EmailQueued::dispatch(
                 $admin->email,
-                $admin->name,
+                $admin->full_name,
                 'New Customer Registration',
                 'admin_notification',
                 [
-                    'admin_name' => $admin->name,
+                    'admin_name' => $admin->full_name,
                     'customer_name' => $customer->name,
                     'customer_email' => $customer->email,
                     'customer_mobile' => $customer->mobile,

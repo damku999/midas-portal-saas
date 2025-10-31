@@ -19,6 +19,11 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
 
+        // User Events
+        \App\Events\User\UserRegistered::class => [
+            \App\Listeners\User\SendUserOnboardingWhatsApp::class, // Send WhatsApp welcome message to newly registered users
+        ],
+
         // Customer Events
         \App\Events\Customer\CustomerRegistered::class => [
             // SendWelcomeEmail is now handled synchronously in CustomerService

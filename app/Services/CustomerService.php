@@ -78,7 +78,26 @@ class CustomerService extends BaseService implements CustomerServiceInterface
             // Handle document uploads
             $this->handleCustomerDocuments($storeCustomerRequest, $model);
 
-            // Send welcome email synchronously within transaction
+            // Fire CustomerRegistered event first for async processing (WhatsApp, audit logs, admin notifications)
+            // WhatsApp will be sent before email through this event
+            try {
+                CustomerRegistered::dispatch(
+                    $model,
+                    [
+                        'request_data' => $storeCustomerRequest->only(['type', 'status']),
+                        'has_documents' => $storeCustomerRequest->hasFile('documents'),
+                    ],
+                    'admin'
+                );
+            } catch (\Throwable $throwable) {
+                // Log but don't rollback - customer was successfully created
+                Log::warning('Post-creation events failed', [
+                    'customer_id' => $model->id,
+                    'error' => $throwable->getMessage(),
+                ]);
+            }
+
+            // Send welcome email synchronously within transaction (after WhatsApp)
             // This will cause rollback if email sending fails
             try {
                 $this->sendWelcomeEmailSync($model);
@@ -95,25 +114,6 @@ class CustomerService extends BaseService implements CustomerServiceInterface
 
                 // Re-throw to trigger transaction rollback
                 throw new \Exception('Customer registration failed: Unable to send welcome email to '.$model->email.'. Please verify the email address and try again.', $throwable->getCode(), $throwable);
-            }
-
-            // Fire other events for async processing (audit logs, admin notifications)
-            // These are non-critical and won't rollback the transaction
-            try {
-                CustomerRegistered::dispatch(
-                    $model,
-                    [
-                        'request_data' => $storeCustomerRequest->only(['type', 'status']),
-                        'has_documents' => $storeCustomerRequest->hasFile('documents'),
-                    ],
-                    'admin'
-                );
-            } catch (\Throwable $throwable) {
-                // Log but don't rollback - customer was successfully created
-                Log::warning('Post-creation events failed', [
-                    'customer_id' => $model->id,
-                    'error' => $throwable->getMessage(),
-                ]);
             }
 
             return $model;

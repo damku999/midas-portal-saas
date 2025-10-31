@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\User\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -62,10 +63,23 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::query()->create([
+        $user = User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // Dispatch UserRegistered event for onboarding notifications (WhatsApp, Email)
+        try {
+            UserRegistered::dispatch($user, [], 'web');
+        } catch (\Throwable $e) {
+            // Log but don't fail registration if event dispatch fails
+            \Log::warning('UserRegistered event dispatch failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $user;
     }
 }

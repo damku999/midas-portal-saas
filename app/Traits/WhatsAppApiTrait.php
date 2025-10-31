@@ -97,7 +97,14 @@ trait WhatsAppApiTrait
         }
 
         if ($httpCode !== 200) {
-            throw new \Exception("WhatsApp API returned HTTP {$httpCode}");
+            // Log the actual response body for debugging
+            \Log::error('WhatsApp API error response', [
+                'http_code' => $httpCode,
+                'response_body' => $response,
+                'receiver' => $formattedNumber,
+                'sender_id' => $this->getSenderId(),
+            ]);
+            throw new \Exception("WhatsApp API returned HTTP {$httpCode}: {$response}");
         }
 
         $decodedResponse = json_decode($response, true);
@@ -191,7 +198,15 @@ trait WhatsAppApiTrait
             }
 
             if ($httpCode !== 200) {
-                throw new \Exception("WhatsApp API returned HTTP {$httpCode}");
+                // Log the actual response body for debugging
+                \Log::error('WhatsApp API error response (with attachment)', [
+                    'http_code' => $httpCode,
+                    'response_body' => $response,
+                    'receiver' => $formattedNumber,
+                    'sender_id' => $this->getSenderId(),
+                    'file_path' => $filePath,
+                ]);
+                throw new \Exception("WhatsApp API returned HTTP {$httpCode}: {$response}");
             }
 
             $decodedResponse = json_decode($response, true);
