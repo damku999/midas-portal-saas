@@ -11,27 +11,25 @@ class EmailQueued
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public string $recipientEmail;
+
     public string $recipientName;
+
     public string $subject;
+
     public string $templateName;
+
     public array $templateData;
+
     public array $attachments;
+
     public int $priority;
+
     public string $idempotencyKey;
+
     public ?int $relatedEntityId;
 
     /**
      * Create a new event instance.
-     *
-     * @param string $recipientEmail
-     * @param string $recipientName
-     * @param string $subject
-     * @param string $templateName
-     * @param array $templateData
-     * @param array $attachments
-     * @param int $priority
-     * @param string $idempotencyKey
-     * @param int|null $relatedEntityId
      */
     public function __construct(
         string $recipientEmail,

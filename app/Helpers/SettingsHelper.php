@@ -265,7 +265,7 @@ if (! function_exists('versioned_asset')) {
         $url = asset($path);
 
         if ($useCacheBusting) {
-            return $url . '?v=' . $version;
+            return $url.'?v='.$version;
         }
 
         return $url;
@@ -405,7 +405,7 @@ if (! function_exists('theme_color')) {
      */
     function theme_color(string $colorType): string
     {
-        $key = 'theme_' . $colorType . '_color';
+        $key = 'theme_'.$colorType.'_color';
         $defaults = [
             'primary' => '#4e73df',
             'secondary' => '#858796',
@@ -561,7 +561,7 @@ if (! function_exists('chart_color')) {
      */
     function chart_color(string $colorType): string
     {
-        $key = 'chart_color_' . $colorType;
+        $key = 'chart_color_'.$colorType;
         $defaults = [
             'primary' => 'rgba(79, 70, 229, 0.8)',
             'success' => 'rgba(34, 197, 94, 0.8)',
@@ -630,7 +630,7 @@ if (! function_exists('chart_border_colors_array')) {
      */
     function chart_border_colors_array(): array
     {
-        return array_map(function($color) {
+        return array_map(function ($color) {
             // Convert rgba(r, g, b, 0.8) to rgba(r, g, b, 1)
             return preg_replace('/,\s*0\.\d+\s*\)$/', ', 1)', $color);
         }, chart_colors_array());

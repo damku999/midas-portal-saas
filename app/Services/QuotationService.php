@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 
 class QuotationService extends BaseService implements QuotationServiceInterface
 {
-    use WhatsAppApiTrait, LogsNotificationsTrait;
+    use LogsNotificationsTrait, WhatsAppApiTrait;
 
     public function __construct(
         private PdfGenerationService $pdfGenerationService,

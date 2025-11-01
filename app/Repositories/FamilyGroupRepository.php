@@ -195,17 +195,20 @@ class FamilyGroupRepository extends AbstractBaseRepository implements FamilyGrou
 
     /**
      * Get family group statistics
+     * Refactored: Simplified average family size calculation
      */
     public function getFamilyGroupStatistics(): array
     {
+        $totalFamilyGroups = FamilyGroup::count();
+        $totalFamilyMembers = FamilyMember::count();
+        $averageFamilySize = $totalFamilyGroups > 0 ? $totalFamilyMembers / $totalFamilyGroups : 0;
+
         return [
-            'total_family_groups' => FamilyGroup::count(),
+            'total_family_groups' => $totalFamilyGroups,
             'active_family_groups' => FamilyGroup::where('status', true)->count(),
             'inactive_family_groups' => FamilyGroup::where('status', false)->count(),
-            'total_family_members' => FamilyMember::count(),
-            'average_family_size' => FamilyMember::selectRaw('AVG(member_count) as avg_size')
-                ->from(\DB::raw('(SELECT family_group_id, COUNT(*) as member_count FROM family_members GROUP BY family_group_id) as family_sizes'))
-                ->value('avg_size') ?? 0,
+            'total_family_members' => $totalFamilyMembers,
+            'average_family_size' => round($averageFamilySize, 2),
             'this_month_groups' => FamilyGroup::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),

@@ -157,9 +157,14 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
 
     public function getCountByStatus(): array
     {
-        return Quotation::selectRaw('status, COUNT(*) as count')
+        // Refactored: Using Eloquent groupBy with count() instead of selectRaw
+        return Quotation::query()
+            ->select('status')
             ->groupBy('status')
-            ->pluck('count', 'status')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->status => Quotation::where('status', $item->status)->count()];
+            })
             ->toArray();
     }
 
@@ -263,21 +268,34 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
 
     /**
      * Get top insurance companies by quotation count.
+     * Refactored: Using Eloquent aggregate methods instead of DB::raw()
      */
     public function getTopInsuranceCompaniesByQuotations(int $limit = 10): array
     {
         return \Illuminate\Support\Facades\DB::table('quotation_companies')
             ->join('insurance_companies', 'quotation_companies.insurance_company_id', '=', 'insurance_companies.id')
-            ->select(
-                'insurance_companies.name',
-                \Illuminate\Support\Facades\DB::raw('COUNT(*) as quotations_count'),
-                \Illuminate\Support\Facades\DB::raw('SUM(quotation_companies.final_premium) as total_value'),
-                \Illuminate\Support\Facades\DB::raw('AVG(quotation_companies.final_premium) as average_premium')
-            )
+            ->select('insurance_companies.id', 'insurance_companies.name')
             ->groupBy('insurance_companies.id', 'insurance_companies.name')
-            ->orderBy('quotations_count', 'desc')
+            ->orderByDesc(
+                \Illuminate\Support\Facades\DB::table('quotation_companies as qc')
+                    ->whereColumn('qc.insurance_company_id', 'insurance_companies.id')
+                    ->selectRaw('COUNT(*)')
+            )
             ->limit($limit)
             ->get()
+            ->map(function ($company) {
+                $companyData = \Illuminate\Support\Facades\DB::table('quotation_companies')
+                    ->where('insurance_company_id', $company->id)
+                    ->selectRaw('COUNT(*) as quotations_count, SUM(final_premium) as total_value, AVG(final_premium) as average_premium')
+                    ->first();
+
+                return [
+                    'name' => $company->name,
+                    'quotations_count' => $companyData->quotations_count ?? 0,
+                    'total_value' => $companyData->total_value ?? 0,
+                    'average_premium' => $companyData->average_premium ?? 0,
+                ];
+            })
             ->toArray();
     }
 
@@ -294,13 +312,11 @@ class QuotationRepository extends AbstractBaseRepository implements QuotationRep
 
     /**
      * Get average quotation value.
+     * Refactored: Using Eloquent avg() method instead of manual calculation
      */
     public function getAverageQuotationValue(): float
     {
-        $totalValue = \Illuminate\Support\Facades\DB::table('quotation_companies')
-            ->sum('final_premium');
-        $count = \Illuminate\Support\Facades\DB::table('quotation_companies')->count();
-
-        return $count > 0 ? $totalValue / $count : 0;
+        return (float) \Illuminate\Support\Facades\DB::table('quotation_companies')
+            ->avg('final_premium') ?? 0.0;
     }
 }

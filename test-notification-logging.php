@@ -33,7 +33,7 @@ echo "2. Testing onboarding message...\n";
 try {
     $customerService = app(\App\Services\CustomerService::class);
     $result = $customerService->sendOnboardingMessage($customer);
-    echo "Onboarding message result: " . ($result ? "SUCCESS" : "FAILED") . "\n";
+    echo 'Onboarding message result: '.($result ? 'SUCCESS' : 'FAILED')."\n";
 } catch (\Exception $e) {
     echo "Onboarding message ERROR: {$e->getMessage()}\n";
 }
@@ -44,11 +44,11 @@ echo "3. Testing marketing WhatsApp message...\n";
 try {
     $marketingService = app(\App\Services\MarketingWhatsAppService::class);
     $result = $marketingService->sendTextMessage(
-        "🎉 This is a test marketing message from Midas Portal notification logging system!",
+        '🎉 This is a test marketing message from Midas Portal notification logging system!',
         $testPhone,
         $customer->id
     );
-    echo "Marketing message result: " . ($result ? "SUCCESS" : "FAILED") . "\n";
+    echo 'Marketing message result: '.($result ? 'SUCCESS' : 'FAILED')."\n";
 } catch (\Exception $e) {
     echo "Marketing message ERROR: {$e->getMessage()}\n";
 }
@@ -59,11 +59,11 @@ echo "4. Testing failed notification (invalid phone)...\n";
 try {
     $marketingService = app(\App\Services\MarketingWhatsAppService::class);
     $result = $marketingService->sendTextMessage(
-        "This should fail - invalid phone test",
+        'This should fail - invalid phone test',
         '1234567890', // Invalid phone
         $customer->id
     );
-    echo "Invalid phone test result: " . ($result ? "SUCCESS" : "FAILED (Expected)") . "\n";
+    echo 'Invalid phone test result: '.($result ? 'SUCCESS' : 'FAILED (Expected)')."\n";
 } catch (\Exception $e) {
     echo "Invalid phone ERROR (Expected): {$e->getMessage()}\n";
 }
@@ -80,8 +80,8 @@ $logs = \App\Models\NotificationLog::where('recipient', $testPhone)
 echo "Found {$logs->count()} notification log entries:\n";
 foreach ($logs as $log) {
     echo "  - [{$log->id}] {$log->channel} | {$log->status} | {$log->created_at->format('Y-m-d H:i:s')}\n";
-    echo "    Type: " . ($log->notificationType->name ?? 'N/A') . "\n";
-    echo "    Template: " . ($log->template->name ?? 'No template') . "\n";
+    echo '    Type: '.($log->notificationType->name ?? 'N/A')."\n";
+    echo '    Template: '.($log->template->name ?? 'No template')."\n";
     if ($log->error_message) {
         echo "    Error: {$log->error_message}\n";
     }

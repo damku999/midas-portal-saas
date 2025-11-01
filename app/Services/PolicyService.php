@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class PolicyService extends BaseService implements PolicyServiceInterface
 {
-    use WhatsAppApiTrait, LogsNotificationsTrait;
+    use LogsNotificationsTrait, WhatsAppApiTrait;
 
     public function __construct(
         private PolicyRepositoryInterface $policyRepository

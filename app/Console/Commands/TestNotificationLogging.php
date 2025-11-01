@@ -3,14 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Customer;
-use App\Models\CustomerInsurance;
 use App\Models\NotificationLog;
 use App\Models\Quotation;
-use App\Models\InsuranceCompany;
 use App\Services\CustomerService;
-use App\Services\CustomerInsuranceService;
 use App\Services\MarketingWhatsAppService;
-use App\Services\QuotationService;
 use Illuminate\Console\Command;
 
 class TestNotificationLogging extends Command
@@ -54,7 +50,7 @@ class TestNotificationLogging extends Command
         try {
             $customerService = app(CustomerService::class);
             $result = $customerService->sendOnboardingMessage($customer);
-            $this->info("Result: " . ($result ? "✅ SUCCESS" : "❌ FAILED"));
+            $this->info('Result: '.($result ? '✅ SUCCESS' : '❌ FAILED'));
         } catch (\Exception $e) {
             $this->error("ERROR: {$e->getMessage()}");
         }
@@ -65,13 +61,13 @@ class TestNotificationLogging extends Command
         try {
             $marketingService = app(MarketingWhatsAppService::class);
             $result = $marketingService->sendTextMessage(
-                "🎉 Test marketing message from Midas Portal!\n\n" .
-                "This is a test to verify all notifications are logged.\n\n" .
-                "Date: " . now()->format('Y-m-d H:i:s'),
+                "🎉 Test marketing message from Midas Portal!\n\n".
+                "This is a test to verify all notifications are logged.\n\n".
+                'Date: '.now()->format('Y-m-d H:i:s'),
                 $phone,
                 $customer->id
             );
-            $this->info("Result: " . ($result ? "✅ SUCCESS" : "❌ FAILED"));
+            $this->info('Result: '.($result ? '✅ SUCCESS' : '❌ FAILED'));
         } catch (\Exception $e) {
             $this->error("ERROR: {$e->getMessage()}");
         }
@@ -79,27 +75,27 @@ class TestNotificationLogging extends Command
 
         // Step 4: Test quotation notification (SKIPPED - requires PDF template fix)
         $this->info('4. Testing quotation notification...');
-        $this->warn("Skipped - Quotation PDF template has syntax error");
+        $this->warn('Skipped - Quotation PDF template has syntax error');
         $this->newLine();
 
         // Step 5: Test policy created notification (SKIPPED - requires PDF document)
         $this->info('5. Testing policy created notification...');
-        $this->warn("Skipped - Policy document notification requires PDF file");
+        $this->warn('Skipped - Policy document notification requires PDF file');
         $this->newLine();
 
         // Step 6: Test renewal reminder (SKIPPED - requires full policy data)
         $this->info('6. Testing renewal reminder notification...');
-        $this->warn("Skipped - Renewal reminders require complete policy data and templates");
+        $this->warn('Skipped - Renewal reminders require complete policy data and templates');
         $this->newLine();
 
         // Step 7: Test policy sharing (SKIPPED - requires PDF document)
         $this->info('7. Testing policy sharing notification...');
-        $this->warn("Skipped - Policy sharing requires PDF document");
+        $this->warn('Skipped - Policy sharing requires PDF document');
         $this->newLine();
 
         // Step 8: Test marketing image message (SKIPPED - requires image file)
         $this->info('8. Testing marketing image message...');
-        $this->warn("Skipped - Marketing image requires actual image file");
+        $this->warn('Skipped - Marketing image requires actual image file');
         $this->newLine();
 
         // Step 9: Test with invalid phone (should fail)
@@ -107,11 +103,11 @@ class TestNotificationLogging extends Command
         try {
             $marketingService = app(MarketingWhatsAppService::class);
             $result = $marketingService->sendTextMessage(
-                "This should fail",
+                'This should fail',
                 '1234567890',
                 $customer->id
             );
-            $this->info("Result: " . ($result ? "✅ SUCCESS (Unexpected)" : "❌ FAILED (Expected)"));
+            $this->info('Result: '.($result ? '✅ SUCCESS (Unexpected)' : '❌ FAILED (Expected)'));
         } catch (\Exception $e) {
             $this->info("✅ Failed as expected: {$e->getMessage()}");
         }
@@ -121,11 +117,11 @@ class TestNotificationLogging extends Command
         $this->info('10. Recent notification logs:');
         $logs = NotificationLog::where(function ($query) use ($phone, $email) {
             $query->where('recipient', $phone)
-                  ->orWhere('recipient', $email);
+                ->orWhere('recipient', $email);
         })
-        ->orderBy('created_at', 'desc')
-        ->limit(10)
-        ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
         if ($logs->isEmpty()) {
             $this->warn('No notification logs found!');

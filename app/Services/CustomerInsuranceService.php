@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CustomerInsuranceService extends BaseService implements CustomerInsuranceServiceInterface
 {
-    use WhatsAppApiTrait, LogsNotificationsTrait;
+    use LogsNotificationsTrait, WhatsAppApiTrait;
 
     public function __construct(
         private CustomerInsuranceRepositoryInterface $customerInsuranceRepository,

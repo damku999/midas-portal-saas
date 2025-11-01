@@ -7,6 +7,7 @@ use App\Contracts\Services\FamilyGroupServiceInterface;
 use App\Models\Customer;
 use App\Models\FamilyGroup;
 use App\Models\FamilyMember;
+use App\Traits\WhatsAppApiTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Log;
  */
 class FamilyGroupService extends BaseService implements FamilyGroupServiceInterface
 {
+    use WhatsAppApiTrait;
+
     /**
      * Constructor
      */
@@ -348,12 +351,50 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
 
                 // Send WhatsApp notification if enabled and mobile number exists
                 if ($customer->mobile_number) {
-                    // TODO: Implement WhatsApp notification service
-                    Log::info('WhatsApp notification pending implementation', [
-                        'customer_id' => $customer->id,
-                        'mobile_number' => $customer->mobile_number,
-                        'family_group_id' => $familyGroup->id,
-                    ]);
+                    try {
+                        $message = $this->buildFamilyLoginWhatsAppMessage(
+                            $customer,
+                            $passwordNotification['password'],
+                            $familyGroup,
+                            $passwordNotification['is_head']
+                        );
+
+                        // Use WhatsApp API trait method
+                        $result = $this->whatsAppSendMessage(
+                            $message,
+                            $customer->mobile_number,
+                            $customer->id,
+                            'family_member_credentials'
+                        );
+
+                        // Result is JSON string, decode it (API returns array, get first element)
+                        $resultData = json_decode($result, true);
+                        $resultData = is_array($resultData) && isset($resultData[0]) ? $resultData[0] : $resultData;
+
+                        if ($resultData && isset($resultData['success']) && $resultData['success']) {
+                            Log::info('WhatsApp password notification sent', [
+                                'customer_id' => $customer->id,
+                                'mobile_number' => $customer->mobile_number,
+                                'family_group_id' => $familyGroup->id,
+                                'is_head' => $passwordNotification['is_head'],
+                                'message_id' => $resultData['messageId'] ?? null,
+                            ]);
+                        } else {
+                            Log::warning('WhatsApp password notification failed', [
+                                'customer_id' => $customer->id,
+                                'mobile_number' => $customer->mobile_number,
+                                'family_group_id' => $familyGroup->id,
+                                'error' => $resultData['message'] ?? 'Unknown error',
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to send WhatsApp password notification', [
+                            'customer_id' => $customer->id,
+                            'mobile_number' => $customer->mobile_number,
+                            'family_group_id' => $familyGroup->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
             }
 
@@ -460,6 +501,41 @@ class FamilyGroupService extends BaseService implements FamilyGroupServiceInterf
     public function getAllFamilyGroupsForExport(): Collection
     {
         return $this->familyGroupRepository->getAllFamilyGroupsWithRelationships();
+    }
+
+    /**
+     * Build WhatsApp message for family login credentials
+     */
+    private function buildFamilyLoginWhatsAppMessage(
+        Customer $customer,
+        string $password,
+        FamilyGroup $familyGroup,
+        bool $isHead
+    ): string {
+        $role = $isHead ? 'Family Head' : 'Family Member';
+        $loginUrl = route('customer.login');
+
+        return "Dear *{$customer->name}*,
+
+Welcome to {$familyGroup->name}!
+
+Your customer portal login credentials:
+📧 Email: {$customer->email}
+🔑 Password: *{$password}*
+
+🔗 Login here: {$loginUrl}
+
+".($isHead ? "As the Family Head, you can view and manage all family members' insurance policies." : 'You can view your insurance policies through the customer portal.').'
+
+⚠️ *Important*: Please change your password after first login.
+
+Need help? Contact us at '.company_phone().'
+
+Best regards,
+'.company_advisor_name().'
+'.company_website().'
+'.company_title().'
+"'.company_tagline().'"';
     }
 
     /**

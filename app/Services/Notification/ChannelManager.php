@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ChannelManager
 {
-    use WhatsAppApiTrait, LogsNotificationsTrait;
+    use LogsNotificationsTrait, WhatsAppApiTrait;
 
     public function __construct(
         protected SmsService $smsService,

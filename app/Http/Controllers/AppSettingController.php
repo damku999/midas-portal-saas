@@ -7,7 +7,6 @@ use App\Services\AppSettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -172,17 +171,17 @@ class AppSettingController extends AbstractBaseCrudController
             // Handle image upload
             if ($request->type === 'image' && $request->hasFile('image_file')) {
                 $file = $request->file('image_file');
-                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
                 $file->storeAs('app-settings', $filename, 'public');
-                $value = 'app-settings/' . $filename;
+                $value = 'app-settings/'.$filename;
             }
 
             // Handle file upload
             if ($request->type === 'file' && $request->hasFile('file_upload')) {
                 $file = $request->file('file_upload');
-                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
                 $file->storeAs('app-settings', $filename, 'public');
-                $value = 'app-settings/' . $filename;
+                $value = 'app-settings/'.$filename;
             }
 
             // Handle boolean values
@@ -296,10 +295,10 @@ class AppSettingController extends AbstractBaseCrudController
                 }
 
                 $file = $request->file('image_file');
-                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
                 $file->storeAs('app-settings', $filename, 'public');
-                $value = 'app-settings/' . $filename;
-            } elseif ($request->type === 'image' && !$request->hasFile('image_file') && $setting->type === 'image') {
+                $value = 'app-settings/'.$filename;
+            } elseif ($request->type === 'image' && ! $request->hasFile('image_file') && $setting->type === 'image') {
                 // Keep existing image if no new upload
                 $value = $setting->value;
             }
@@ -312,10 +311,10 @@ class AppSettingController extends AbstractBaseCrudController
                 }
 
                 $file = $request->file('file_upload');
-                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
                 $file->storeAs('app-settings', $filename, 'public');
-                $value = 'app-settings/' . $filename;
-            } elseif ($request->type === 'file' && !$request->hasFile('file_upload') && $setting->type === 'file') {
+                $value = 'app-settings/'.$filename;
+            } elseif ($request->type === 'file' && ! $request->hasFile('file_upload') && $setting->type === 'file') {
                 // Keep existing file if no new upload
                 $value = $setting->value;
             }
@@ -457,8 +456,6 @@ class AppSettingController extends AbstractBaseCrudController
 
     /**
      * Clear app settings cache (AJAX)
-     *
-     * @return JsonResponse
      */
     public function clearCache(): JsonResponse
     {

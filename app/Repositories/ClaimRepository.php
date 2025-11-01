@@ -311,13 +311,23 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
 
     /**
      * Get claims by insurance type with stats.
+     * Refactored: Using Eloquent groupBy with count() instead of selectRaw
      */
     public function getStatsByInsuranceType(): array
     {
-        return Claim::selectRaw('insurance_type, COUNT(*) as count, 0 as total_amount')
+        return Claim::query()
+            ->select('insurance_type')
             ->groupBy('insurance_type')
-            ->orderBy('count', 'desc')
             ->get()
+            ->map(function ($item) {
+                return [
+                    'insurance_type' => $item->insurance_type,
+                    'count' => Claim::where('insurance_type', $item->insurance_type)->count(),
+                    'total_amount' => 0, // No amount field in claims table
+                ];
+            })
+            ->sortByDesc('count')
+            ->values()
             ->toArray();
     }
 
@@ -355,14 +365,27 @@ class ClaimRepository extends AbstractBaseRepository implements ClaimRepositoryI
 
     /**
      * Get top claim categories.
+     * Refactored: Using Eloquent aggregate methods instead of selectRaw
      */
     public function getTopClaimCategories(int $limit = 10): array
     {
-        return Claim::selectRaw('COALESCE(description, "General") as claim_type, COUNT(*) as count, 0 as total_amount')
-            ->groupBy('claim_type')
-            ->orderBy('count', 'desc')
-            ->limit($limit)
+        return Claim::query()
+            ->select('description')
+            ->groupBy('description')
             ->get()
+            ->map(function ($item) {
+                $claimType = $item->description ?? 'General';
+                $count = Claim::where('description', $item->description)->count();
+
+                return [
+                    'claim_type' => $claimType,
+                    'count' => $count,
+                    'total_amount' => 0, // No amount field in claims table
+                ];
+            })
+            ->sortByDesc('count')
+            ->take($limit)
+            ->values()
             ->toArray();
     }
 }

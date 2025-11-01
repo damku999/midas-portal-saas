@@ -29,8 +29,10 @@ class CustomerAuthController extends Controller
 
     protected $decayMinutes = 15;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly PdfGenerationService $pdfGenerationService,
+        private readonly CustomerTwoFactorAuthService $customerTwoFactorAuthService
+    ) {
         $this->middleware('guest:customer')->except([
             'logout',
             'dashboard',
@@ -827,9 +829,8 @@ class CustomerAuthController extends Controller
                 ], 400);
             }
 
-            // Use the customer 2FA service
-            $customerTwoFactorService = app(CustomerTwoFactorAuthService::class);
-            $customerTwoFactorService->disableTwoFactor($member, '', true); // Skip password check for family head
+            // Use the customer 2FA service via dependency injection
+            $this->customerTwoFactorAuthService->disableTwoFactor($member, '', true); // Skip password check for family head
 
             // Also revoke all trusted devices
             $member->revokeAllCustomerTrustedDevices();
@@ -1290,10 +1291,8 @@ class CustomerAuthController extends Controller
                 'is_own_quotation' => $quotation->customer_id === $customer->id,
             ]);
 
-            // Use the same PDF service as admin
-            $pdfService = app(PdfGenerationService::class);
-
-            return $pdfService->generateQuotationPdf($quotation);
+            // Use the same PDF service as admin via dependency injection
+            return $this->pdfGenerationService->generateQuotationPdf($quotation);
 
         } catch (\Throwable $throwable) {
             CustomerAuditLog::logFailure('download_quotation', 'Failed to generate quotation PDF', [

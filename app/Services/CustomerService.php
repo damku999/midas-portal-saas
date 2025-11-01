@@ -317,9 +317,11 @@ class CustomerService extends BaseService implements CustomerServiceInterface
             // Update log status based on result
             if ($result) {
                 $notificationLogger->markAsSent($notificationLog, ['channel' => 'whatsapp']);
+
                 return true;
             } else {
                 $notificationLogger->markAsFailed($notificationLog, 'WhatsApp API returned false');
+
                 return false;
             }
         } catch (\Throwable $throwable) {

@@ -3,7 +3,6 @@
 use App\Models\Customer;
 use App\Services\ExcelExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 
 uses(RefreshDatabase::class);
@@ -27,7 +26,7 @@ test('export generates excel file from collection', function () {
     $result = $this->exportService->export($data);
 
     expect($result)->not->toBeNull();
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('export uses custom filename when provided', function () {
@@ -49,7 +48,7 @@ test('export handles empty collection', function () {
     $result = $this->exportService->export($data);
 
     expect($result)->not->toBeNull();
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('export applies custom config correctly', function () {
@@ -80,7 +79,7 @@ test('exportWithMapping applies custom mapping', function () {
     $customers = Customer::factory()->count(3)->create();
 
     $headings = ['ID', 'Customer Name', 'Email Address'];
-    $mapping = fn($customer) => [
+    $mapping = fn ($customer) => [
         $customer->id,
         $customer->name,
         $customer->email,
@@ -88,7 +87,7 @@ test('exportWithMapping applies custom mapping', function () {
 
     $this->exportService->exportWithMapping($customers, $headings, $mapping);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('exportWithMapping includes headings', function () {
@@ -96,11 +95,11 @@ test('exportWithMapping includes headings', function () {
 
     $data = collect([['name' => 'Test']]);
     $headings = ['Name'];
-    $mapping = fn($item) => [$item['name']];
+    $mapping = fn ($item) => [$item['name']];
 
     $this->exportService->exportWithMapping($data, $headings, $mapping);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -114,7 +113,7 @@ test('quickExport generates export for model', function () {
 
     $this->exportService->quickExport(Customer::class);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('quickExport uses specified columns', function () {
@@ -125,7 +124,7 @@ test('quickExport uses specified columns', function () {
     $columns = ['id', 'name', 'email'];
     $this->exportService->quickExport(Customer::class, $columns);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('quickExport generates headings from columns', function () {
@@ -136,7 +135,7 @@ test('quickExport generates headings from columns', function () {
     $columns = ['id', 'name', 'email'];
     $this->exportService->quickExport(Customer::class, $columns);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -156,7 +155,7 @@ test('exportWithRelations includes relationship data', function () {
         ['customerInsurances']
     );
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('exportWithRelations handles multiple relations', function () {
@@ -172,7 +171,7 @@ test('exportWithRelations handles multiple relations', function () {
         ['customerInsurances', 'customerType']
     );
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -188,7 +187,7 @@ test('exportFiltered applies simple filters', function () {
     $filters = ['status' => 1];
     $this->exportService->exportFiltered(Customer::class, $filters);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('exportFiltered applies multiple filters', function () {
@@ -212,7 +211,7 @@ test('exportFiltered applies multiple filters', function () {
 
     $this->exportService->exportFiltered(Customer::class, $filters);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('exportFiltered handles array filters (whereIn)', function () {
@@ -225,7 +224,7 @@ test('exportFiltered handles array filters (whereIn)', function () {
     $filters = ['id' => [1, 2]];
     $this->exportService->exportFiltered(Customer::class, $filters);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -247,7 +246,7 @@ test('resolveDataSource handles model query', function () {
 
     $this->exportService->export(Customer::class);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('resolveDataSource handles eloquent builder', function () {
@@ -259,7 +258,7 @@ test('resolveDataSource handles eloquent builder', function () {
     $query = Customer::query()->where('status', 1);
     $this->exportService->export($query);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -272,7 +271,7 @@ test('generateFilename uses default pattern', function () {
     $data = collect([['test' => 'data']]);
     $this->exportService->export($data);
 
-    $expectedFilename = 'export_' . date('Y-m-d') . '.xlsx';
+    $expectedFilename = 'export_'.date('Y-m-d').'.xlsx';
     Excel::assertDownloaded($expectedFilename);
 });
 
@@ -310,7 +309,7 @@ test('getDefaultColumns returns fillable attributes', function () {
     // Quick export without specifying columns should use model fillable
     $this->exportService->quickExport(Customer::class);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('generateHeadingsFromColumns creates readable headers', function () {
@@ -321,7 +320,7 @@ test('generateHeadingsFromColumns creates readable headers', function () {
     $columns = ['customer_name', 'email_address', 'phone_number'];
     $this->exportService->quickExport(Customer::class, $columns);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================
@@ -338,7 +337,7 @@ test('complete export workflow with all features', function () {
 
     // Export with custom mapping, headings, and filters
     $headings = ['ID', 'Name', 'Email', 'Status'];
-    $mapping = fn($customer) => [
+    $mapping = fn ($customer) => [
         $customer->id,
         $customer->name,
         $customer->email,
@@ -346,21 +345,21 @@ test('complete export workflow with all features', function () {
     ];
 
     $config = [
-        'filename' => 'customers_export_' . date('Ymd'),
+        'filename' => 'customers_export_'.date('Ymd'),
         'with_headings' => true,
         'with_mapping' => true,
     ];
 
     $this->exportService->exportWithMapping($customers, $headings, $mapping, $config);
 
-    Excel::assertDownloaded('customers_export_' . date('Ymd') . '.xlsx');
+    Excel::assertDownloaded('customers_export_'.date('Ymd').'.xlsx');
 });
 
 test('export handles large dataset efficiently', function () {
     Excel::fake();
 
     // Create large dataset
-    $largeDataset = collect(range(1, 1000))->map(fn($i) => [
+    $largeDataset = collect(range(1, 1000))->map(fn ($i) => [
         'id' => $i,
         'name' => "Customer {$i}",
         'email' => "customer{$i}@example.com",
@@ -369,7 +368,7 @@ test('export handles large dataset efficiently', function () {
     $result = $this->exportService->export($largeDataset);
 
     expect($result)->not->toBeNull();
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 test('export preserves data types correctly', function () {
@@ -382,7 +381,7 @@ test('export preserves data types correctly', function () {
 
     $this->exportService->export($data);
 
-    Excel::assertDownloaded('export_' . date('Y-m-d') . '.xlsx');
+    Excel::assertDownloaded('export_'.date('Y-m-d').'.xlsx');
 });
 
 // ========================================

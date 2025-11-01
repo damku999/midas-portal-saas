@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class MarketingWhatsAppService extends BaseService implements MarketingWhatsAppServiceInterface
 {
-    use WhatsAppApiTrait, LogsNotificationsTrait;
+    use LogsNotificationsTrait, WhatsAppApiTrait;
 
     /**
      * Constructor

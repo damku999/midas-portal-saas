@@ -28,8 +28,10 @@ class NotificationTemplateController extends AbstractBaseCrudController
 {
     use WhatsAppApiTrait;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly VariableResolverService $variableResolverService,
+        private readonly VariableRegistryService $variableRegistryService
+    ) {
         $this->setupPermissionMiddleware('notification-template');
     }
 
@@ -243,9 +245,8 @@ class NotificationTemplateController extends AbstractBaseCrudController
                 $request->quotation_id
             );
 
-            // Resolve template variables using new service
-            $resolver = app(VariableResolverService::class);
-            $preview = $resolver->resolveTemplate($content, $context);
+            // Resolve template variables using injected service
+            $preview = $this->variableResolverService->resolveTemplate($content, $context);
 
             return response()->json([
                 'success' => true,
@@ -305,15 +306,13 @@ class NotificationTemplateController extends AbstractBaseCrudController
     {
         $notificationType = $request->input('notification_type');
 
-        $registry = app(VariableRegistryService::class);
-
-        // Get variables grouped by category
-        $groupedVariables = $registry->getVariablesGroupedByCategory($notificationType);
+        // Get variables grouped by category using injected service
+        $groupedVariables = $this->variableRegistryService->getVariablesGroupedByCategory($notificationType);
 
         return response()->json([
             'success' => true,
             'variables' => $groupedVariables,
-            'categories' => $registry->getAllCategories(),
+            'categories' => $this->variableRegistryService->getAllCategories(),
         ]);
     }
 
@@ -396,14 +395,13 @@ class NotificationTemplateController extends AbstractBaseCrudController
                 $request->insurance_id
             );
 
-            // Resolve template variables using new service
-            $resolver = app(VariableResolverService::class);
-            $message = $resolver->resolveTemplate($content, $context);
+            // Resolve template variables using injected service
+            $message = $this->variableResolverService->resolveTemplate($content, $context);
 
             // Resolve subject if email
             $subject = $request->subject;
             if ($subject && $channel === 'email') {
-                $subject = $resolver->resolveTemplate($subject, $context);
+                $subject = $this->variableResolverService->resolveTemplate($subject, $context);
             }
 
             // Send based on channel

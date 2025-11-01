@@ -107,7 +107,7 @@ class TestNotificationTemplates extends Command
             $template = $this->templateService->getTemplateByCode($code, $channel);
 
             if (! $template) {
-                $this->warn("  ⚠️  Template not found in database");
+                $this->warn('  ⚠️  Template not found in database');
                 $failed++;
 
                 return;
@@ -117,7 +117,7 @@ class TestNotificationTemplates extends Command
             $rendered = $this->templateService->renderFromInsurance($code, $channel, $insurance);
 
             if (! $rendered) {
-                $this->error("  ❌ Template rendering returned null");
+                $this->error('  ❌ Template rendering returned null');
                 $failed++;
 
                 return;
@@ -141,7 +141,7 @@ class TestNotificationTemplates extends Command
             }
 
             // Success
-            $this->line("  ✅ Rendered successfully (".strlen($rendered).' chars)');
+            $this->line('  ✅ Rendered successfully ('.strlen($rendered).' chars)');
 
             if ($this->option('show-variables')) {
                 $this->showAvailableVariables($template);

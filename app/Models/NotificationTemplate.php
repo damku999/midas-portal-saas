@@ -4,11 +4,9 @@ namespace App\Models;
 
 use Database\Factories\NotificationTemplateFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -29,11 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read string $name
  * @property-read string $type
  * @property-read NotificationType|null $notificationType
- * @property-read Collection<int, NotificationTemplateTestLog> $testLogs
- * @property-read int|null $test_logs_count
  * @property-read User|null $updater
- * @property-read Collection<int, NotificationTemplateVersion> $versions
- * @property-read int|null $versions_count
  *
  * @method static NotificationTemplateFactory factory($count = null, $state = [])
  * @method static Builder|NotificationTemplate newModelQuery()
@@ -105,26 +99,6 @@ class NotificationTemplate extends Model
     public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
-    }
-
-    /**
-     * Get version history for this template
-     *
-     * @return HasMany
-     */
-    public function versions()
-    {
-        return $this->hasMany(NotificationTemplateVersion::class, 'template_id');
-    }
-
-    /**
-     * Get test logs for this template
-     *
-     * @return HasMany
-     */
-    public function testLogs()
-    {
-        return $this->hasMany(NotificationTemplateTestLog::class, 'template_id');
     }
 
     /**

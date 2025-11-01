@@ -229,9 +229,14 @@ class PolicyRepository extends AbstractBaseRepository implements PolicyRepositor
 
     public function getCountByStatus(): array
     {
-        return CustomerInsurance::selectRaw('status, COUNT(*) as count')
+        // Refactored: Using Eloquent groupBy with count() instead of selectRaw
+        return CustomerInsurance::query()
+            ->select('status')
             ->groupBy('status')
-            ->pluck('count', 'status')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->status => CustomerInsurance::where('status', $item->status)->count()];
+            })
             ->toArray();
     }
 }

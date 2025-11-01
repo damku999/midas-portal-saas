@@ -16,7 +16,12 @@
       "Bash(findstr:*)",
       "Bash(powershell:*)",
       "mcp__laravel-boost__search-docs",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "mcp__laravel-boost__application-info",
+      "Bash(mysql:*)",
+      "Bash(find app/ -name \"*.php\" -type f -exec grep -l \"whatsAppSendMessage\\|Mail::to\\|sendSms\" {})",
+      "Bash(vendor/bin/pint:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\NotificationTemplate;
 use App\Models\NotificationType;
-use App\Services\Notification\NotificationContext;
 use App\Services\Notification\VariableResolverService;
 use Illuminate\Console\Command;
 
@@ -107,7 +106,7 @@ class ValidateNotificationTemplates extends Command
                     $issues[] = [
                         'type' => 'Missing Template',
                         'message' => "No active {$ch} template for notification type: {$type->code} ({$type->name})",
-                        'details' => "Consider creating a template for this notification type and channel",
+                        'details' => 'Consider creating a template for this notification type and channel',
                     ];
                 }
             }
@@ -139,7 +138,7 @@ class ValidateNotificationTemplates extends Command
                 ? $template->available_variables
                 : json_decode($template->available_variables ?? '[]', true);
 
-            if (!is_array($variables) && json_last_error() !== JSON_ERROR_NONE) {
+            if (! is_array($variables) && json_last_error() !== JSON_ERROR_NONE) {
                 $issues[] = [
                     'type' => 'Invalid JSON',
                     'message' => "Template ID {$template->id} ({$template->notificationType->code} / {$template->channel}) has invalid available_variables JSON",

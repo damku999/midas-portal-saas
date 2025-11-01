@@ -256,22 +256,34 @@ class CustomerInsuranceRepository extends AbstractBaseRepository implements Cust
 
     /**
      * Get top performing insurance companies.
+     * Refactored: Cleaner approach with proper aggregate methods
      */
     public function getTopInsuranceCompanies(int $limit = 10): array
     {
-        return DB::table('customer_insurances')
+        // Get all insurance companies with active policies
+        $companies = DB::table('customer_insurances')
             ->join('insurance_companies', 'customer_insurances.insurance_company_id', '=', 'insurance_companies.id')
-            ->select(
-                'insurance_companies.name',
-                DB::raw('COUNT(*) as policies_count'),
-                DB::raw('SUM(final_premium_with_gst) as total_revenue'),
-                DB::raw('AVG(final_premium_with_gst) as average_premium')
-            )
+            ->select('insurance_companies.id', 'insurance_companies.name')
             ->where('customer_insurances.status', 1)
             ->groupBy('insurance_companies.id', 'insurance_companies.name')
-            ->orderBy('total_revenue', 'desc')
-            ->limit($limit)
-            ->get()
+            ->get();
+
+        // Calculate aggregates for each company and map
+        return $companies->map(function ($company) {
+            $policies = DB::table('customer_insurances')
+                ->where('insurance_company_id', $company->id)
+                ->where('status', 1);
+
+            return [
+                'name' => $company->name,
+                'policies_count' => $policies->count(),
+                'total_revenue' => (float) $policies->sum('final_premium_with_gst') ?? 0,
+                'average_premium' => (float) $policies->avg('final_premium_with_gst') ?? 0,
+            ];
+        })
+            ->sortByDesc('total_revenue')
+            ->take($limit)
+            ->values()
             ->toArray();
     }
 }

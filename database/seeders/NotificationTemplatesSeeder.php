@@ -480,7 +480,7 @@ Your Trusted Insurance Advisor
         // Renewal Reminder (Email) - Generic for all renewal periods
         foreach ($renewalCodes as $code) {
             if (isset($notificationTypes[$code])) {
-                $urgency = match($code) {
+                $urgency = match ($code) {
                     'renewal_30_days' => '30 days',
                     'renewal_15_days' => '15 days',
                     'renewal_7_days' => '7 days - URGENT',
@@ -491,7 +491,7 @@ Your Trusted Insurance Advisor
                 $templates[] = [
                     'notification_type_id' => $notificationTypes[$code]->id,
                     'channel' => 'email',
-                    'subject' => 'Policy Renewal Reminder - ' . $urgency . ' | {{policy_number}}',
+                    'subject' => 'Policy Renewal Reminder - '.$urgency.' | {{policy_number}}',
                     'template_content' => '<html>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
@@ -557,7 +557,7 @@ Your Trusted Insurance Advisor
         }
 
         // Insert or update all templates (prevent duplicates)
-        if (!empty($templates)) {
+        if (! empty($templates)) {
             $templatesCount = count($templates);
             $this->command->info("Processing {$templatesCount} templates...");
 

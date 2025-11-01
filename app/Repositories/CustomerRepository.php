@@ -22,10 +22,11 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
 
     /**
      * Get all customers with optional filters.
+     * Refactored: Added eager loading to prevent N+1 queries
      */
     public function getAll(array $filters = []): Collection
     {
-        $query = Customer::query();
+        $query = Customer::with(['familyGroup', 'insurance']);
 
         if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
@@ -44,10 +45,11 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
 
     /**
      * Override base getPaginated to support advanced filtering
+     * Refactored: Added eager loading to prevent N+1 queries
      */
     public function getPaginated(Request $request, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Customer::query();
+        $query = Customer::with(['familyGroup', 'insurance']);
         $filters = $request->all();
 
         // Search filter
@@ -111,19 +113,27 @@ class CustomerRepository extends AbstractBaseRepository implements CustomerRepos
 
     public function getByFamilyGroup(int $familyGroupId): Collection
     {
-        return Customer::where('family_group_id', $familyGroupId)->get();
+        // Refactored: Added eager loading to prevent N+1 queries
+        return Customer::with(['familyGroup', 'insurance'])
+            ->where('family_group_id', $familyGroupId)
+            ->get();
     }
 
     public function getByType(string $type): Collection
     {
-        return Customer::where('type', $type)->get();
+        // Refactored: Added eager loading to prevent N+1 queries
+        return Customer::with(['familyGroup', 'insurance'])
+            ->where('type', $type)
+            ->get();
     }
 
     public function search(string $query): Collection
     {
         $searchTerm = '%'.trim($query).'%';
 
-        return Customer::where('name', 'LIKE', $searchTerm)
+        // Refactored: Added eager loading to prevent N+1 queries
+        return Customer::with(['familyGroup', 'insurance'])
+            ->where('name', 'LIKE', $searchTerm)
             ->orWhere('email', 'LIKE', $searchTerm)
             ->orWhere('mobile_number', 'LIKE', $searchTerm)
             ->get();
