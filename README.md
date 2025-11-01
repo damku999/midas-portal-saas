@@ -31,9 +31,7 @@ Midas Portal is an enterprise-grade insurance management system designed for ins
 
 | Document | Description |
 |----------|-------------|
-| **[System Documentation](SYSTEM_DOCUMENTATION.md)** | Complete system architecture, features, and database schema |
-| **[Deployment Guide](DEPLOYMENT_GUIDE.md)** | Production deployment and server configuration |
-| **[Developer Guide](DEVELOPER_GUIDE.md)** | Local setup, coding standards, and development workflow |
+| **[Complete Project Documentation](claudedocs/PROJECT_INDEX.md)** | Comprehensive reference covering architecture, database schema, API endpoints, security implementation, services layer, deployment guides, and development workflows |
 
 ---
 
@@ -303,7 +301,7 @@ php artisan optimize:clear  # Clear all caches
 - [ ] Set up monitoring and alerts
 - [ ] Test disaster recovery procedure
 
-**See**: [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions
+**See**: [Complete Documentation](claudedocs/PROJECT_INDEX.md#deployment--operations) for detailed deployment instructions
 
 ---
 
@@ -348,7 +346,7 @@ GET    /admin/notification-logs                # Notification history
 POST   /admin/notification-logs/{id}/resend    # Retry failed
 ```
 
-**See**: [System Documentation](SYSTEM_DOCUMENTATION.md#api-documentation) for complete API reference
+**See**: [Complete Documentation](claudedocs/PROJECT_INDEX.md#api-endpoints) for complete API reference (294 routes documented)
 
 ---
 
