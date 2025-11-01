@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ProtectedRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,9 @@ use Carbon\Carbon;
 
 class Lead extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use ProtectedRecord;
+    use SoftDeletes;
 
     protected $fillable = [
         'lead_number',
@@ -43,6 +46,8 @@ class Lead extends Model
         'lost_at',
         'created_by',
         'updated_by',
+        'is_protected',
+        'protected_reason',
     ];
 
     protected $casts = [
@@ -50,6 +55,7 @@ class Lead extends Model
         'next_follow_up_date' => 'date',
         'converted_at' => 'datetime',
         'lost_at' => 'datetime',
+        'is_protected' => 'boolean',
     ];
 
     // Relationships

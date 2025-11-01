@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Auditable;
 use App\Traits\HasSecuritySettings;
 use App\Traits\HasTwoFactorAuth;
+use App\Traits\ProtectedRecord;
 use App\Traits\TableRecordObserver;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -106,6 +107,7 @@ class User extends Authenticatable
     use HasTwoFactorAuth;
     use LogsActivity;
     use Notifiable;
+    use ProtectedRecord;
     use SoftDeletes;
     use TableRecordObserver;
 
@@ -122,6 +124,8 @@ class User extends Authenticatable
         'role_id',
         'status',
         'password',
+        'is_protected',
+        'protected_reason',
     ];
 
     /**
@@ -141,6 +145,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_protected' => 'boolean',
     ];
 
     /**

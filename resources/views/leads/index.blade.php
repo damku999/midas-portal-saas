@@ -306,9 +306,17 @@ function bulkConvert() {
         return;
     }
 
-    if (!confirm(`Are you sure you want to convert ${selectedIds.length} leads to customers?`)) {
-        return;
-    }
+    showConfirmationModal(
+        'Bulk Convert Leads',
+        `Are you sure you want to convert ${selectedIds.length} leads to customers?`,
+        'success',
+        function() {
+            convertLeadsToCustomers(selectedIds);
+        }
+    );
+}
+
+function convertLeadsToCustomers(selectedIds) {
 
     showLoading('Converting leads...');
 

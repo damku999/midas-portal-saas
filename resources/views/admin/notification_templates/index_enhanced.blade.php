@@ -563,9 +563,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const ids = getSelectedTemplateIds();
         if (ids.length === 0) return;
 
-        if (confirm(`Activate ${ids.length} template(s)?`)) {
-            bulkUpdateStatus(ids, 1, 'Activating templates...');
-        }
+        showConfirmationModal(
+            'Activate Templates',
+            `Are you sure you want to activate ${ids.length} template(s)?`,
+            'success',
+            function() {
+                bulkUpdateStatus(ids, 1, 'Activating templates...');
+            }
+        );
     });
 
     // Bulk Deactivate
@@ -573,9 +578,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const ids = getSelectedTemplateIds();
         if (ids.length === 0) return;
 
-        if (confirm(`Deactivate ${ids.length} template(s)?`)) {
-            bulkUpdateStatus(ids, 0, 'Deactivating templates...');
-        }
+        showConfirmationModal(
+            'Deactivate Templates',
+            `Are you sure you want to deactivate ${ids.length} template(s)?`,
+            'warning',
+            function() {
+                bulkUpdateStatus(ids, 0, 'Deactivating templates...');
+            }
+        );
     });
 
     // Bulk status update
@@ -648,10 +658,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const ids = getSelectedTemplateIds();
         if (ids.length === 0) return;
 
-        if (!confirm(`PERMANENTLY DELETE ${ids.length} template(s)? This action cannot be undone!`)) {
-            return;
-        }
+        showConfirmationModal(
+            'Permanently Delete Templates',
+            `<strong>Warning:</strong> This will permanently delete ${ids.length} template(s). This action cannot be undone!`,
+            'danger',
+            function() {
+                performBulkDelete(ids);
+            }
+        );
+    });
 
+    function performBulkDelete(ids) {
         showProgress('Deleting templates...', 'Please wait...');
 
         fetch('{{ route("notification-templates.bulk-delete") }}', {
@@ -676,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hideProgress();
             toastr.error('Error: ' + error.message);
         });
-    });
+    }
 
     // Duplicate Template
     document.querySelectorAll('.duplicate-btn').forEach(btn => {

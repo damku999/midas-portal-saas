@@ -222,15 +222,11 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if($device->is_active)
-                                <form action="{{ route('admin.customer-devices.deactivate', $device) }}"
-                                      method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-warning"
-                                            onclick="return confirm('Deactivate this device?')"
+                                    <button type="button" class="btn btn-sm btn-warning"
+                                            onclick="deactivateDeviceInline({{ $device->id }})"
                                             title="Deactivate">
                                         <i class="fas fa-ban"></i>
                                     </button>
-                                </form>
                                 @endif
                             </td>
                         </tr>
@@ -255,23 +251,86 @@
 
 <script>
 function cleanupInvalid() {
-    if (confirm('This will deactivate all devices inactive for 90+ days. Continue?')) {
-        fetch('{{ route("admin.customer-devices.cleanup-invalid") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message || 'Cleanup completed');
-            location.reload();
-        })
-        .catch(error => {
-            alert('Error: ' + error.message);
-        });
-    }
+    showConfirmationModal(
+        'Confirm Cleanup',
+        'This will deactivate all devices inactive for 90+ days. Do you want to continue?',
+        'danger',
+        function() {
+            showLoading('Cleaning up inactive devices...');
+            fetch('{{ route("admin.customer-devices.cleanup-invalid") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                show_notification('success', data.message || 'Cleanup completed');
+                setTimeout(() => location.reload(), 1500);
+            })
+            .catch(error => {
+                hideLoading();
+                show_notification('error', 'Error: ' + error.message);
+            });
+        }
+    );
+}
+
+function deactivateDeviceInline(deviceId) {
+    showConfirmationModal(
+        'Deactivate Device',
+        'Are you sure you want to deactivate this device?',
+        'warning',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/customer-devices/${deviceId}/deactivate`;
+            form.innerHTML = '@csrf';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+// Helper function to show confirmation modal
+function showConfirmationModal(title, message, variant = 'primary', onConfirm = null) {
+    const modalHtml = `
+        <div class="modal fade" id="confirmModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-${variant}" id="confirmActionBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal if any
+    document.getElementById('confirmModal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        modal.hide();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
 }
 </script>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\UserServiceInterface;
+use App\Exceptions\ProtectedRecordException;
 use App\Exports\UserExport;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -70,6 +71,11 @@ class UserService extends BaseService implements UserServiceInterface
 
     public function deleteUser(User $user): bool
     {
+        // Check if user is protected
+        if ($user->isProtected()) {
+            throw ProtectedRecordException::deletionPrevented($user);
+        }
+
         return $this->deleteInTransaction(
             fn (): bool => $this->userRepository->delete($user)
         );
@@ -77,6 +83,14 @@ class UserService extends BaseService implements UserServiceInterface
 
     public function updateStatus(int $userId, int $status): bool
     {
+        // Get the user to check protection
+        $user = User::findOrFail($userId);
+
+        // Check if user is protected and being deactivated
+        if ($user->isProtected() && $status == 0) {
+            throw ProtectedRecordException::statusChangePrevented($user);
+        }
+
         return $this->updateInTransaction(
             fn (): bool => $this->userRepository->updateStatus($userId, $status)
         );

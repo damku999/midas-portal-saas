@@ -353,13 +353,9 @@
                                             </form>
                                         @endif
                                         @if (auth()->user()->hasPermissionTo('lead-activity-delete'))
-                                            <form action="{{ route('leads.activities.destroy', [$lead->id, $activity->id]) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteActivity({{ $lead->id }}, {{ $activity->id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>
@@ -495,13 +491,9 @@
                                             </a>
                                         @endif
                                         @if (auth()->user()->hasPermissionTo('lead-document-delete'))
-                                            <form action="{{ route('leads.documents.destroy', [$lead->id, $document->id]) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteDocument({{ $lead->id }}, {{ $document->id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>
@@ -716,4 +708,75 @@
 @endsection
 
 @section('scripts')
+<script>
+function deleteActivity(leadId, activityId) {
+    showConfirmationModal(
+        'Delete Activity',
+        'Are you sure you want to delete this activity?',
+        'danger',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/leads/${leadId}/activities/${activityId}`;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+function deleteDocument(leadId, documentId) {
+    showConfirmationModal(
+        'Delete Document',
+        'Are you sure you want to delete this document?',
+        'danger',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/leads/${leadId}/documents/${documentId}`;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+// Helper function to show confirmation modal
+function showConfirmationModal(title, message, variant = 'primary', onConfirm = null) {
+    const modalHtml = `
+        <div class="modal fade" id="confirmModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-${variant}" id="confirmActionBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('confirmModal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        modal.hide();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
+}
+</script>
 @endsection

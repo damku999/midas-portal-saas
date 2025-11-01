@@ -274,13 +274,9 @@
                                             </form>
                                         @endif
                                         @if (auth()->user()->hasPermissionTo('lead-activity-delete'))
-                                            <form action="{{ route('leads.activities.destroy', [$lead->id, $activity->id]) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteActivity({{ $lead->id }}, {{ $activity->id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>
@@ -416,13 +412,9 @@
                                             </a>
                                         @endif
                                         @if (auth()->user()->hasPermissionTo('lead-document-delete'))
-                                            <form action="{{ route('leads.documents.destroy', [$lead->id, $document->id]) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteDocument({{ $lead->id }}, {{ $document->id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>
@@ -652,4 +644,37 @@
 @endsection
 
 @section('scripts')
+<script>
+function deleteActivity(leadId, activityId) {
+    showConfirmationModal(
+        'Delete Activity',
+        'Are you sure you want to delete this activity?',
+        'danger',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/leads/${leadId}/activities/${activityId}`;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+function deleteDocument(leadId, documentId) {
+    showConfirmationModal(
+        'Delete Document',
+        'Are you sure you want to delete this document?',
+        'danger',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/leads/${leadId}/documents/${documentId}`;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+</script>
 @endsection

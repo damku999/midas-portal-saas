@@ -10,16 +10,11 @@
                     <i class="fas fa-arrow-left"></i> Back to Logs
                 </a>
                 @if($log->canRetry())
-                    <form action="{{ route('admin.notification-logs.resend', $log) }}"
-                          method="POST"
-                          style="display:inline-block;">
-                        @csrf
-                        <button type="submit"
-                                class="btn btn-warning"
-                                onclick="return confirm('Are you sure you want to resend this notification?')">
-                            <i class="fas fa-redo"></i> Resend Notification
-                        </button>
-                    </form>
+                    <button type="button"
+                            class="btn btn-warning"
+                            onclick="resendNotification({{ $log->id }})">
+                        <i class="fas fa-redo"></i> Resend Notification
+                    </button>
                 @endif
             </div>
 
@@ -296,4 +291,60 @@
         </div>
     </div>
 </div>
+
+<script>
+function resendNotification(logId) {
+    showConfirmationModal(
+        'Resend Notification',
+        'Are you sure you want to resend this notification?',
+        'warning',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/notification-logs/${logId}/resend`;
+            form.innerHTML = '@csrf';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+// Helper function to show confirmation modal
+function showConfirmationModal(title, message, variant = 'primary', onConfirm = null) {
+    const modalHtml = `
+        <div class="modal fade" id="confirmModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-${variant}" id="confirmActionBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('confirmModal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        modal.hide();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
+}
+</script>
 @endsection

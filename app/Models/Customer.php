@@ -7,6 +7,7 @@ use App\Models\Customer\CustomerTrustedDevice;
 use App\Models\Customer\CustomerTwoFactorAuth;
 use App\Traits\Auditable;
 use App\Traits\Customer\HasCustomerTwoFactorAuth;
+use App\Traits\ProtectedRecord;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -162,6 +163,7 @@ class Customer extends Authenticatable
     use HasRoles;
     use LogsActivity;
     use Notifiable;
+    use ProtectedRecord;
     use SoftDeletes;
 
     protected static $logAttributes = ['*'];
@@ -198,6 +200,8 @@ class Customer extends Authenticatable
         'password_reset_token',
         'password_reset_expires_at',
         'notification_preferences',
+        'is_protected',
+        'protected_reason',
     ];
 
     protected $casts = [
@@ -214,6 +218,7 @@ class Customer extends Authenticatable
         'password_reset_sent_at' => 'datetime',
         'password_reset_expires_at' => 'datetime',
         'notification_preferences' => 'array',
+        'is_protected' => 'boolean',
     ];
 
     /**

@@ -314,10 +314,18 @@
      * Clear app settings cache
      */
     function clearCache() {
-        if (!confirm('Are you sure you want to clear the app settings cache?')) {
-            return;
-        }
+        showConfirmationModal(
+            'Clear Cache',
+            'Are you sure you want to clear the app settings cache?',
+            'warning',
+            function() {
+                performClearCache();
+            }
+        );
+    }
 
+    function performClearCache() {
+        showLoading('Clearing cache...');
         $.ajax({
             url: '{{ route("app-settings.clear-cache") }}',
             method: 'POST',
@@ -325,16 +333,18 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
+                hideLoading();
                 if (response.success) {
-                    toastr.success('Cache cleared successfully!');
+                    show_notification('success', 'Cache cleared successfully!');
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    toastr.error(response.message || 'Failed to clear cache');
+                    show_notification('error', response.message || 'Failed to clear cache');
                 }
             },
             error: function(xhr) {
+                hideLoading();
                 const message = xhr.responseJSON?.message || 'Error clearing cache';
-                toastr.error(message);
+                show_notification('error', message);
             }
         });
     }

@@ -22,7 +22,10 @@
       "Bash(find app/ -name \"*.php\" -type f -exec grep -l \"whatsAppSendMessage\\|Mail::to\\|sendSms\" {})",
       "Bash(vendor/bin/pint:*)",
       "Bash(find:*)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(if [ ! -d \"resources/views/errors\" ])",
+      "Bash(then mkdir -p resources/views/errors)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

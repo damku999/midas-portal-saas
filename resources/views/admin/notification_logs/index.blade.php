@@ -169,17 +169,12 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @if($log->canRetry())
-                                                <form action="{{ route('admin.notification-logs.resend', $log) }}"
-                                                      method="POST"
-                                                      style="display:inline-block;">
-                                                    @csrf
-                                                    <button type="submit"
-                                                            class="btn btn-sm btn-warning"
-                                                            title="Resend"
-                                                            onclick="return confirm('Are you sure you want to resend this notification?')">
-                                                        <i class="fas fa-redo"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-warning"
+                                                        title="Resend"
+                                                        onclick="resendSingleNotification({{ $log->id }})">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
                                             @endif
                                         </td>
                                     </tr>
@@ -235,12 +230,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Bulk resend confirmation
     bulkResendForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         const checkedCount = document.querySelectorAll('.log-checkbox:checked').length;
-        if (!confirm(`Are you sure you want to resend ${checkedCount} notification(s)?`)) {
-            e.preventDefault();
-        }
+        showConfirmationModal(
+            'Bulk Resend Notifications',
+            `Are you sure you want to resend ${checkedCount} notification(s)?`,
+            'warning',
+            function() {
+                bulkResendForm.submit();
+            }
+        );
     });
 });
+
+function resendSingleNotification(logId) {
+    showConfirmationModal(
+        'Resend Notification',
+        'Are you sure you want to resend this notification?',
+        'warning',
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/notification-logs/${logId}/resend`;
+            form.innerHTML = '@csrf';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+// Helper function to show confirmation modal
+function showConfirmationModal(title, message, variant = 'primary', onConfirm = null) {
+    const modalHtml = `
+        <div class="modal fade" id="confirmModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-${variant}" id="confirmActionBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('confirmModal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        modal.hide();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
+}
 </script>
 @endpush
 @endsection
