@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -202,6 +203,8 @@ class Customer extends Authenticatable
         'notification_preferences',
         'is_protected',
         'protected_reason',
+        'converted_from_lead_id',
+        'converted_at',
     ];
 
     protected $casts = [
@@ -219,6 +222,7 @@ class Customer extends Authenticatable
         'password_reset_expires_at' => 'datetime',
         'notification_preferences' => 'array',
         'is_protected' => 'boolean',
+        'converted_at' => 'datetime',
     ];
 
     /**
@@ -350,6 +354,14 @@ class Customer extends Authenticatable
     public function familyMembers(): HasMany
     {
         return $this->hasMany(FamilyMember::class, 'family_group_id', 'family_group_id');
+    }
+
+    /**
+     * Get the original lead this customer was converted from.
+     */
+    public function originalLead(): BelongsTo
+    {
+        return $this->belongsTo(Lead::class, 'converted_from_lead_id');
     }
 
     /**

@@ -110,6 +110,18 @@ class Lead extends Model
         return $this->hasMany(LeadDocument::class);
     }
 
+    public function whatsappMessages(): HasMany
+    {
+        return $this->hasMany(LeadWhatsAppMessage::class)->orderBy('created_at', 'desc');
+    }
+
+    public function whatsappCampaigns(): BelongsToMany
+    {
+        return $this->belongsToMany(LeadWhatsAppCampaign::class, 'lead_whatsapp_campaign_leads', 'lead_id', 'campaign_id')
+            ->withPivot(['status', 'sent_at', 'delivered_at', 'read_at', 'error_message', 'retry_count', 'last_retry_at'])
+            ->withTimestamps();
+    }
+
     // Query Scopes
 
     public function scopeActive(Builder $query): Builder

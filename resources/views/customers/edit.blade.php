@@ -9,15 +9,37 @@
         {{-- Alert Messages --}}
         @include('common.alert')
 
+        <!-- Lead Conversion Info -->
+        @if($customer->converted_from_lead_id)
+        <div class="alert alert-info d-flex justify-content-between align-items-center mb-3 mt-2">
+            <div>
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Converted from Lead:</strong> {{ $customer->originalLead->lead_number ?? 'N/A' }}
+                <br>
+                <small class="text-muted">Converted on: {{ $customer->converted_at ? $customer->converted_at->format('d M Y, h:i A') : 'N/A' }}</small>
+            </div>
+            <a href="{{ route('leads.show', $customer->converted_from_lead_id) }}" class="btn btn-info btn-sm">
+                <i class="fas fa-user-tie me-1"></i>View Original Lead
+            </a>
+        </div>
+        @endif
+
         <!-- Customer Edit Form -->
-        <div class="card shadow mb-3 mt-2">
+        <div class="card shadow mb-3 {{ $customer->converted_from_lead_id ? '' : 'mt-2' }}">
             <div class="card-header py-2 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold text-primary">Edit Customer</h6>
-                <a href="{{ route('customers.index') }}" onclick="window.history.go(-1); return false;"
-                    class="btn btn-outline-secondary btn-sm d-flex align-items-center">
-                    <i class="fas fa-chevron-left me-2"></i>
-                    <span>Back</span>
-                </a>
+                <div class="btn-group">
+                    @if($customer->converted_from_lead_id)
+                    <a href="{{ route('leads.show', $customer->converted_from_lead_id) }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-user-tie me-1"></i>View Original Lead
+                    </a>
+                    @endif
+                    <a href="{{ route('customers.index') }}" onclick="window.history.go(-1); return false;"
+                        class="btn btn-outline-secondary btn-sm d-flex align-items-center">
+                        <i class="fas fa-chevron-left me-2"></i>
+                        <span>Back</span>
+                    </a>
+                </div>
             </div>
             <form method="POST" action="{{ route('customers.update', ['customer' => $customer->id]) }}"
                 enctype="multipart/form-data">

@@ -34,6 +34,11 @@
                                 <i class="fas fa-user-check me-1"></i>Bulk Convert
                             </button>
                         @endif
+                        @if (auth()->user()->hasPermissionTo('lead-whatsapp-send'))
+                            <button type="button" class="btn btn-success btn-sm" onclick="showBulkWhatsAppModal()">
+                                <i class="fab fa-whatsapp me-1"></i>Send WhatsApp
+                            </button>
+                        @endif
                         <button type="button" class="btn btn-secondary btn-sm" onclick="clearSelection()">
                             <i class="fas fa-times me-1"></i>Clear Selection
                         </button>
@@ -245,6 +250,58 @@
             </div>
         </div>
 
+        <!-- Bulk WhatsApp Modal -->
+        <div class="modal fade" id="bulkWhatsAppModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form id="bulkWhatsAppForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title"><i class="fab fa-whatsapp me-2"></i>Send Bulk WhatsApp Messages</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Sending to <strong id="whatsappLeadCount">0</strong> selected leads
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Select Template (Optional)</label>
+                                <select class="form-select form-select-sm" id="whatsappTemplateSelect">
+                                    <option value="">-- Type custom message or select template --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold"><span class="text-danger">*</span> Message</label>
+                                <textarea class="form-control" id="whatsappMessage" name="message" rows="6"
+                                          placeholder="Hi {name}, We noticed you're interested in our services..." required></textarea>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">Variables: <code>{name}</code>, <code>{mobile}</code>, <code>{email}</code>, <code>{source}</code></small>
+                                    <small id="whatsappCharCount" class="text-muted">0 / 4096</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Attachment (Optional)</label>
+                                <input type="file" class="form-control" id="whatsappAttachment" name="attachment"
+                                       accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                <small class="text-muted">Max 5MB. Supported: PDF, JPG, PNG, DOC, DOCX</small>
+                            </div>
+
+                            <div id="whatsappLeadIds"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success btn-sm" id="sendWhatsAppBtn">
+                                <i class="fab fa-whatsapp me-1"></i>Send WhatsApp Messages
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 @endsection
@@ -341,5 +398,95 @@ function convertLeadsToCustomers(selectedIds) {
         }
     });
 }
+
+function showBulkWhatsAppModal() {
+    const selectedIds = [];
+    $('.lead-checkbox:checked').each(function() {
+        selectedIds.push($(this).val());
+    });
+
+    if (selectedIds.length === 0) {
+        show_notification('warning', 'Please select at least one lead');
+        return;
+    }
+
+    $('#whatsappLeadCount').text(selectedIds.length);
+    $('#whatsappLeadIds').empty();
+    selectedIds.forEach(function(id) {
+        $('#whatsappLeadIds').append('<input type="hidden" name="lead_ids[]" value="' + id + '">');
+    });
+
+    // Load templates
+    $.get('{{ route("leads.whatsapp.templates.api") }}', function(response) {
+        if (response.success && response.data) {
+            $('#whatsappTemplateSelect').html('<option value="">-- Type custom message or select template --</option>');
+            response.data.forEach(function(template) {
+                $('#whatsappTemplateSelect').append(
+                    `<option value="${template.id}" data-message="${template.message_template}">${template.name} (${template.category})</option>`
+                );
+            });
+        }
+    });
+
+    showModal('bulkWhatsAppModal');
+}
+
+// Template selection
+$('#whatsappTemplateSelect').on('change', function() {
+    const message = $(this).find(':selected').data('message');
+    if (message) {
+        $('#whatsappMessage').val(message);
+        updateWhatsAppCharCount();
+    }
+});
+
+// Character counter
+$('#whatsappMessage').on('input', updateWhatsAppCharCount);
+
+function updateWhatsAppCharCount() {
+    const length = $('#whatsappMessage').val().length;
+    $('#whatsappCharCount').text(`${length} / 4096`);
+    if (length > 4096) {
+        $('#whatsappCharCount').addClass('text-danger');
+    } else {
+        $('#whatsappCharCount').removeClass('text-danger');
+    }
+}
+
+// Submit bulk WhatsApp form
+$('#bulkWhatsAppForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const selectedIds = [];
+    $('.lead-checkbox:checked').each(function() {
+        selectedIds.push($(this).val());
+    });
+    selectedIds.forEach(id => formData.append('lead_ids[]', id));
+
+    $('#sendWhatsAppBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+
+    $.ajax({
+        url: '{{ route("leads.whatsapp.bulk-send") }}',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $('#sendWhatsAppBtn').prop('disabled', false).html('<i class="fab fa-whatsapp me-1"></i>Send WhatsApp Messages');
+            if (response.success) {
+                show_notification('success', response.message || 'WhatsApp messages sent successfully');
+                $('#bulkWhatsAppModal').modal('hide');
+                $('#bulkWhatsAppForm')[0].reset();
+                clearSelection();
+            }
+        },
+        error: function(xhr) {
+            $('#sendWhatsAppBtn').prop('disabled', false).html('<i class="fab fa-whatsapp me-1"></i>Send WhatsApp Messages');
+            const error = xhr.responseJSON?.message || 'Failed to send WhatsApp messages';
+            show_notification('error', error);
+        }
+    });
+});
 </script>
 @endsection

@@ -49,7 +49,7 @@
     <!-- Leads -->
     @if(auth()->check() && auth()->user()->hasPermissionTo('lead-list'))
     @php
-        $leadRoutes = ['leads.*', 'leads.dashboard.*'];
+        $leadRoutes = ['leads.*', 'leads.dashboard.*', 'leads.whatsapp.*'];
         $isLeadActive = collect($leadRoutes)->contains(fn($route) => request()->routeIs($route));
     @endphp
     <div class="nav-item">
@@ -80,6 +80,21 @@
                     <i class="fas fa-plus-circle me-3 fs-6"></i>
                     <span>Create Lead</span>
                 </a>
+                @if(auth()->user()->hasPermissionTo('lead-whatsapp-campaign-list'))
+                <hr class="border-light border-opacity-10 my-1 mx-2">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.whatsapp.campaigns.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.whatsapp.campaigns.index') }}">
+                    <i class="fab fa-whatsapp me-3 fs-6"></i>
+                    <span>WhatsApp Campaigns</span>
+                </a>
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.whatsapp.templates.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.whatsapp.templates.index') }}">
+                    <i class="fas fa-file-alt me-3 fs-6"></i>
+                    <span>WhatsApp Templates</span>
+                </a>
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.whatsapp.analytics') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.whatsapp.analytics') }}">
+                    <i class="fas fa-chart-line me-3 fs-6"></i>
+                    <span>WhatsApp Analytics</span>
+                </a>
+                @endif
             </div>
         </div>
     </div>

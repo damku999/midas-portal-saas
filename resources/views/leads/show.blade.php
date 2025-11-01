@@ -34,6 +34,11 @@
                             <i class="fas fa-times-circle me-1"></i>Mark as Lost
                         </button>
                     @endif
+                    @if (auth()->user()->hasPermissionTo('lead-whatsapp-send') && $lead->mobile_number)
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappModal">
+                            <i class="fab fa-whatsapp me-1"></i>Send WhatsApp
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -639,12 +644,228 @@
         </div>
         @endif
 
+        <!-- WhatsApp Messages Section -->
+        @if (auth()->user()->hasPermissionTo('lead-whatsapp-send') && $lead->mobile_number)
+        <div class="card shadow mb-3">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-primary"><i class="fab fa-whatsapp me-2"></i>WhatsApp Messages</h6>
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappModal">
+                    <i class="fas fa-paper-plane me-1"></i>Send Message
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="whatsappMessagesContainer" class="position-relative" style="min-height: 200px;">
+                    <div class="text-center text-muted py-5">
+                        <i class="fab fa-whatsapp fa-3x mb-3"></i>
+                        <p>Loading WhatsApp message history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send WhatsApp Modal -->
+        <div class="modal fade" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form id="whatsappForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="whatsappModalLabel">
+                                <i class="fab fa-whatsapp me-2"></i>Send WhatsApp Message to {{ $lead->name }}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Mobile Number</label>
+                                <input type="text" class="form-control form-control-sm" value="{{ $lead->mobile_number }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Select Template (Optional)</label>
+                                <select class="form-select form-select-sm" id="whatsappTemplateSelect">
+                                    <option value="">-- Type custom message or select template --</option>
+                                </select>
+                                <small class="text-muted">Available variables: {name}, {mobile}, {email}, {source}, {status}, {product_interest}</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold"><span class="text-danger">*</span> Message</label>
+                                <textarea class="form-control" id="whatsappMessage" name="message" rows="8" placeholder="Type your message here..." required></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <small class="text-muted">Message will be sent to: {{ $lead->mobile_number }}</small>
+                                    <small id="whatsappCharCount" class="text-muted">0 / 4096 characters</small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Attachment (Optional)</label>
+                                <input type="file" class="form-control form-control-sm" id="whatsappAttachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                <small class="text-muted">Supported formats: PDF, JPG, PNG, DOC, DOCX (Max: 5MB)</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success btn-sm" id="whatsappSendBtn">
+                                <i class="fab fa-whatsapp me-1"></i>Send WhatsApp
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
+
     </div>
 
 @endsection
 
 @section('scripts')
 <script>
+// WhatsApp Functions
+@if (auth()->user()->hasPermissionTo('lead-whatsapp-send') && $lead->mobile_number)
+$(document).ready(function() {
+    // Load templates
+    loadWhatsAppTemplates();
+
+    // Load message history
+    loadWhatsAppHistory();
+
+    // Character counter
+    $('#whatsappMessage').on('input', function() {
+        const length = $(this).val().length;
+        $('#whatsappCharCount').text(length + ' / 4096 characters');
+
+        if (length > 4096) {
+            $('#whatsappCharCount').addClass('text-danger');
+        } else {
+            $('#whatsappCharCount').removeClass('text-danger');
+        }
+    });
+
+    // Template selection
+    $('#whatsappTemplateSelect').on('change', function() {
+        const templateId = $(this).val();
+        if (templateId) {
+            $.get('{{ route("leads.whatsapp.templates.api") }}', function(response) {
+                if (response.success) {
+                    const template = response.data.find(t => t.id == templateId);
+                    if (template) {
+                        $('#whatsappMessage').val(template.message_template);
+                        $('#whatsappMessage').trigger('input');
+                    }
+                }
+            });
+        }
+    });
+
+    // Send WhatsApp form
+    $('#whatsappForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const sendBtn = $('#whatsappSendBtn');
+        const originalText = sendBtn.html();
+
+        sendBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Sending...');
+
+        $.ajax({
+            url: '{{ route("leads.whatsapp.send", $lead->id) }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    show_notification('success', 'WhatsApp message sent successfully!');
+                    $('#whatsappModal').modal('hide');
+                    $('#whatsappForm')[0].reset();
+                    $('#whatsappCharCount').text('0 / 4096 characters');
+                    loadWhatsAppHistory(); // Reload history
+                } else {
+                    show_notification('error', response.message || 'Failed to send WhatsApp message');
+                }
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON?.message || 'Failed to send WhatsApp message. Please try again.';
+                show_notification('error', errorMsg);
+            },
+            complete: function() {
+                sendBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+});
+
+function loadWhatsAppTemplates() {
+    $.get('{{ route("leads.whatsapp.templates.api") }}', function(response) {
+        if (response.success && response.data.length > 0) {
+            const select = $('#whatsappTemplateSelect');
+            response.data.forEach(function(template) {
+                if (template.is_active) {
+                    select.append(`<option value="${template.id}">${template.name} (${template.category})</option>`);
+                }
+            });
+        }
+    });
+}
+
+function loadWhatsAppHistory() {
+    $.get('{{ route("leads.whatsapp.history", $lead->id) }}', function(response) {
+        const container = $('#whatsappMessagesContainer');
+
+        if (response.success && response.data.data && response.data.data.length > 0) {
+            let html = '<div class="list-group">';
+
+            response.data.data.forEach(function(msg) {
+                const statusColors = {
+                    'pending': 'secondary',
+                    'sent': 'info',
+                    'delivered': 'success',
+                    'read': 'primary',
+                    'failed': 'danger'
+                };
+                const statusColor = statusColors[msg.status] || 'secondary';
+                const sentBy = msg.sent_by ? msg.sent_by.first_name + ' ' + msg.sent_by.last_name : 'System';
+                const date = new Date(msg.created_at).toLocaleString();
+
+                html += `
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-${statusColor}">${msg.status.toUpperCase()}</span>
+                                <small class="text-muted ms-2">Sent by: ${sentBy}</small>
+                            </div>
+                            <small class="text-muted">${date}</small>
+                        </div>
+                        <p class="mb-1">${msg.message}</p>
+                        ${msg.attachment_path ? `<div class="mt-2"><i class="fas fa-paperclip me-1"></i><small>Attachment included</small></div>` : ''}
+                        ${msg.error_message ? `<div class="mt-2 text-danger"><i class="fas fa-exclamation-triangle me-1"></i><small>${msg.error_message}</small></div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.html(html);
+        } else {
+            container.html(`
+                <div class="text-center text-muted py-5">
+                    <i class="fab fa-whatsapp fa-3x mb-3"></i>
+                    <p>No WhatsApp messages sent yet</p>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappModal">
+                        <i class="fas fa-paper-plane me-1"></i>Send First Message
+                    </button>
+                </div>
+            `);
+        }
+    }).fail(function() {
+        $('#whatsappMessagesContainer').html(`
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                <p>Failed to load message history</p>
+            </div>
+        `);
+    });
+}
+@endif
+
 function deleteActivity(leadId, activityId) {
     showConfirmationModal(
         'Delete Activity',

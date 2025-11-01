@@ -452,6 +452,45 @@ Route::middleware(['auth'])->prefix('leads')->name('leads.')->group(function () 
         Route::delete('/{document}/delete', [LeadDocumentController::class, 'destroy'])->name('destroy');
         Route::get('/type/{type}', [LeadDocumentController::class, 'byType'])->name('by-type');
     });
+
+    // Lead WhatsApp Management
+    Route::prefix('whatsapp')->name('whatsapp.')->group(function () {
+        // Single & Bulk Messaging
+        Route::post('/{lead}/send', [App\Http\Controllers\LeadWhatsAppController::class, 'sendWhatsApp'])->name('send');
+        Route::post('/bulk-send', [App\Http\Controllers\LeadWhatsAppController::class, 'bulkSend'])->name('bulk-send');
+
+        // Message History
+        Route::get('/{lead}/history', [App\Http\Controllers\LeadWhatsAppController::class, 'messageHistory'])->name('history');
+
+        // Templates (API)
+        Route::get('/templates-api', [App\Http\Controllers\LeadWhatsAppController::class, 'templates'])->name('templates.api');
+        Route::get('/templates-api/{id}', [App\Http\Controllers\LeadWhatsAppController::class, 'getTemplate'])->name('templates.get');
+
+        // Templates (CRUD)
+        Route::get('/templates', [App\Http\Controllers\LeadWhatsAppController::class, 'templatesIndex'])->name('templates.index');
+        Route::get('/templates/create', [App\Http\Controllers\LeadWhatsAppController::class, 'createTemplate'])->name('templates.create');
+        Route::post('/templates/store', [App\Http\Controllers\LeadWhatsAppController::class, 'storeTemplate'])->name('templates.store');
+        Route::get('/templates/{id}/edit', [App\Http\Controllers\LeadWhatsAppController::class, 'editTemplate'])->name('templates.edit');
+        Route::put('/templates/{id}/update', [App\Http\Controllers\LeadWhatsAppController::class, 'updateTemplate'])->name('templates.update');
+        Route::delete('/templates/{id}/delete', [App\Http\Controllers\LeadWhatsAppController::class, 'deleteTemplate'])->name('templates.delete');
+
+        // Campaigns
+        Route::prefix('campaigns')->name('campaigns.')->group(function () {
+            Route::get('/', [App\Http\Controllers\LeadWhatsAppController::class, 'campaigns'])->name('index');
+            Route::get('/create', [App\Http\Controllers\LeadWhatsAppController::class, 'createCampaign'])->name('create');
+            Route::post('/store', [App\Http\Controllers\LeadWhatsAppController::class, 'storeCampaign'])->name('store');
+            Route::get('/{id}', [App\Http\Controllers\LeadWhatsAppController::class, 'showCampaign'])->name('show');
+            Route::post('/{id}/execute', [App\Http\Controllers\LeadWhatsAppController::class, 'executeCampaign'])->name('execute');
+            Route::post('/{id}/pause', [App\Http\Controllers\LeadWhatsAppController::class, 'pauseCampaign'])->name('pause');
+            Route::post('/{id}/retry-failed', [App\Http\Controllers\LeadWhatsAppController::class, 'retryFailed'])->name('retry-failed');
+        });
+
+        // Analytics
+        Route::get('/analytics', [App\Http\Controllers\LeadWhatsAppController::class, 'analytics'])->name('analytics');
+
+        // Webhook (public - no auth required)
+        Route::post('/webhook/delivery-status', [App\Http\Controllers\LeadWhatsAppController::class, 'webhookDeliveryStatus'])->name('webhook.delivery-status')->withoutMiddleware(['auth']);
+    });
 });
 
 // Activity Dashboard Routes

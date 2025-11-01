@@ -180,6 +180,21 @@ class UnifiedPermissionsSeeder extends Seeder
             'lead-bulk-convert',
             'lead-bulk-assign',
 
+            // Lead WhatsApp Management (13)
+            'lead-whatsapp-send',
+            'lead-whatsapp-campaign-list',
+            'lead-whatsapp-campaign-create',
+            'lead-whatsapp-campaign-edit',
+            'lead-whatsapp-campaign-delete',
+            'lead-whatsapp-campaign-view',
+            'lead-whatsapp-campaign-start',
+            'lead-whatsapp-campaign-pause',
+            'lead-whatsapp-campaign-cancel',
+            'lead-whatsapp-template-list',
+            'lead-whatsapp-template-create',
+            'lead-whatsapp-template-edit',
+            'lead-whatsapp-template-delete',
+
             // Family Groups (5)
             'family-group-list',
             'family-group-create',
