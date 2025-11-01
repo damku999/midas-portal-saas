@@ -1,31 +1,34 @@
 {
-    "permissions": {
-        "allow": [
-            "mcp__laravel-boost__tinker",
-            "mcp__laravel-boost__get-config",
-            "mcp__laravel-boost__list-routes",
-            "mcp__laravel-boost__read-log-entries",
-            "mcp__laravel-boost__last-error",
-            "Bash(php artisan route:list:*)",
-            "Bash(php artisan:*)",
-            "mcp__laravel-boost__database-schema",
-            "mcp__laravel-boost__database-query",
-            "Bash(cat:*)",
-            "Bash(php:*)",
-            "Bash(dir:*)",
-            "Bash(findstr:*)",
-            "Bash(powershell:*)",
-            "mcp__laravel-boost__search-docs",
-            "Bash(mkdir:*)",
-            "mcp__laravel-boost__application-info",
-            "Bash(mysql:*)",
-            "Bash(find app/ -name \"*.php\" -type f -exec grep -l \"whatsAppSendMessage\\|Mail::to\\|sendSms\" {})",
-            "Bash(vendor/bin/pint:*)",
-            "Bash(find:*)"
-        ],
-        "deny": [],
-        "ask": []
-    },
-    "enableAllProjectMcpServers": true,
-    "enabledMcpjsonServers": ["laravel-boost"]
+  "permissions": {
+    "allow": [
+      "mcp__laravel-boost__tinker",
+      "mcp__laravel-boost__get-config",
+      "mcp__laravel-boost__list-routes",
+      "mcp__laravel-boost__read-log-entries",
+      "mcp__laravel-boost__last-error",
+      "Bash(php artisan route:list:*)",
+      "Bash(php artisan:*)",
+      "mcp__laravel-boost__database-schema",
+      "mcp__laravel-boost__database-query",
+      "Bash(cat:*)",
+      "Bash(php:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell:*)",
+      "mcp__laravel-boost__search-docs",
+      "Bash(mkdir:*)",
+      "mcp__laravel-boost__application-info",
+      "Bash(mysql:*)",
+      "Bash(find app/ -name \"*.php\" -type f -exec grep -l \"whatsAppSendMessage\\|Mail::to\\|sendSms\" {})",
+      "Bash(vendor/bin/pint:*)",
+      "Bash(find:*)",
+      "Bash(del:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }

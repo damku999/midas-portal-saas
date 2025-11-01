@@ -151,6 +151,19 @@ class CustomerController extends AbstractBaseCrudController
     }
 
     /**
+     * Show Customer Details - Redirects to Edit
+     *
+     * @param  Customer  $customer
+     * @return RedirectResponse
+     *
+     * @author Claude Code
+     */
+    public function show(Customer $customer): RedirectResponse
+    {
+        return redirect()->route('customers.edit', $customer->id);
+    }
+
+    /**
      * Edit Customer
      *
      * @param  int  $customer

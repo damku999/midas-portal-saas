@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Events;
+
+use App\Models\Lead;
+use App\Models\Customer;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class LeadConverted
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public Lead $lead;
+    public Customer $customer;
+    public bool $isNewCustomer;
+
+    public function __construct(Lead $lead, Customer $customer, bool $isNewCustomer = true)
+    {
+        $this->lead = $lead;
+        $this->customer = $customer;
+        $this->isNewCustomer = $isNewCustomer;
+    }
+
+    public function broadcastOn(): array
+    {
+        return [
+            new PrivateChannel('leads.' . $this->lead->id),
+        ];
+    }
+}

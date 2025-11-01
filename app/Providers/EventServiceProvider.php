@@ -73,6 +73,23 @@ class EventServiceProvider extends ServiceProvider
             // PDF generation will be handled by dedicated service
         ],
 
+        // Lead Management Events
+        \App\Events\LeadCreated::class => [
+            [\App\Listeners\SendLeadNotification::class, 'handleLeadCreated'],
+        ],
+
+        \App\Events\LeadStatusChanged::class => [
+            [\App\Listeners\SendLeadNotification::class, 'handleLeadStatusChanged'],
+        ],
+
+        \App\Events\LeadConverted::class => [
+            [\App\Listeners\SendLeadNotification::class, 'handleLeadConverted'],
+        ],
+
+        \App\Events\LeadAssigned::class => [
+            [\App\Listeners\SendLeadNotification::class, 'handleLeadAssigned'],
+        ],
+
         // Legacy Events (to be phased out)
         \App\Events\CustomerCreated::class => [
             \App\Listeners\SendWelcomeEmail::class,

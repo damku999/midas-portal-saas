@@ -22,6 +22,9 @@ class UnifiedPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
+            // Dashboard (1)
+            'dashboard-view',
+
             // User Management (4)
             'user-list',
             'user-create',
@@ -153,6 +156,43 @@ class UnifiedPermissionsSeeder extends Seeder
             'customer-device-view',
             'customer-device-deactivate',
             'customer-device-cleanup',
+
+            // Lead Management (21)
+            'lead-list',
+            'lead-create',
+            'lead-edit',
+            'lead-delete',
+            'lead-view',
+            'lead-assign',
+            'lead-status-change',
+            'lead-convert',
+            'lead-mark-lost',
+            'lead-activity-create',
+            'lead-activity-edit',
+            'lead-activity-delete',
+            'lead-activity-complete',
+            'lead-document-upload',
+            'lead-document-download',
+            'lead-document-delete',
+            'lead-dashboard',
+            'lead-statistics',
+            'lead-export',
+            'lead-bulk-convert',
+            'lead-bulk-assign',
+
+            // Family Groups (5)
+            'family-group-list',
+            'family-group-create',
+            'family-group-edit',
+            'family-group-delete',
+            'family-group-view',
+
+            // WhatsApp Marketing (5)
+            'whatsapp-marketing-list',
+            'whatsapp-marketing-create',
+            'whatsapp-marketing-edit',
+            'whatsapp-marketing-delete',
+            'whatsapp-marketing-send',
         ];
 
         // Create all permissions

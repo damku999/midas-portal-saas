@@ -167,7 +167,9 @@
                     return this.each(function() {
                         if (!$(this).hasClass('flatpickr-input')) {
                             var flatpickrOptions = $.extend({
-                                dateFormat: 'd/m/Y',
+                                altInput: true,
+                                altFormat: 'd/m/Y',
+                                dateFormat: 'Y-m-d',
                                 allowInput: true
                             }, options || {});
                             $(this).flatpickr(flatpickrOptions);
@@ -177,8 +179,11 @@
             }
 
             // Simple Clean Date Picker
+            // Display format: DD/MM/YYYY for user, Submit format: YYYY-MM-DD for Laravel
             $('.datepicker').flatpickr({
-                dateFormat: 'd/m/Y',
+                altInput: true,
+                altFormat: 'd/m/Y',  // Display format for user
+                dateFormat: 'Y-m-d',  // Submit format for Laravel
                 allowInput: true
             });
             

@@ -80,7 +80,7 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
             'notification_test_phone' => [
-                'value' => '919727793123',
+                'value' => '919800071314',
                 'type' => 'string',
                 'description' => 'Default Test Phone Number for Notification Testing',
                 'is_encrypted' => false,
@@ -100,7 +100,7 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $whatsappSettings = [
             'whatsapp_sender_id' => [
-                'value' => '919727793123',
+                'value' => '919800071314',
                 'type' => 'string',
                 'description' => 'WhatsApp API Sender ID',
                 'is_encrypted' => false,
@@ -132,31 +132,31 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
             'mail_from_address' => [
-                'value' => env('MAIL_FROM_ADDRESS', 'noreply@insuranceadmin.com'),
+                'value' => env('MAIL_FROM_ADDRESS', 'support@midastech.in'),
                 'type' => 'email',
                 'description' => 'Default From Email Address',
                 'is_encrypted' => false,
             ],
             'mail_from_name' => [
-                'value' => env('MAIL_FROM_NAME', env('APP_NAME', 'Insurance Admin Panel')),
+                'value' => env('MAIL_FROM_NAME', env('APP_NAME', 'MIDAS Portal')),
                 'type' => 'string',
                 'description' => 'Default From Name',
                 'is_encrypted' => false,
             ],
             'mail_smtp_host' => [
-                'value' => env('MAIL_HOST', 'smtp.mailtrap.io'),
+                'value' => env('MAIL_HOST', 'smtp.hostinger.com'),
                 'type' => 'string',
                 'description' => 'SMTP Server Host',
                 'is_encrypted' => false,
             ],
             'mail_smtp_port' => [
-                'value' => env('MAIL_PORT', '2525'),
+                'value' => env('MAIL_PORT', '465'),
                 'type' => 'numeric',
                 'description' => 'SMTP Server Port (25, 465, 587, 2525)',
                 'is_encrypted' => false,
             ],
             'mail_smtp_encryption' => [
-                'value' => env('MAIL_ENCRYPTION', 'tls'),
+                'value' => env('MAIL_ENCRYPTION', 'ssl'),
                 'type' => 'string',
                 'description' => 'SMTP Encryption (tls, ssl, or null)',
                 'is_encrypted' => false,
@@ -226,19 +226,19 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
             'company_website' => [
-                'value' => 'https://parthrawal.in',
+                'value' => 'https://webmonks.in',
                 'type' => 'url',
                 'description' => 'Company Website URL',
                 'is_encrypted' => false,
             ],
             'company_phone' => [
-                'value' => '+91 97277 93123',
+                'value' => '+91 80000 71314',
                 'type' => 'string',
                 'description' => 'Company Contact Phone Number (display format)',
                 'is_encrypted' => false,
             ],
             'company_phone_whatsapp' => [
-                'value' => '919727793123',
+                'value' => '919800071314',
                 'type' => 'string',
                 'description' => 'WhatsApp Phone Number (API format without + or spaces)',
                 'is_encrypted' => false,

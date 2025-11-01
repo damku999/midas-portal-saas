@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AdminSeeder extends Seeder
 {
@@ -30,5 +31,15 @@ class AdminSeeder extends Seeder
             'created_by' => 1,
             'updated_by' => 1,
         ]);
+
+        // Assign Admin role to user using Spatie Permission system
+        $adminRole = Role::where('name', 'Admin')->first();
+
+        if ($adminRole) {
+            $user->assignRole($adminRole);
+            $this->command->info('Admin role assigned to user: ' . $user->email);
+        } else {
+            $this->command->warn('Admin role not found. User created without role assignment.');
+        }
     }
 }

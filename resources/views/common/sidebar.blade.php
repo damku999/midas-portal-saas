@@ -7,36 +7,83 @@
     </a>
 
     <!-- Dashboard -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('dashboard-view'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('home') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('home') }}" data-tooltip="Dashboard">
             <i class="fas fa-tachometer-alt me-3"></i>
             <span>Dashboard</span>
         </a>
     </div>
+    @endif
 
     <!-- Customers -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('customer-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('customers.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('customers.index') }}" data-tooltip="Customers">
             <i class="fas fa-users me-3"></i>
             <span>Customers</span>
         </a>
     </div>
+    @endif
 
     <!-- Customer Insurances -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('customer-insurance-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('customer_insurances.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('customer_insurances.index') }}" data-tooltip="Customer Insurances">
             <i class="fas fa-shield-alt me-3"></i>
             <span>Customer Insurances</span>
         </a>
     </div>
+    @endif
 
     <!-- Quotations -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('quotation-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('quotations.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('quotations.index') }}" data-tooltip="Quotations">
             <i class="fas fa-file-invoice me-3"></i>
             <span>Quotations</span>
         </a>
     </div>
+    @endif
+
+    <!-- Leads -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('lead-list'))
+    @php
+        $leadRoutes = ['leads.*', 'leads.dashboard.*'];
+        $isLeadActive = collect($leadRoutes)->contains(fn($route) => request()->routeIs($route));
+    @endphp
+    <div class="nav-item">
+        <a class="nav-link d-flex align-items-center justify-content-between py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ $isLeadActive ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}"
+           href="#leadsSubmenu"
+           data-bs-toggle="collapse"
+           role="button"
+           data-tooltip="Leads"
+           aria-expanded="{{ $isLeadActive ? 'true' : 'false' }}"
+           aria-controls="leadsSubmenu">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-user-plus me-3"></i>
+                <span>Leads</span>
+            </div>
+            <i class="fas fa-chevron-{{ $isLeadActive ? 'up' : 'down' }}"></i>
+        </a>
+        <div class="collapse {{ $isLeadActive ? 'show' : '' }}" id="leadsSubmenu">
+            <div class="ms-4">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.dashboard.index') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.dashboard.index') }}">
+                    <i class="fas fa-chart-line me-3 fs-6"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.index') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.index') }}">
+                    <i class="fas fa-list me-3 fs-6"></i>
+                    <span>All Leads</span>
+                </a>
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('leads.create') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('leads.create') }}">
+                    <i class="fas fa-plus-circle me-3 fs-6"></i>
+                    <span>Create Lead</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Claims -->
     @if(auth()->check() && auth()->user()->hasPermissionTo('claim-list'))
@@ -49,33 +96,40 @@
     @endif
 
     <!-- WhatsApp Marketing -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('whatsapp-marketing-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('marketing.whatsapp.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('marketing.whatsapp.index') }}" data-tooltip="WhatsApp Marketing">
             <i class="fab fa-whatsapp me-3"></i>
             <span>WhatsApp Marketing</span>
         </a>
     </div>
+    @endif
 
     <!-- Family Groups -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('family-group-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('family_groups.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('family_groups.index') }}" data-tooltip="Family Groups">
             <i class="fas fa-users-cog me-3"></i>
             <span>Family Groups</span>
         </a>
     </div>
+    @endif
 
     <!-- Business Reports -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('report-list'))
     <div class="nav-item">
         <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('reports.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('reports.index') }}" data-tooltip="Reports">
             <i class="fas fa-chart-bar me-3"></i>
             <span>Reports</span>
         </a>
     </div>
+    @endif
 
     <!-- Divider -->
     <hr class="border-light border-opacity-25 my-2 mx-3">
 
     <!-- NOTIFICATIONS SUBMENU -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('notification-template-list'))
     @php
         $notificationRoutes = ['notification-templates.*', 'admin.notification-logs.*', 'admin.customer-devices.*'];
         $isNotificationActive = collect($notificationRoutes)->contains(fn($route) => request()->routeIs($route));
@@ -119,13 +173,15 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Divider -->
     <hr class="border-light border-opacity-25 my-2 mx-3">
 
     <!-- MASTER DATA SUBMENU -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('relationship_manager-list'))
     @php
-        $masterRoutes = ['relationship_managers.*', 'reference_users.*', 'insurance_companies.*', 'brokers.*', 'addon-covers.*', 'policy_type.*', 'premium_type.*', 'fuel_type.*', 'branches.*'];
+        $masterRoutes = ['relationship_managers.*', 'reference_users.*', 'insurance_companies.*', 'brokers.*', 'addon-covers.*', 'policy_type.*', 'premium_type.*', 'fuel_type.*', 'branches.*', 'lead-sources.*', 'lead-statuses.*'];
         $isMasterActive = collect($masterRoutes)->contains(fn($route) => request()->routeIs($route));
     @endphp
     <div class="nav-item">
@@ -180,14 +236,25 @@
                     <i class="fas fa-map-marker-alt me-3 fs-6"></i>
                     <span>Branches</span>
                 </a>
+                {{-- TODO: Implement Lead Source and Status Controllers --}}
+                {{-- <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('lead-sources.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('lead-sources.index') }}">
+                    <i class="fas fa-tag me-3 fs-6"></i>
+                    <span>Lead Sources</span>
+                </a>
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('lead-statuses.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('lead-statuses.index') }}">
+                    <i class="fas fa-tasks me-3 fs-6"></i>
+                    <span>Lead Statuses</span>
+                </a> --}}
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Divider -->
     <hr class="border-light border-opacity-25 my-2 mx-3">
 
     <!-- USERS & ADMINISTRATION SUBMENU -->
+    @if(auth()->check() && auth()->user()->hasPermissionTo('user-list'))
     @php
         $adminRoutes = ['users.*', 'roles.*', 'permissions.*', 'app-settings.*'];
         $isAdminActive = collect($adminRoutes)->contains(fn($route) => request()->routeIs($route));
@@ -227,6 +294,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 
     <!-- SYSTEM LOGS (Conditional Visibility for System Admins only) -->

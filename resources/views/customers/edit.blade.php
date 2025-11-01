@@ -215,73 +215,145 @@
                 </div>
             </form>
         </div>
+
         @if (auth()->user()->hasPermissionTo('customer-insurance-list'))
-            <div class="card-body table-responsive p-0">
-                <table class="table table-head-fixed text-nowrap">
-                    <thead>
-                        <tr>
-                            <th>Added Date</th>
-                            <th>Issue Date</th>
-                            <th>Expired Date</th>
-                            <th>Policy Number</th>
-                            <th>Registration Number</th>
-                            <th>Premium Type</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!empty($customer_insurances))
-                            @foreach ($customer_insurances as $customer_insurance)
-                                <tr>
-                                    <td>{{ formatDateForUi($customer_insurance->created_at) }}</td>
-                                    <td>{{ formatDateForUi($customer_insurance->issue_date) }}</td>
-                                    <td>{{ formatDateForUi($customer_insurance->expired_date) }}
-                                    </td>
-                                    <td>{{ $customer_insurance->policy_no }}</td>
-                                    <td>{{ $customer_insurance->registration_no }}</td>
-                                    <td>{{ $customer_insurance->premiumType->name }}</td>
-                                    <td class="text-center">
-                                        @if (auth()->user()->hasPermissionTo('customer-insurance-edit'))
-                                            <a href="{{ route('customer_insurances.edit', ['customer_insurance' => $customer_insurance->id]) }}"
-                                                class="btn btn-primary m-2">
-                                                <i class="fa fa-pen"></i>
-                                            </a> &nbsp;
-                                        @endif
-                                        @if (auth()->user()->hasPermissionTo('customer-insurance-delete'))
-                                            @if ($customer_insurance->status == 0)
-                                                <a href="{{ route('customer_insurances.status', ['customer_insurance_id' => $customer_insurance->id, 'status' => 1]) }}"
-                                                    class="btn btn-success m-2">
-                                                    <i class="fa fa-check"></i>
-                                                </a>
-                                            @elseif ($customer_insurance->status == 1)
-                                                <a href="{{ route('customer_insurances.status', ['customer_insurance_id' => $customer_insurance->id, 'status' => 0]) }}"
-                                                    class="btn btn-danger m-2">
-                                                    <i class="fa fa-ban"></i>
-                                                </a>
-                                            @endif
-                                        @endif
-                                        @if ($customer_insurance->policy_document_path)
-                                            <a href="{{ asset('storage/' . $customer_insurance->policy_document_path) }}"
-                                                class="btn btn-info m-2" target="__blank"><i
-                                                    class="fa fa-download"></i></a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @else
-                            <tr>
-                                <td colspan="6" class="center">No Record found.</td>
-                            </tr>
-                        @endif
-                    </tbody>
-                </table>
+        <!-- Insurance Policies -->
+        <div class="card shadow mb-3">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-shield-alt me-2"></i>Insurance Policies</h6>
+                <button type="button" class="btn btn-secondary btn-sm" id="toggleInactivePolicies" onclick="loadInactivePolicies()">
+                    <i class="fas fa-eye me-1"></i>Load Inactive Policies
+                </button>
             </div>
+            <div class="card-body">
+                @php
+                    $activePolicies = $customer_insurances->where('status', 1);
+                    $inactivePolicies = $customer_insurances->where('status', 0);
+                @endphp
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Added Date</th>
+                                <th>Issue Date</th>
+                                <th>Expired Date</th>
+                                <th>Policy Number</th>
+                                <th>Registration Number</th>
+                                <th>Premium Type</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activePoliciesTable">
+                            @if ($activePolicies->count() > 0)
+                                @foreach ($activePolicies as $customer_insurance)
+                                    <tr>
+                                        <td>{{ formatDateForUi($customer_insurance->created_at) }}</td>
+                                        <td>{{ formatDateForUi($customer_insurance->issue_date) }}</td>
+                                        <td>{{ formatDateForUi($customer_insurance->expired_date) }}</td>
+                                        <td>{{ $customer_insurance->policy_no }}</td>
+                                        <td>{{ $customer_insurance->registration_no }}</td>
+                                        <td>{{ $customer_insurance->premiumType->name }}</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                @if (auth()->user()->hasPermissionTo('customer-insurance-edit'))
+                                                    <a href="{{ route('customer_insurances.edit', ['customer_insurance' => $customer_insurance->id]) }}"
+                                                        class="btn btn-primary btn-sm" title="Edit Policy">
+                                                        <i class="fa fa-pen"></i>
+                                                    </a>
+                                                @endif
+                                                @if (auth()->user()->hasPermissionTo('customer-insurance-delete'))
+                                                    <a href="{{ route('customer_insurances.status', ['customer_insurance_id' => $customer_insurance->id, 'status' => 0]) }}"
+                                                        class="btn btn-danger btn-sm" title="Deactivate">
+                                                        <i class="fa fa-ban"></i>
+                                                    </a>
+                                                @endif
+                                                @if ($customer_insurance->policy_document_path)
+                                                    <a href="{{ asset('storage/' . $customer_insurance->policy_document_path) }}"
+                                                        class="btn btn-info btn-sm" target="_blank" title="Download Document">
+                                                        <i class="fa fa-download"></i>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="8" class="text-center">No active policies found.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                        <tbody id="inactivePoliciesTable" style="display: none;">
+                            @if ($inactivePolicies->count() > 0)
+                                @foreach ($inactivePolicies as $customer_insurance)
+                                    <tr class="table-secondary">
+                                        <td>{{ formatDateForUi($customer_insurance->created_at) }}</td>
+                                        <td>{{ formatDateForUi($customer_insurance->issue_date) }}</td>
+                                        <td>{{ formatDateForUi($customer_insurance->expired_date) }}</td>
+                                        <td>{{ $customer_insurance->policy_no }}</td>
+                                        <td>{{ $customer_insurance->registration_no }}</td>
+                                        <td>{{ $customer_insurance->premiumType->name }}</td>
+                                        <td><span class="badge bg-danger">Inactive</span></td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                @if (auth()->user()->hasPermissionTo('customer-insurance-edit'))
+                                                    <a href="{{ route('customer_insurances.edit', ['customer_insurance' => $customer_insurance->id]) }}"
+                                                        class="btn btn-primary btn-sm" title="Edit Policy">
+                                                        <i class="fa fa-pen"></i>
+                                                    </a>
+                                                @endif
+                                                @if (auth()->user()->hasPermissionTo('customer-insurance-delete'))
+                                                    <a href="{{ route('customer_insurances.status', ['customer_insurance_id' => $customer_insurance->id, 'status' => 1]) }}"
+                                                        class="btn btn-success btn-sm" title="Activate">
+                                                        <i class="fa fa-check"></i>
+                                                    </a>
+                                                @endif
+                                                @if ($customer_insurance->policy_document_path)
+                                                    <a href="{{ asset('storage/' . $customer_insurance->policy_document_path) }}"
+                                                        class="btn btn-info btn-sm" target="_blank" title="Download Document">
+                                                        <i class="fa fa-download"></i>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr class="table-secondary">
+                                    <td colspan="8" class="text-center">No inactive policies found.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         @endif
     </div>
 
 @endsection
 @section('scripts')
     <script>
+        // Toggle inactive policies visibility
+        function loadInactivePolicies() {
+            const inactivePoliciesTable = document.getElementById('inactivePoliciesTable');
+            const toggleButton = document.getElementById('toggleInactivePolicies');
+
+            if (inactivePoliciesTable.style.display === 'none') {
+                inactivePoliciesTable.style.display = '';
+                toggleButton.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Hide Inactive Policies';
+                toggleButton.classList.remove('btn-secondary');
+                toggleButton.classList.add('btn-warning');
+            } else {
+                inactivePoliciesTable.style.display = 'none';
+                toggleButton.innerHTML = '<i class="fas fa-eye me-1"></i>Load Inactive Policies';
+                toggleButton.classList.remove('btn-warning');
+                toggleButton.classList.add('btn-secondary');
+            }
+        }
+
         // Get the customer type select element
         const customerTypeSelect = document.getElementById('customerType');
 

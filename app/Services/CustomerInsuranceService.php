@@ -158,7 +158,7 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
      *
      * Returns comprehensive validation rules covering:
      * - Required relationships: customer, branch, broker, insurance company
-     * - Date fields: issue, expiry, start, TP expiry, maturity dates (d/m/Y format)
+     * - Date fields: issue, expiry, start, TP expiry, maturity dates (Y-m-d format - matches Flatpickr submission)
      * - Premium components: net, OD, TP, GST (CGST/SGST split)
      * - Commission breakdown: my/transfer/reference percentages and amounts
      * - Vehicle-specific: registration number, make/model, fuel type, NCB
@@ -177,11 +177,11 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
             'policy_type_id' => 'required|exists:policy_types,id',
             'fuel_type_id' => 'nullable|exists:fuel_types,id',
             'premium_type_id' => 'required|exists:premium_types,id',
-            'issue_date' => 'required|date_format:d/m/Y',
-            'expired_date' => 'required|date_format:d/m/Y',
-            'start_date' => 'required|date_format:d/m/Y',
-            'tp_expiry_date' => 'nullable|date_format:d/m/Y',
-            'maturity_date' => 'nullable|date_format:d/m/Y',
+            'issue_date' => 'required|date_format:Y-m-d',
+            'expired_date' => 'required|date_format:Y-m-d',
+            'start_date' => 'required|date_format:Y-m-d',
+            'tp_expiry_date' => 'nullable|date_format:Y-m-d',
+            'maturity_date' => 'nullable|date_format:Y-m-d',
             'policy_no' => 'required',
             'net_premium' => 'nullable|numeric|min:0',
             'premium_amount' => 'nullable|numeric|min:0',
@@ -302,7 +302,7 @@ class CustomerInsuranceService extends BaseService implements CustomerInsuranceS
      *
      * This method handles data transformation for policy storage:
      * - Extracts only permitted fields from request
-     * - Converts date fields from d/m/Y display format to storage format
+     * - Date fields are already in Y-m-d format from Flatpickr (no conversion needed)
      * - Converts empty numeric strings to null (database compatibility)
      * - Preserves all premium, commission, and policy detail fields
      *

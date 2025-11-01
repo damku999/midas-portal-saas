@@ -21,6 +21,7 @@ use App\Contracts\Repositories\ReferenceUserRepositoryInterface;
 use App\Contracts\Repositories\RelationshipManagerRepositoryInterface;
 use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Repositories\Contracts\LeadRepositoryInterface;
 use App\Contracts\Services\AddonCoverServiceInterface;
 use App\Contracts\Services\BranchServiceInterface;
 use App\Contracts\Services\BrokerServiceInterface;
@@ -60,6 +61,7 @@ use App\Repositories\ReferenceUserRepository;
 use App\Repositories\RelationshipManagerRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\LeadRepository;
 use App\Services\AddonCoverService;
 use App\Services\BranchService;
 use App\Services\BrokerService;
@@ -109,6 +111,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(RelationshipManagerRepositoryInterface::class, RelationshipManagerRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(LeadRepositoryInterface::class, LeadRepository::class);
 
         // Service bindings
         $this->app->bind(AddonCoverServiceInterface::class, AddonCoverService::class);

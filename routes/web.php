@@ -9,6 +9,10 @@ use App\Http\Controllers\CustomerInsuranceController;
 use App\Http\Controllers\FuelTypeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsuranceCompanyController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadActivityController;
+use App\Http\Controllers\LeadDocumentController;
+use App\Http\Controllers\LeadDashboardController;
 use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PolicyTypeController;
 use App\Http\Controllers\PremiumTypeController;
@@ -384,6 +388,77 @@ Route::middleware('auth')->prefix('security')->name('security.')->group(function
     Route::get('/api/report', [App\Http\Controllers\SecurityController::class, 'generateReport'])->name('api.report');
     Route::get('/api/alerts', [App\Http\Controllers\SecurityController::class, 'alerts'])->name('api.alerts');
     Route::get('/api/metrics-widget', [App\Http\Controllers\SecurityController::class, 'metricsWidget'])->name('api.metrics-widget');
+});
+
+// Lead Dashboard & Analytics
+Route::middleware(['auth'])->prefix('leads/dashboard')->name('leads.dashboard.')->group(function () {
+    Route::get('/', [LeadDashboardController::class, 'index'])->name('index');
+    Route::get('/by-status', [LeadDashboardController::class, 'leadsByStatus'])->name('by-status');
+    Route::get('/by-source', [LeadDashboardController::class, 'leadsBySource'])->name('by-source');
+    Route::get('/by-priority', [LeadDashboardController::class, 'leadsByPriority'])->name('by-priority');
+    Route::get('/trend', [LeadDashboardController::class, 'leadTrend'])->name('trend');
+    Route::get('/top-performers', [LeadDashboardController::class, 'topPerformers'])->name('top-performers');
+    Route::get('/conversion-funnel', [LeadDashboardController::class, 'conversionFunnel'])->name('conversion-funnel');
+    Route::get('/activity-stats', [LeadDashboardController::class, 'activityStats'])->name('activity-stats');
+    Route::get('/lost-reasons', [LeadDashboardController::class, 'lostReasonsAnalysis'])->name('lost-reasons');
+    Route::get('/aging-report', [LeadDashboardController::class, 'leadAgingReport'])->name('aging-report');
+    Route::get('/export', [LeadDashboardController::class, 'export'])->name('export');
+});
+
+// Leads Management
+Route::middleware(['auth'])->prefix('leads')->name('leads.')->group(function () {
+    // Main CRUD routes
+    Route::get('/', [LeadController::class, 'index'])->name('index');
+    Route::get('/create', [LeadController::class, 'create'])->name('create');
+    Route::post('/store', [LeadController::class, 'store'])->name('store');
+    Route::get('/show/{lead}', [LeadController::class, 'show'])->name('show');
+    Route::get('/edit/{lead}', [LeadController::class, 'edit'])->name('edit');
+    Route::put('/update/{lead}', [LeadController::class, 'update'])->name('update');
+    Route::delete('/delete/{lead}', [LeadController::class, 'destroy'])->name('destroy');
+
+    // Lead workflow actions
+    Route::post('/{lead}/update-status', [LeadController::class, 'updateStatus'])->name('update-status');
+    Route::post('/{lead}/assign', [LeadController::class, 'assign'])->name('assign');
+    Route::post('/{lead}/convert-auto', [LeadController::class, 'convertAuto'])->name('convert-auto');
+    Route::post('/{lead}/convert', [LeadController::class, 'convert'])->name('convert');
+    Route::post('/{lead}/mark-as-lost', [LeadController::class, 'markAsLost'])->name('mark-as-lost');
+
+    // Bulk operations
+    Route::post('/bulk-convert', [LeadController::class, 'bulkConvert'])->name('bulk-convert');
+    Route::post('/bulk-assign', [LeadController::class, 'bulkAssign'])->name('bulk-assign');
+
+    // Export
+    Route::get('/export', [LeadController::class, 'export'])->name('export');
+
+    // Statistics
+    Route::get('/statistics', [LeadController::class, 'statistics'])->name('statistics');
+    Route::get('/conversion-stats', [LeadController::class, 'conversionStats'])->name('conversion-stats');
+
+    // Lead Activities
+    Route::prefix('{lead}/activities')->name('activities.')->group(function () {
+        Route::get('/', [LeadActivityController::class, 'index'])->name('index');
+        Route::post('/store', [LeadActivityController::class, 'store'])->name('store');
+        Route::put('/{activity}/update', [LeadActivityController::class, 'update'])->name('update');
+        Route::post('/{activity}/complete', [LeadActivityController::class, 'complete'])->name('complete');
+        Route::delete('/{activity}/delete', [LeadActivityController::class, 'destroy'])->name('destroy');
+    });
+
+    // Lead Documents
+    Route::prefix('{lead}/documents')->name('documents.')->group(function () {
+        Route::get('/', [LeadDocumentController::class, 'index'])->name('index');
+        Route::post('/store', [LeadDocumentController::class, 'store'])->name('store');
+        Route::get('/{document}/download', [LeadDocumentController::class, 'download'])->name('download');
+        Route::get('/{document}/view', [LeadDocumentController::class, 'view'])->name('view');
+        Route::delete('/{document}/delete', [LeadDocumentController::class, 'destroy'])->name('destroy');
+        Route::get('/type/{type}', [LeadDocumentController::class, 'byType'])->name('by-type');
+    });
+});
+
+// Activity Dashboard Routes
+Route::middleware(['auth'])->prefix('activities')->name('activities.')->group(function () {
+    Route::get('/upcoming', [LeadActivityController::class, 'upcoming'])->name('upcoming');
+    Route::get('/overdue', [LeadActivityController::class, 'overdue'])->name('overdue');
+    Route::get('/today', [LeadActivityController::class, 'today'])->name('today');
 });
 
 // API routes removed - web application only

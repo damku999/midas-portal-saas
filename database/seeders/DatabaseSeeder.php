@@ -29,6 +29,10 @@ class DatabaseSeeder extends Seeder
             FuelTypesSeeder::class,
             InsuranceCompaniesSeeder::class,
 
+            // Lead Management master data
+            LeadSourceSeeder::class,
+            LeadStatusSeeder::class,
+
             // Master data seeders for business operations
             BranchesSeeder::class,
             BrokersSeeder::class,
