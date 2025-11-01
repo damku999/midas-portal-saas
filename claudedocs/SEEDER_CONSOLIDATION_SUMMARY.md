@@ -1,5 +1,12 @@
 # Seeder Consolidation & Sidebar Enhancement Summary
 
+> 📝 **TECHNICAL NOTE** - Seeder structure reference
+>
+> This document describes the database seeder consolidation and organization strategy.
+> Keep for reference when understanding seeder structure, data setup workflows, or adding new seeders.
+
+---
+
 **Date**: 2025-11-02
 **Task**: Consolidate all permission seeders into single file and enhance sidebar navigation
 

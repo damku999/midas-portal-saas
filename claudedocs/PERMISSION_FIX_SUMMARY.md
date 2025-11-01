@@ -1,5 +1,12 @@
 # Permission System Fix Summary
 
+> 📝 **TECHNICAL NOTE** - Permission configuration reference
+>
+> This document describes permission system configuration and middleware fixes.
+> Keep for reference when configuring role-based access control or troubleshooting authorization issues.
+
+---
+
 **Date**: 2025-11-02
 **Issue**: 403 Permission Denied errors after `migrate:fresh --seed`
 

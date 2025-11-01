@@ -495,6 +495,117 @@ The `email` column index was removed from the leads table due to MySQL key lengt
 
 ---
 
+---
+
+## 🚀 Quick Start Guide
+
+### Setup (5 Minutes)
+
+**Step 1: Run Migrations**
+```bash
+cd C:\xampp\htdocs\webmonks\midas-portal
+php artisan migrate:fresh --seed
+```
+
+**Step 2: Test in Browser**
+1. Navigate to: `http://localhost/midas-portal/leads`
+2. Click "Create New Lead"
+3. Fill in basic info → Submit
+4. Lead number auto-generated (e.g., LD-202511-0001)
+
+**Step 3: Test Dashboard**
+Navigate to: `http://localhost/midas-portal/leads/dashboard`
+
+### Common Code Examples
+
+#### Create a Lead
+```php
+use App\Services\LeadService;
+
+$leadService = app(LeadService::class);
+$lead = $leadService->createLead([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'mobile_number' => '9876543210',
+    'source_id' => 1,
+    'status_id' => 1,
+    'priority' => 'high',
+    'assigned_to' => auth()->id(),
+]);
+```
+
+#### Convert Lead to Customer
+```php
+use App\Services\LeadConversionService;
+
+$conversionService = app(LeadConversionService::class);
+$result = $conversionService->convertLeadToCustomer($leadId, [
+    'type' => 'Retail',
+    'conversion_notes' => 'Converted after 3 follow-ups',
+]);
+```
+
+#### Query Examples
+```php
+// Follow-up due leads
+$leads = Lead::followUpDue()->with(['assignedUser', 'status'])->get();
+
+// Overdue leads for user
+$overdue = Lead::where('assigned_to', auth()->id())->followUpOverdue()->get();
+
+// Converted this month
+$converted = Lead::converted()->whereMonth('converted_at', now()->month)->get();
+```
+
+### Frontend Integration
+
+**Dashboard API Endpoints**:
+- `/leads/dashboard/by-status` → Pie/Donut chart
+- `/leads/dashboard/by-source` → Bar chart
+- `/leads/dashboard/trend` → Line chart (monthly)
+- `/leads/dashboard/top-performers` → Leaderboard
+
+### Notification Setup
+
+**Configure Queue** (Optional):
+```bash
+php artisan queue:work
+```
+
+**Schedule Reminders** in `app/Console/Kernel.php`:
+```php
+$schedule->command('leads:send-follow-up-reminders')->dailyAt('09:00');
+```
+
+### Performance Tips
+
+**Eager Load Relationships**:
+```php
+// Good
+$leads = Lead::with(['source', 'status', 'assignedUser'])->get();
+
+// Bad (N+1)
+$leads = Lead::all(); // Then $lead->source in loop
+```
+
+**Cache Master Data**:
+```php
+$sources = Cache::remember('lead_sources', 3600, fn() =>
+    LeadSource::active()->ordered()->get()
+);
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Lead number not generating | Check `Lead::boot()` in model |
+| Foreign key errors | Run migrations in order |
+| File upload fails | Run `php artisan storage:link` |
+| Events not firing | Clear cache, restart queue worker |
+
+---
+
 **Document Version**: 1.0
 **Last Updated**: 2025-11-02
 **Implementation Status**: ✅ COMPLETED

@@ -31,7 +31,9 @@ Midas Portal is an enterprise-grade insurance management system designed for ins
 
 | Document | Description |
 |----------|-------------|
-| **[Complete Project Documentation](claudedocs/PROJECT_INDEX.md)** | Comprehensive reference covering architecture, database schema, API endpoints, security implementation, services layer, deployment guides, and development workflows |
+| **[📋 Documentation Index](claudedocs/DOCUMENTATION_INDEX.md)** | Central index for all documentation - start here! |
+| **[📖 Complete Project Documentation](claudedocs/PROJECT_INDEX.md)** | Comprehensive reference (2,560 lines) covering architecture, database schema, API endpoints, security implementation, services layer, deployment guides, and development workflows |
+| **[🎯 Lead Management System](claudedocs/LEAD_MANAGEMENT_COMPLETE.md)** | Complete lead management module documentation with features, API endpoints, and setup guide |
 
 ---
 
@@ -140,35 +142,44 @@ npm run dev
 
 ## 📦 Core Modules
 
-### 1. Customer Management
+### 1. Lead Management (NEW! ✨)
+- Lead capture and tracking (auto lead number generation)
+- Activity timeline with 8 activity types
+- Lead-to-customer conversion workflow
+- Follow-up reminders and scheduling
+- Document attachments
+- Bulk operations (assign, convert)
+- Analytics dashboard with conversion metrics
+
+### 2. Customer Management
 - Customer registration with email verification
 - Family group management (shared policy viewing)
 - Document upload (PAN, Aadhar, GST)
 - Birthday/Anniversary tracking
 - Notification preferences
 
-### 2. Insurance Policy Management
+### 3. Insurance Policy Management
 - Policy issuance and renewal tracking
 - Premium calculation with GST
 - Commission breakdown (own, transfer, reference)
 - NCB management
 - Expiry reminders
 
-### 3. Quotation System
+### 4. Quotation System
 - Multi-company quote comparison
 - Vehicle details capture
 - IDV calculation
 - Addon coverage selection
 - PDF generation and WhatsApp sharing
 
-### 4. Claims Management
+### 5. Claims Management
 - Claim registration and tracking
 - Document collection and verification
 - Stage-based workflow
 - Liability assessment
 - Settlement processing
 
-### 5. Notification System
+### 6. Notification System
 - **Channels**: Email, WhatsApp, SMS, Push
 - **Features**: Template management, variable substitution, delivery tracking
 - **Retry Logic**: Exponential backoff (1h, 4h, 24h)
@@ -193,15 +204,23 @@ npm run dev
 
 ## 📊 Database Schema
 
-### Core Tables (60+)
+### Core Tables (65+)
 
 **Primary Entities**:
+- `leads` → Lead management (NEW!)
 - `customers` → Customer master data
 - `customer_insurances` → Insurance policies
 - `quotations` → Quote requests
 - `quotation_companies` → Multi-company quotes
 - `claims` → Insurance claims
 - `notification_logs` → Notification history
+
+**Lead Management**:
+- `leads` → Lead master data with 30+ columns
+- `lead_sources` → Lead source master
+- `lead_statuses` → Workflow statuses
+- `lead_activities` → Activity tracking
+- `lead_documents` → Document attachments
 
 **Security & Audit**:
 - `two_factor_auth` → 2FA records
@@ -214,8 +233,15 @@ npm run dev
 - `policy_types`, `premium_types`, `fuel_types`
 - `notification_templates`, `notification_types`
 
-**Relationships**:
+**Key Relationships**:
 ```
+Lead
+  ├── belongsTo: LeadSource, LeadStatus
+  ├── belongsTo: User (assigned_to)
+  ├── belongsTo: Customer (converted_customer_id)
+  ├── hasMany: LeadActivity, LeadDocument
+  └── conversion → Customer
+
 Customer
   ├── hasMany: CustomerInsurance
   ├── hasMany: Quotation
@@ -314,6 +340,16 @@ POST /customer/login           # Customer login
 POST /customer/logout          # Customer logout
 ```
 
+### Lead Management (NEW!)
+```http
+GET    /leads                    # List leads
+POST   /leads/store              # Create lead
+GET    /leads/show/{id}          # View lead details
+POST   /leads/{id}/convert-auto  # Auto-convert to customer
+POST   /leads/bulk-convert       # Bulk conversion
+GET    /leads/dashboard          # Analytics dashboard
+```
+
 ### Customer Management
 ```http
 GET    /customers              # List customers
@@ -346,7 +382,7 @@ GET    /admin/notification-logs                # Notification history
 POST   /admin/notification-logs/{id}/resend    # Retry failed
 ```
 
-**See**: [Complete Documentation](claudedocs/PROJECT_INDEX.md#api-endpoints) for complete API reference (294 routes documented)
+**See**: [Complete Documentation](claudedocs/PROJECT_INDEX.md#api-endpoints) for complete API reference (340+ routes documented including lead management)
 
 ---
 
@@ -415,9 +451,9 @@ Proprietary - All Rights Reserved
 
 ## 📞 Contact
 
-**Development Team**: webmonks Development Team
-**Project Maintainer**: [Your Name]
-**Email**: support@webmonks.in
+**Development Team**: WebMonks Development Team
+**Organization**: WebMonks
+**Support Email**: support@webmonks.in
 
 ---
 

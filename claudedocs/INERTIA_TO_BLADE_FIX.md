@@ -1,5 +1,12 @@
 # Inertia to Blade Views Fix
 
+> 📝 **TECHNICAL NOTE** - Frontend stack decision reference
+>
+> This document describes the resolution of Inertia.js to Blade template migration issues.
+> Keep for reference when understanding frontend architecture decisions or troubleshooting view-related issues.
+
+---
+
 **Date**: 2025-11-02
 **Issue**: Lead Management Module controllers were using Inertia.js instead of Blade views
 
