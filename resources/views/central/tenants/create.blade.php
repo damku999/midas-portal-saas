@@ -13,6 +13,25 @@
                 </h6>
             </div>
             <div class="card-body">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Validation Error:</strong> Please fix the following issues:
+                        <ul class="mb-0 mt-2">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
                 <form action="{{ route('central.tenants.store') }}" method="POST">
                     @csrf
 
@@ -56,25 +75,73 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">
+                                Company Email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email"
+                                   class="form-control @error('email') is-invalid @enderror"
+                                   id="email"
+                                   name="email"
+                                   value="{{ old('email') }}"
+                                   required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">
+                                Company Phone
+                            </label>
+                            <input type="tel"
+                                   class="form-control @error('phone') is-invalid @enderror"
+                                   id="phone"
+                                   name="phone"
+                                   value="{{ old('phone') }}">
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Admin User Information -->
                     <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">Admin User Information</h6>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="admin_name" class="form-label">
-                                Admin Name <span class="text-danger">*</span>
+                            <label for="admin_first_name" class="form-label">
+                                Admin First Name <span class="text-danger">*</span>
                             </label>
                             <input type="text"
-                                   class="form-control @error('admin_name') is-invalid @enderror"
-                                   id="admin_name"
-                                   name="admin_name"
-                                   value="{{ old('admin_name') }}"
+                                   class="form-control @error('admin_first_name') is-invalid @enderror"
+                                   id="admin_first_name"
+                                   name="admin_first_name"
+                                   value="{{ old('admin_first_name') }}"
                                    required>
-                            @error('admin_name')
+                            @error('admin_first_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
+                        <div class="col-md-6">
+                            <label for="admin_last_name" class="form-label">
+                                Admin Last Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('admin_last_name') is-invalid @enderror"
+                                   id="admin_last_name"
+                                   name="admin_last_name"
+                                   value="{{ old('admin_last_name') }}"
+                                   required>
+                            @error('admin_last_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="admin_email" class="form-label">
                                 Admin Email <span class="text-danger">*</span>
@@ -89,21 +156,21 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="admin_password" class="form-label">
-                            Admin Password <span class="text-danger">*</span>
-                        </label>
-                        <input type="password"
-                               class="form-control @error('admin_password') is-invalid @enderror"
-                               id="admin_password"
-                               name="admin_password"
-                               required>
-                        @error('admin_password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">Minimum 8 characters recommended</small>
+                        <div class="col-md-6">
+                            <label for="admin_password" class="form-label">
+                                Admin Password
+                            </label>
+                            <input type="password"
+                                   class="form-control @error('admin_password') is-invalid @enderror"
+                                   id="admin_password"
+                                   name="admin_password"
+                                   minlength="8">
+                            @error('admin_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Leave blank to auto-generate (min 8 characters)</small>
+                        </div>
                     </div>
 
                     <!-- Subscription Plan -->
