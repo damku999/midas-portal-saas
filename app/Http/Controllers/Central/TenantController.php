@@ -200,7 +200,9 @@ class TenantController extends Controller
             $query->latest()->limit(20);
         }]);
 
-        return view('central.tenants.show', compact('tenant'));
+        $recentActivity = $tenant->auditLogs;
+
+        return view('central.tenants.show', compact('tenant', 'recentActivity'));
     }
 
     /**
