@@ -55,13 +55,13 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/central.php'));
 
-            // Load web routes (tenant admin routes)
-            Route::middleware('web')
+            // Load web routes (tenant admin routes) - with tenant identification
+            Route::middleware(['web', 'universal'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
 
-            // Customer Portal Routes loaded last to avoid conflicts
-            Route::middleware('web')
+            // Customer Portal Routes loaded last to avoid conflicts - with tenant identification
+            Route::middleware(['web', 'universal'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/customer.php'));
         });
