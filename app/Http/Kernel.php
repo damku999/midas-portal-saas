@@ -81,5 +81,6 @@ class Kernel extends HttpKernel
         // Tenancy middleware
         'universal' => \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
         'tenant' => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+        'central.only' => \App\Http\Middleware\PreventAccessFromTenantDomains::class,
     ];
 }

@@ -35,17 +35,33 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Public Website Routes (no tenant middleware)
-Route::get('/', [App\Http\Controllers\PublicController::class, 'home'])->name('public.home')->withoutMiddleware(['universal']);
-Route::get('/features', [App\Http\Controllers\PublicController::class, 'features'])->name('public.features')->withoutMiddleware(['universal']);
-Route::get('/pricing', [App\Http\Controllers\PublicController::class, 'pricing'])->name('public.pricing')->withoutMiddleware(['universal']);
-Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->name('public.about')->withoutMiddleware(['universal']);
-Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact')->withoutMiddleware(['universal']);
-Route::post('/contact', [App\Http\Controllers\PublicController::class, 'submitContact'])->name('public.contact.submit')->withoutMiddleware(['universal']);
+// Public Website Routes (central domains only - no tenant middleware)
+// These routes should only be accessible on central domains, not tenant subdomains
+Route::middleware('central.only')
+    ->withoutMiddleware(['universal'])
+    ->group(function () {
+        Route::get('/', [App\Http\Controllers\PublicController::class, 'home'])->name('public.home');
+        Route::get('/features', [App\Http\Controllers\PublicController::class, 'features'])->name('public.features');
+        Route::get('/pricing', [App\Http\Controllers\PublicController::class, 'pricing'])->name('public.pricing');
+        Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->name('public.about');
+        Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact');
+        Route::post('/contact', [App\Http\Controllers\PublicController::class, 'submitContact'])->name('public.contact.submit');
+    });
 
 // Customer Portal Routes are now defined in routes/customer.php
 
-Auth::routes(['register' => false]);
+// Tenant Portal Root - Redirect to appropriate dashboard based on authentication
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('login');
+})->name('tenant.root');
+
+// Tenant Authentication Routes (block access from central domains)
+Route::middleware(\Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class)->group(function () {
+    Auth::routes(['register' => false]);
+});
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

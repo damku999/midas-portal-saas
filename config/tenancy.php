@@ -23,6 +23,8 @@ return [
         'www.midastech.in',          // Production www subdomain
         'midastech.in.local',        // Local development
         'localhost:8000',            // Local development with port
+        'midastech.testing.in',      // Local testing domain
+        'midastech.testing.in:8085', // Local testing with port
     ],
 
     /**
