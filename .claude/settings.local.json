@@ -43,7 +43,11 @@
       "Bash(then mkdir -p resources/views/central/tenants)",
       "Bash(if [ ! -d \"resources/views/central/auth\" ])",
       "Bash(then mkdir -p resources/views/central/auth)",
-      "Bash(if exist create-central-db.php del create-central-db.php)"
+      "Bash(if exist create-central-db.php del create-central-db.php)",
+      "Bash(if [ ! -d \"database/seeders/Tenant\" ])",
+      "Bash(then mkdir -p database/seeders/Tenant)",
+      "Bash(if [ ! -d \"resources/views/subscription\" ])",
+      "Bash(then mkdir -p resources/views/subscription)"
     ],
     "deny": [],
     "ask": []

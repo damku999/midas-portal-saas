@@ -45,6 +45,22 @@ Auth::routes(['register' => false]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+// Subscription & Billing Routes
+Route::middleware(['auth', 'subscription.status'])->prefix('subscription')->name('subscription.')->group(function () {
+    Route::get('/', [App\Http\Controllers\SubscriptionController::class, 'index'])->name('index');
+    Route::get('/plans', [App\Http\Controllers\SubscriptionController::class, 'plans'])->name('plans');
+    Route::get('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'upgrade'])->name('upgrade');
+    Route::post('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'processUpgrade'])->name('process-upgrade');
+    Route::get('/usage', [App\Http\Controllers\SubscriptionController::class, 'usage'])->name('usage');
+});
+
+// Subscription status pages (no subscription.status middleware to avoid redirect loop)
+Route::middleware('auth')->group(function () {
+    Route::get('/subscription/required', [App\Http\Controllers\SubscriptionController::class, 'required'])->name('subscription.required');
+    Route::get('/subscription/suspended', [App\Http\Controllers\SubscriptionController::class, 'suspended'])->name('subscription.suspended');
+    Route::get('/subscription/cancelled', [App\Http\Controllers\SubscriptionController::class, 'cancelled'])->name('subscription.cancelled');
+});
+
 // Health check and monitoring routes
 Route::get('/health', [App\Http\Controllers\HealthController::class, 'health'])->name('health.basic');
 Route::get('/health/detailed', [App\Http\Controllers\HealthController::class, 'detailed'])->name('health.detailed');

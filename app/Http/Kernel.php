@@ -75,5 +75,7 @@ class Kernel extends HttpKernel
         'customer.timeout' => \App\Http\Middleware\CustomerSessionTimeout::class,
         'enhanced.auth' => \App\Http\Middleware\EnhancedAuthorizationMiddleware::class,
         'central.auth' => \App\Http\Middleware\CentralAuth::class,
+        'subscription.status' => \App\Http\Middleware\CheckSubscriptionStatus::class,
+        'tenant.limits' => \App\Http\Middleware\CheckTenantLimits::class,
     ];
 }

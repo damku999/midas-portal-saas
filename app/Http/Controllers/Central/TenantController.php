@@ -135,7 +135,7 @@ class TenantController extends Controller
                 'mrr' => $plan->price,
             ]);
 
-            // Run tenant migrations
+            // Run tenant migrations and seed default data
             $tenant->run(function ($tenant) use ($validated) {
                 // Create admin user in tenant database
                 $password = $validated['admin_password'] ?? Str::random(16);
@@ -147,6 +147,12 @@ class TenantController extends Controller
                     'email_verified_at' => now(),
                     'created_at' => now(),
                     'updated_at' => now(),
+                ]);
+
+                // Seed default tenant data
+                \Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\Tenant\\DefaultTenantSeeder',
+                    '--force' => true,
                 ]);
 
                 // Store password in tenant data for welcome email
