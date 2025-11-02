@@ -358,7 +358,7 @@ sudo cp /etc/nginx/sites-available/midas-portal.conf.backup /etc/nginx/sites-ava
 sudo systemctl reload nginx
 
 # 3. Remove SSL certificates if added
-sudo certbot delete --cert-name midasportal.com
+sudo certbot delete --cert-name midastech.in
 
 # 4. Revert MySQL config changes
 sudo cp /etc/mysql/mysql.conf.d/mysqld.cnf.backup /etc/mysql/mysql.conf.d/mysqld.cnf

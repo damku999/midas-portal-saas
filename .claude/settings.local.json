@@ -25,7 +25,12 @@
       "Bash(del:*)",
       "Bash(if [ ! -d \"resources/views/errors\" ])",
       "Bash(then mkdir -p resources/views/errors)",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(composer:*)"
     ],
     "deny": [],
     "ask": []

@@ -106,8 +106,8 @@ Add tenant connection template:
 - [ ] Add `TENANCY_DATABASE=central`
 - [ ] Add `TENANT_DATABASE_PREFIX=tenant_`
 - [ ] Add `TENANT_SUBDOMAIN_ENABLED=true`
-- [ ] Add `APP_DOMAIN=midasportal.com`
-- [ ] Add `CENTRAL_DOMAIN=admin.midasportal.com`
+- [ ] Add `APP_DOMAIN=midastech.in`
+- [ ] Add `CENTRAL_DOMAIN=admin.midastech.in`
 - [ ] Update `.env.example` with new variables
 - [ ] Commit: "Add tenancy environment variables"
 
@@ -1716,7 +1716,7 @@ Performance benchmarks:
 server {
     listen 80;
     listen [::]:80;
-    server_name *.midasportal.com midasportal.com;
+    server_name *.midastech.in midastech.in;
 
     root /var/www/midas-portal/public;
     index index.php index.html;
@@ -1743,8 +1743,8 @@ server {
 
 ```apache
 <VirtualHost *:80>
-    ServerName midasportal.com
-    ServerAlias *.midasportal.com
+    ServerName midastech.in
+    ServerAlias *.midastech.in
 
     DocumentRoot /var/www/midas-portal/public
 
@@ -1779,11 +1779,11 @@ sudo apt-get install certbot python3-certbot-nginx -y
 # Get wildcard certificate
 sudo certbot certonly --manual \
   --preferred-challenges=dns \
-  --email=admin@midasportal.com \
+  --email=admin@midastech.in \
   --server https://acme-v02.api.letsencrypt.org/directory \
   --agree-tos \
-  -d midasportal.com \
-  -d *.midasportal.com
+  -d midastech.in \
+  -d *.midastech.in
 
 # Setup auto-renewal
 sudo crontab -e

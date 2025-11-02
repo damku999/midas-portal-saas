@@ -13,8 +13,8 @@
 
 Transform the Midas Insurance Portal from a single-tenant application to a **multi-tenant SaaS platform** with:
 - **Separate databases per tenant** (complete data isolation)
-- **Subdomain-based routing** (`client1.midasportal.com`, `client2.midasportal.com`)
-- **Central admin panel** (`admin.midasportal.com`) for tenant management
+- **Subdomain-based routing** (`client1.midastech.in`, `client2.midastech.in`)
+- **Central admin panel** (`admin.midastech.in`) for tenant management
 - **Billing and subscription system** with multiple pricing tiers
 - **Scalable architecture** supporting unlimited tenants
 
@@ -31,15 +31,17 @@ Transform the Midas Insurance Portal from a single-tenant application to a **mul
 
 ### Target State
 ```
-Central Domain (admin.midasportal.com)
+Central Domain (midastech.in)
+├── Public Website (/, /pricing, /features, /contact, etc.)
+├── Central Admin Panel (/admin/*)
 ├── Central Database (tenant metadata, billing, subscriptions)
 ├── Super Admin Panel
 └── Tenant Management
 
-Tenant Domains (*.midasportal.com)
-├── Tenant Database 1 (tenant_1)
-├── Tenant Database 2 (tenant_2)
-└── Tenant Database N (tenant_N)
+Tenant Domains (*.midastech.in)
+├── Tenant Database 1 (tenant_1) → tenant1.midastech.in
+├── Tenant Database 2 (tenant_2) → tenant2.midastech.in
+└── Tenant Database N (tenant_N) → tenantN.midastech.in
     ├── Users (isolated)
     ├── Customers (isolated)
     ├── Leads (isolated)
@@ -76,9 +78,9 @@ Tenant Domains (*.midasportal.com)
 ## 🔑 Key Features
 
 ### 1. Subdomain-Based Routing
-- Each tenant gets unique subdomain: `{tenant}.midasportal.com`
+- **Main Domain**: `midastech.in` - Public website + Central admin at `/admin`
+- **Tenant Subdomains**: Each tenant gets unique subdomain: `{tenant}.midastech.in`
 - Automatic tenant identification from URL
-- Central admin at: `admin.midasportal.com`
 - Handles invalid/suspended tenants gracefully
 
 ### 2. Complete Data Isolation
@@ -260,7 +262,7 @@ Tenant Domains (*.midasportal.com)
 ```
 
 ### Infrastructure Requirements
-1. **DNS**: Wildcard subdomain (`*.midasportal.com`)
+1. **DNS**: Wildcard subdomain (`*.midastech.in`)
 2. **SSL**: Wildcard SSL certificate (Let's Encrypt)
 3. **Database**: MySQL 8.0+ with 20+ connections per tenant
 4. **Server**: 4GB+ RAM, multi-core CPU
@@ -272,8 +274,9 @@ Tenant Domains (*.midasportal.com)
 TENANCY_DATABASE=central
 TENANT_DATABASE_PREFIX=tenant_
 TENANT_SUBDOMAIN_ENABLED=true
-APP_DOMAIN=midasportal.com
-CENTRAL_DOMAIN=admin.midasportal.com
+APP_DOMAIN=midastech.in
+CENTRAL_DOMAIN=midastech.in
+CENTRAL_ADMIN_PATH=/admin
 
 # Billing
 STRIPE_KEY=
