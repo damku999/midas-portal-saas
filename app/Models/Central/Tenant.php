@@ -68,9 +68,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     }
 
     /**
-     * Check if tenant is on trial.
+     * Check if tenant is on trial (instance method).
      */
-    public function onTrial(): bool
+    public function isOnTrial(): bool
     {
         return $this->subscription && $this->subscription->onTrial();
     }
