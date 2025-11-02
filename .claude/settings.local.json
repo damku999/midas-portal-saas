@@ -34,7 +34,9 @@
       "Bash(if [ ! -d \"database/migrations/central\" ])",
       "Bash(then mkdir -p database/migrations/central)",
       "Bash(if [ ! -d \"app/Models/Central\" ])",
-      "Bash(then mkdir -p app/Models/Central)"
+      "Bash(then mkdir -p app/Models/Central)",
+      "Bash(if [ ! -d \"app/Http/Controllers/Central\" ])",
+      "Bash(then mkdir -p app/Http/Controllers/Central)"
     ],
     "deny": [],
     "ask": []

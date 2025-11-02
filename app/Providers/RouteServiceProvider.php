@@ -49,7 +49,13 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
-            // Load web routes first (admin routes have priority)
+            // Central Admin Routes (loaded first, highest priority)
+            Route::prefix('admin')
+                ->middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/central.php'));
+
+            // Load web routes (tenant admin routes)
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
