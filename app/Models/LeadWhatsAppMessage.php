@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LeadWhatsAppMessage extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $table = 'lead_whatsapp_messages';
@@ -80,12 +82,12 @@ class LeadWhatsAppMessage extends Model
 
     public function hasAttachment(): bool
     {
-        return !empty($this->attachment_path);
+        return ! empty($this->attachment_path);
     }
 
     public function getAttachmentUrl(): ?string
     {
-        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
+        return $this->attachment_path ? asset('storage/'.$this->attachment_path) : null;
     }
 
     public function markAsSent(array $apiResponse = []): void

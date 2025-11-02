@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\CustomerType
@@ -52,6 +53,7 @@ use Illuminate\Support\Carbon;
  */
 class CustomerType extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
     use SoftDeletes;
 

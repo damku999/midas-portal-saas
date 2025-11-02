@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LeadWhatsAppCampaign extends Model
 {
+    use BelongsToTenant;
     use HasFactory, SoftDeletes;
 
     protected $table = 'lead_whatsapp_campaigns';
@@ -113,12 +115,12 @@ class LeadWhatsAppCampaign extends Model
 
     public function hasAttachment(): bool
     {
-        return !empty($this->attachment_path);
+        return ! empty($this->attachment_path);
     }
 
     public function getAttachmentUrl(): ?string
     {
-        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
+        return $this->attachment_path ? asset('storage/'.$this->attachment_path) : null;
     }
 
     public function getSuccessRate(): float

@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\FamilyMember
@@ -54,6 +55,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class FamilyMember extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
     use LogsActivity;
 

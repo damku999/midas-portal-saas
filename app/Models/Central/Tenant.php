@@ -2,10 +2,10 @@
 
 namespace App\Models\Central;
 
-use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -88,7 +88,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function hasExceededLimits(string $limitType): bool
     {
-        if (!$this->plan) {
+        if (! $this->plan) {
             return false;
         }
 
@@ -109,7 +109,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         // This will be implemented with actual usage tracking
         // For now, return 0
-        return $this->data[$limitType . '_usage'] ?? 0;
+        return $this->data[$limitType.'_usage'] ?? 0;
     }
 
     /**
@@ -117,7 +117,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function getPlanLimit(string $limitType): int
     {
-        if (!$this->plan) {
+        if (! $this->plan) {
             return 0;
         }
 
@@ -163,7 +163,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function getDatabaseName(): string
     {
-        return config('tenancy.database.prefix') . $this->id . config('tenancy.database.suffix');
+        return config('tenancy.database.prefix').$this->id.config('tenancy.database.suffix');
     }
 
     /**
@@ -183,7 +183,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $query->whereHas('subscription', function ($q) {
             $q->where('is_trial', true)
-              ->where('trial_ends_at', '>', now());
+                ->where('trial_ends_at', '>', now());
         });
     }
 

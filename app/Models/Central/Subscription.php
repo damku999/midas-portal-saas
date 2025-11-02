@@ -104,7 +104,7 @@ class Subscription extends Model
      */
     public function isCancelled(): bool
     {
-        return $this->status === 'cancelled' || !is_null($this->cancelled_at);
+        return $this->status === 'cancelled' || ! is_null($this->cancelled_at);
     }
 
     /**
@@ -128,7 +128,7 @@ class Subscription extends Model
      */
     public function trialDaysRemaining(): int
     {
-        if (!$this->onTrial()) {
+        if (! $this->onTrial()) {
             return 0;
         }
 
@@ -138,7 +138,7 @@ class Subscription extends Model
     /**
      * Cancel the subscription.
      */
-    public function cancel(string $reason = null): bool
+    public function cancel(?string $reason = null): bool
     {
         $this->update([
             'status' => 'cancelled',

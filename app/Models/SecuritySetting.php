@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\SecuritySetting
@@ -47,6 +48,7 @@ use Illuminate\Support\Carbon;
  */
 class SecuritySetting extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [

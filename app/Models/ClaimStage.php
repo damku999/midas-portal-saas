@@ -19,6 +19,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\ClaimStage
@@ -76,6 +77,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class ClaimStage extends Model
 {
+    use BelongsToTenant;
     use HasApiTokens;
     use HasFactory;
     use HasRoles;

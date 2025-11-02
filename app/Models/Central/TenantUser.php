@@ -129,7 +129,7 @@ class TenantUser extends Authenticatable
     /**
      * Update last login information.
      */
-    public function updateLastLogin(string $ipAddress = null): void
+    public function updateLastLogin(?string $ipAddress = null): void
     {
         $this->update([
             'last_login_at' => now(),
@@ -160,7 +160,7 @@ class TenantUser extends Authenticatable
     {
         return $query->where(function ($q) {
             $q->where('is_support_admin', true)
-              ->orWhere('is_super_admin', true);
+                ->orWhere('is_super_admin', true);
         });
     }
 
@@ -171,7 +171,7 @@ class TenantUser extends Authenticatable
     {
         return $query->where(function ($q) {
             $q->where('is_billing_admin', true)
-              ->orWhere('is_super_admin', true);
+                ->orWhere('is_super_admin', true);
         });
     }
 }

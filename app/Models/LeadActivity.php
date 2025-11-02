@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LeadActivity extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [
@@ -31,12 +33,19 @@ class LeadActivity extends Model
 
     // Activity types
     public const TYPE_CALL = 'call';
+
     public const TYPE_EMAIL = 'email';
+
     public const TYPE_MEETING = 'meeting';
+
     public const TYPE_NOTE = 'note';
+
     public const TYPE_STATUS_CHANGE = 'status_change';
+
     public const TYPE_ASSIGNMENT = 'assignment';
+
     public const TYPE_DOCUMENT = 'document';
+
     public const TYPE_QUOTATION = 'quotation';
 
     // Relationships
@@ -112,7 +121,7 @@ class LeadActivity extends Model
 
     public function isCompleted(): bool
     {
-        return !is_null($this->completed_at);
+        return ! is_null($this->completed_at);
     }
 
     public function isPending(): bool
@@ -122,7 +131,7 @@ class LeadActivity extends Model
 
     public function isOverdue(): bool
     {
-        if (is_null($this->scheduled_at) || !is_null($this->completed_at)) {
+        if (is_null($this->scheduled_at) || ! is_null($this->completed_at)) {
             return false;
         }
 

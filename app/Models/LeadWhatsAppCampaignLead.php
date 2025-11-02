@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LeadWhatsAppCampaignLead extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $table = 'lead_whatsapp_campaign_leads';
@@ -72,11 +74,12 @@ class LeadWhatsAppCampaignLead extends Model
 
     public function canRetry(): bool
     {
-        if (!$this->isFailed()) {
+        if (! $this->isFailed()) {
             return false;
         }
 
         $maxRetries = $this->campaign->max_retry_attempts ?? 3;
+
         return $this->retry_count < $maxRetries;
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\CustomerDevice
@@ -46,6 +47,7 @@ use Illuminate\Support\Carbon;
  */
 class CustomerDevice extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [

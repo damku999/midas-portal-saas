@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LeadWhatsAppTemplate extends Model
 {
+    use BelongsToTenant;
     use HasFactory, SoftDeletes;
 
     protected $table = 'lead_whatsapp_templates';
@@ -45,12 +47,12 @@ class LeadWhatsAppTemplate extends Model
 
     public function hasAttachment(): bool
     {
-        return !empty($this->attachment_path);
+        return ! empty($this->attachment_path);
     }
 
     public function getAttachmentUrl(): ?string
     {
-        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
+        return $this->attachment_path ? asset('storage/'.$this->attachment_path) : null;
     }
 
     public function incrementUsage(): void
@@ -61,7 +63,7 @@ class LeadWhatsAppTemplate extends Model
     /**
      * Render template with provided variables
      *
-     * @param array $data Key-value pairs to replace in template
+     * @param  array  $data  Key-value pairs to replace in template
      * @return string Rendered message
      */
     public function render(array $data): string
@@ -69,7 +71,7 @@ class LeadWhatsAppTemplate extends Model
         $message = $this->message_template;
 
         foreach ($data as $key => $value) {
-            $placeholder = '{' . $key . '}';
+            $placeholder = '{'.$key.'}';
             $message = str_replace($placeholder, $value, $message);
         }
 
@@ -84,13 +86,14 @@ class LeadWhatsAppTemplate extends Model
     public function getTemplateVariables(): array
     {
         preg_match_all('/\{(\w+)\}/', $this->message_template, $matches);
+
         return $matches[1] ?? [];
     }
 
     /**
      * Validate that all required variables are provided
      *
-     * @param array $data Data to validate
+     * @param  array  $data  Data to validate
      * @return array Missing variables
      */
     public function validateVariables(array $data): array

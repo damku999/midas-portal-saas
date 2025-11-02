@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use App\Traits\ProtectedRecord;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Lead extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
     use ProtectedRecord;
     use SoftDeletes;
@@ -188,13 +190,13 @@ class Lead extends Model
                 $lead->lead_number = static::generateLeadNumber();
             }
 
-            if (!empty($lead->date_of_birth) && empty($lead->age)) {
+            if (! empty($lead->date_of_birth) && empty($lead->age)) {
                 $lead->age = Carbon::parse($lead->date_of_birth)->age;
             }
         });
 
         static::updating(function ($lead) {
-            if ($lead->isDirty('date_of_birth') && !empty($lead->date_of_birth)) {
+            if ($lead->isDirty('date_of_birth') && ! empty($lead->date_of_birth)) {
                 $lead->age = Carbon::parse($lead->date_of_birth)->age;
             }
         });
@@ -203,9 +205,9 @@ class Lead extends Model
     public static function generateLeadNumber(): string
     {
         $yearMonth = now()->format('Ym');
-        $prefix = 'LD-' . $yearMonth . '-';
+        $prefix = 'LD-'.$yearMonth.'-';
 
-        $lastLead = static::where('lead_number', 'like', $prefix . '%')
+        $lastLead = static::where('lead_number', 'like', $prefix.'%')
             ->orderBy('lead_number', 'desc')
             ->first();
 
@@ -216,7 +218,7 @@ class Lead extends Model
             $newNumber = '0001';
         }
 
-        return $prefix . $newNumber;
+        return $prefix.$newNumber;
     }
 
     // Helper Methods
@@ -233,12 +235,12 @@ class Lead extends Model
 
     public function isActive(): bool
     {
-        return !$this->isConverted() && !$this->isLost();
+        return ! $this->isConverted() && ! $this->isLost();
     }
 
     public function hasFollowUpDue(): bool
     {
-        if (!$this->next_follow_up_date) {
+        if (! $this->next_follow_up_date) {
             return false;
         }
 

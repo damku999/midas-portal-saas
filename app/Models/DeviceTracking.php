@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\DeviceTracking
@@ -95,6 +96,7 @@ use Illuminate\Support\Carbon;
  */
 class DeviceTracking extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
 
     protected $table = 'device_tracking';

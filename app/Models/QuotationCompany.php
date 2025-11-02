@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 /**
  * App\Models\QuotationCompany
@@ -105,6 +106,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class QuotationCompany extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
     use LogsActivity;
     use TableRecordObserver;
