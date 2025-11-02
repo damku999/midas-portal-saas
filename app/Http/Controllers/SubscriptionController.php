@@ -135,7 +135,7 @@ class SubscriptionController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'Failed to upgrade plan: ' . $e->getMessage());
+                ->with('error', 'Failed to upgrade plan: '.$e->getMessage());
         }
     }
 

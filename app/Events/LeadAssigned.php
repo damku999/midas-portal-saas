@@ -14,7 +14,9 @@ class LeadAssigned
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Lead $lead;
+
     public ?User $oldUser;
+
     public User $newUser;
 
     public function __construct(Lead $lead, ?User $oldUser, User $newUser)
@@ -27,7 +29,7 @@ class LeadAssigned
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('users.' . $this->newUser->id),
+            new PrivateChannel('users.'.$this->newUser->id),
         ];
     }
 }

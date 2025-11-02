@@ -15,11 +15,15 @@ class SendBulkWhatsAppJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
+
     public $timeout = 600;
 
     protected array $leadIds;
+
     protected string $message;
+
     protected ?string $attachmentPath;
+
     protected ?int $userId;
 
     /**

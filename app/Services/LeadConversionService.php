@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Lead;
 use App\Models\Customer;
+use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadStatus;
 use App\Repositories\Contracts\LeadRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -34,10 +34,10 @@ class LeadConversionService
                 'status',
                 'assignedUser',
                 'activities',
-                'documents'
+                'documents',
             ]);
 
-            if (!$lead) {
+            if (! $lead) {
                 throw new \Exception("Lead not found with ID: {$leadId}");
             }
 
@@ -60,8 +60,8 @@ class LeadConversionService
             // Get converted status
             $convertedStatus = LeadStatus::where('is_converted', true)->first();
 
-            if (!$convertedStatus) {
-                throw new \Exception("No converted status found. Please ensure lead_statuses table has a status with is_converted = true");
+            if (! $convertedStatus) {
+                throw new \Exception('No converted status found. Please ensure lead_statuses table has a status with is_converted = true');
             }
 
             // Update lead with conversion details
@@ -113,7 +113,7 @@ class LeadConversionService
         // Check if already converted
         if ($lead->isConverted()) {
             $customerId = $lead->converted_customer_id ?? 'Unknown';
-            throw new \Exception("Lead has already been converted to customer" . ($customerId !== 'Unknown' ? " (ID: {$customerId})" : ''));
+            throw new \Exception('Lead has already been converted to customer'.($customerId !== 'Unknown' ? " (ID: {$customerId})" : ''));
         }
 
         // Check if marked as lost
@@ -123,11 +123,11 @@ class LeadConversionService
 
         // Validate required fields for customer creation
         if (empty($lead->name)) {
-            throw new \Exception("Lead must have a name to be converted to customer");
+            throw new \Exception('Lead must have a name to be converted to customer');
         }
 
         if (empty($lead->mobile_number) && empty($lead->email)) {
-            throw new \Exception("Lead must have either email or mobile number to be converted to customer");
+            throw new \Exception('Lead must have either email or mobile number to be converted to customer');
         }
     }
 
@@ -138,11 +138,11 @@ class LeadConversionService
     {
         $query = Customer::query();
 
-        if (!empty($lead->email)) {
+        if (! empty($lead->email)) {
             $query->orWhere('email', $lead->email);
         }
 
-        if (!empty($lead->mobile_number)) {
+        if (! empty($lead->mobile_number)) {
             $query->orWhere('mobile_number', $lead->mobile_number);
         }
 
@@ -169,7 +169,7 @@ class LeadConversionService
         ];
 
         // Generate random password for customer portal access
-        if (!empty($lead->email)) {
+        if (! empty($lead->email)) {
             $customerData['password'] = Hash::make(Str::random(12));
             $customerData['must_change_password'] = true;
         }
@@ -236,30 +236,30 @@ class LeadConversionService
     {
         $query = Lead::query()->converted();
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('converted_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('converted_at', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['source_id'])) {
+        if (! empty($filters['source_id'])) {
             $query->where('source_id', $filters['source_id']);
         }
 
-        if (!empty($filters['assigned_to'])) {
+        if (! empty($filters['assigned_to'])) {
             $query->where('assigned_to', $filters['assigned_to']);
         }
 
         $converted = $query->get();
         $total = Lead::query();
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $total->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $total->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -329,11 +329,11 @@ class LeadConversionService
             ->selectRaw('DATE_FORMAT(converted_at, "%Y-%m") as month, COUNT(*) as count')
             ->whereNotNull('converted_at');
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('converted_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('converted_at', '<=', $filters['date_to']);
         }
 

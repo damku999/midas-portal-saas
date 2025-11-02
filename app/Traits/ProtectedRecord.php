@@ -141,7 +141,7 @@ trait ProtectedRecord
     /**
      * Manually protect this record
      */
-    public function protect(string $reason = null): bool
+    public function protect(?string $reason = null): bool
     {
         $this->is_protected = true;
         $this->protected_reason = $reason ?? $this->getProtectionReason();

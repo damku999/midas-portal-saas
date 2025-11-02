@@ -3,16 +3,13 @@
 namespace App\Services;
 
 use App\Models\Lead;
-use App\Models\LeadWhatsAppMessage;
 use App\Models\LeadWhatsAppCampaign;
 use App\Models\LeadWhatsAppCampaignLead;
-use App\Models\LeadWhatsAppTemplate;
+use App\Models\LeadWhatsAppMessage;
 use App\Traits\WhatsAppApiTrait;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\UploadedFile;
 use Exception;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class LeadWhatsAppService
 {
@@ -21,12 +18,12 @@ class LeadWhatsAppService
     /**
      * Send WhatsApp message to a single lead
      *
-     * @param int $leadId Lead ID
-     * @param string $message Message content
-     * @param UploadedFile|string|null $attachment File path or UploadedFile
-     * @param int|null $userId User ID sending the message
-     * @param int|null $campaignId Campaign ID if part of campaign
-     * @return LeadWhatsAppMessage
+     * @param  int  $leadId  Lead ID
+     * @param  string  $message  Message content
+     * @param  UploadedFile|string|null  $attachment  File path or UploadedFile
+     * @param  int|null  $userId  User ID sending the message
+     * @param  int|null  $campaignId  Campaign ID if part of campaign
+     *
      * @throws Exception
      */
     public function sendSingleMessage(
@@ -68,7 +65,7 @@ class LeadWhatsAppService
         try {
             // Send via WhatsApp API
             if ($attachmentPath) {
-                $fullPath = storage_path('app/public/' . $attachmentPath);
+                $fullPath = storage_path('app/public/'.$attachmentPath);
                 $apiResponse = $this->whatsAppSendMessageWithAttachment(
                     $message,
                     $lead->mobile_number,
@@ -87,7 +84,7 @@ class LeadWhatsAppService
             Log::info('WhatsApp message sent to lead', [
                 'lead_id' => $leadId,
                 'message_id' => $whatsappMessage->id,
-                'has_attachment' => !empty($attachmentPath),
+                'has_attachment' => ! empty($attachmentPath),
             ]);
 
             return $whatsappMessage;
@@ -109,10 +106,10 @@ class LeadWhatsAppService
     /**
      * Send WhatsApp messages to multiple leads (bulk)
      *
-     * @param array $leadIds Array of lead IDs
-     * @param string $message Message content
-     * @param UploadedFile|string|null $attachment File path or UploadedFile
-     * @param int|null $userId User ID sending the messages
+     * @param  array  $leadIds  Array of lead IDs
+     * @param  string  $message  Message content
+     * @param  UploadedFile|string|null  $attachment  File path or UploadedFile
+     * @param  int|null  $userId  User ID sending the messages
      * @return array ['success' => int, 'failed' => int, 'messages' => array]
      */
     public function sendBulkMessages(
@@ -163,8 +160,7 @@ class LeadWhatsAppService
     /**
      * Create a new WhatsApp campaign
      *
-     * @param array $data Campaign data
-     * @return LeadWhatsAppCampaign
+     * @param  array  $data  Campaign data
      */
     public function createCampaign(array $data): LeadWhatsAppCampaign
     {
@@ -199,15 +195,16 @@ class LeadWhatsAppService
     /**
      * Execute a campaign (send messages to all targeted leads)
      *
-     * @param int $campaignId Campaign ID
+     * @param  int  $campaignId  Campaign ID
      * @return array Execution results
+     *
      * @throws Exception
      */
     public function executeCampaign(int $campaignId): array
     {
         $campaign = LeadWhatsAppCampaign::findOrFail($campaignId);
 
-        if (!$campaign->canExecute()) {
+        if (! $campaign->canExecute()) {
             throw new Exception("Campaign cannot be executed in current status: {$campaign->status}");
         }
 
@@ -278,7 +275,7 @@ class LeadWhatsAppService
     /**
      * Get campaign statistics
      *
-     * @param int $campaignId Campaign ID
+     * @param  int  $campaignId  Campaign ID
      * @return array Statistics
      */
     public function getCampaignStatistics(int $campaignId): array
@@ -307,15 +304,15 @@ class LeadWhatsAppService
     /**
      * Retry failed messages in a campaign
      *
-     * @param int $campaignId Campaign ID
+     * @param  int  $campaignId  Campaign ID
      * @return array Retry results
      */
     public function retryFailedMessages(int $campaignId): array
     {
         $campaign = LeadWhatsAppCampaign::findOrFail($campaignId);
 
-        if (!$campaign->auto_retry_failed) {
-            throw new Exception("Auto-retry is disabled for this campaign.");
+        if (! $campaign->auto_retry_failed) {
+            throw new Exception('Auto-retry is disabled for this campaign.');
         }
 
         $results = [
@@ -329,8 +326,9 @@ class LeadWhatsAppService
         $failedLeads = $campaign->campaignLeads()->retryable()->with('lead')->get();
 
         foreach ($failedLeads as $campaignLead) {
-            if (!$campaignLead->canRetry()) {
+            if (! $campaignLead->canRetry()) {
                 $results['skipped']++;
+
                 continue;
             }
 
@@ -376,7 +374,7 @@ class LeadWhatsAppService
     /**
      * Get target leads based on criteria
      *
-     * @param array|null $criteria Filter criteria
+     * @param  array|null  $criteria  Filter criteria
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function getTargetLeads($criteria = null)
@@ -388,31 +386,31 @@ class LeadWhatsAppService
             return $query->get();
         }
 
-        if (isset($criteria['status_id']) && !empty($criteria['status_id'])) {
+        if (isset($criteria['status_id']) && ! empty($criteria['status_id'])) {
             $query->where('status_id', $criteria['status_id']);
         }
 
-        if (isset($criteria['source_id']) && !empty($criteria['source_id'])) {
+        if (isset($criteria['source_id']) && ! empty($criteria['source_id'])) {
             $query->where('source_id', $criteria['source_id']);
         }
 
-        if (isset($criteria['priority']) && !empty($criteria['priority'])) {
+        if (isset($criteria['priority']) && ! empty($criteria['priority'])) {
             $query->where('priority', $criteria['priority']);
         }
 
-        if (isset($criteria['assigned_to']) && !empty($criteria['assigned_to'])) {
+        if (isset($criteria['assigned_to']) && ! empty($criteria['assigned_to'])) {
             $query->where('assigned_to', $criteria['assigned_to']);
         }
 
-        if (isset($criteria['date_from']) && !empty($criteria['date_from'])) {
+        if (isset($criteria['date_from']) && ! empty($criteria['date_from'])) {
             $query->whereDate('created_at', '>=', $criteria['date_from']);
         }
 
-        if (isset($criteria['date_to']) && !empty($criteria['date_to'])) {
+        if (isset($criteria['date_to']) && ! empty($criteria['date_to'])) {
             $query->whereDate('created_at', '<=', $criteria['date_to']);
         }
 
-        if (isset($criteria['lead_ids']) && is_array($criteria['lead_ids']) && !empty($criteria['lead_ids'])) {
+        if (isset($criteria['lead_ids']) && is_array($criteria['lead_ids']) && ! empty($criteria['lead_ids'])) {
             $query->whereIn('id', $criteria['lead_ids']);
         }
 
@@ -422,8 +420,8 @@ class LeadWhatsAppService
     /**
      * Render message template with lead data and system variables
      *
-     * @param string $template Message template
-     * @param Lead $lead Lead model
+     * @param  string  $template  Message template
+     * @param  Lead  $lead  Lead model
      * @return string Rendered message
      */
     protected function renderMessageTemplate(string $template, Lead $lead): string
@@ -457,7 +455,7 @@ class LeadWhatsAppService
     /**
      * Determine attachment type from MIME type
      *
-     * @param string $mimeType MIME type
+     * @param  string  $mimeType  MIME type
      * @return string Attachment type
      */
     protected function getAttachmentType(string $mimeType): string
@@ -493,7 +491,7 @@ class LeadWhatsAppService
     /**
      * Get WhatsApp analytics data
      *
-     * @param array $filters Date range and other filters
+     * @param  array  $filters  Date range and other filters
      * @return array Analytics data
      */
     public function getAnalytics(array $filters = []): array

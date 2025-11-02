@@ -43,7 +43,7 @@ class LeadActivityController extends Controller
 
             return back()->with('success', 'Activity added successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to add activity: ' . $e->getMessage());
+            return back()->with('error', 'Failed to add activity: '.$e->getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ class LeadActivityController extends Controller
 
             return back()->with('success', 'Activity updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update activity: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update activity: '.$e->getMessage());
         }
     }
 
@@ -83,7 +83,7 @@ class LeadActivityController extends Controller
 
             return back()->with('success', 'Activity marked as completed.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to complete activity: ' . $e->getMessage());
+            return back()->with('error', 'Failed to complete activity: '.$e->getMessage());
         }
     }
 
@@ -98,7 +98,7 @@ class LeadActivityController extends Controller
 
             return back()->with('success', 'Activity deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete activity: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete activity: '.$e->getMessage());
         }
     }
 

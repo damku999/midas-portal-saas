@@ -3,19 +3,20 @@
 namespace App\Jobs;
 
 use App\Services\LeadWhatsAppService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class ExecuteCampaignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1; // No retry for campaigns
+
     public $timeout = 3600; // 1 hour timeout for large campaigns
 
     protected int $campaignId;

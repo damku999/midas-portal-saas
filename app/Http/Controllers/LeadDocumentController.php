@@ -22,7 +22,7 @@ class LeadDocumentController extends Controller
         try {
             $file = $request->file('file');
             $fileName = $file->getClientOriginalName();
-            $filePath = $file->store('lead-documents/' . $leadId, 'public');
+            $filePath = $file->store('lead-documents/'.$leadId, 'public');
             $fileSize = $file->getSize();
             $mimeType = $file->getMimeType();
 
@@ -38,7 +38,7 @@ class LeadDocumentController extends Controller
 
             return back()->with('success', 'Document uploaded successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to upload document: ' . $e->getMessage());
+            return back()->with('error', 'Failed to upload document: '.$e->getMessage());
         }
     }
 
@@ -50,13 +50,13 @@ class LeadDocumentController extends Controller
         try {
             $document = LeadDocument::where('lead_id', $leadId)->findOrFail($documentId);
 
-            if (!$document->exists()) {
+            if (! $document->exists()) {
                 return back()->with('error', 'File not found.');
             }
 
             return Storage::download($document->file_path, $document->file_name);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to download document: ' . $e->getMessage());
+            return back()->with('error', 'Failed to download document: '.$e->getMessage());
         }
     }
 
@@ -68,11 +68,12 @@ class LeadDocumentController extends Controller
         try {
             $document = LeadDocument::where('lead_id', $leadId)->findOrFail($documentId);
 
-            if (!$document->exists()) {
+            if (! $document->exists()) {
                 return response()->json(['error' => 'File not found.'], 404);
             }
 
             $file = Storage::get($document->file_path);
+
             return response($file, 200)
                 ->header('Content-Type', $document->mime_type);
         } catch (\Exception $e) {
@@ -91,7 +92,7 @@ class LeadDocumentController extends Controller
 
             return back()->with('success', 'Document deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete document: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete document: '.$e->getMessage());
         }
     }
 

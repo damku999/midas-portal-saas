@@ -3,25 +3,30 @@
 namespace App\Jobs;
 
 use App\Services\LeadWhatsAppService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class SendSingleWhatsAppJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
+
     public $timeout = 120;
+
     public $backoff = [30, 60, 120]; // Retry delays in seconds
 
     protected int $leadId;
+
     protected string $message;
+
     protected ?string $attachmentPath;
+
     protected ?int $userId;
 
     /**

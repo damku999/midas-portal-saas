@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Lead;
 use App\Models\LeadActivity;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
 
 class SendFollowUpReminders extends Command
 {
@@ -70,20 +70,21 @@ class SendFollowUpReminders extends Command
      */
     protected function sendOverdueReminder(Lead $lead): void
     {
-        if (!$lead->assignedUser) {
+        if (! $lead->assignedUser) {
             $this->warn("Lead {$lead->lead_number} has no assigned user, skipping reminder");
+
             return;
         }
 
         $daysOverdue = Carbon::parse($lead->next_follow_up_date)->diffInDays(now());
 
-        $message = "🚨 OVERDUE FOLLOW-UP\n\n" .
-            "Lead: {$lead->name} ({$lead->lead_number})\n" .
-            "Status: {$lead->status->name}\n" .
-            "Source: {$lead->source->name}\n" .
-            "Follow-up Date: {$lead->next_follow_up_date->format('Y-m-d')}\n" .
-            "Days Overdue: {$daysOverdue}\n" .
-            "Mobile: {$lead->mobile_number}\n" .
+        $message = "🚨 OVERDUE FOLLOW-UP\n\n".
+            "Lead: {$lead->name} ({$lead->lead_number})\n".
+            "Status: {$lead->status->name}\n".
+            "Source: {$lead->source->name}\n".
+            "Follow-up Date: {$lead->next_follow_up_date->format('Y-m-d')}\n".
+            "Days Overdue: {$daysOverdue}\n".
+            "Mobile: {$lead->mobile_number}\n".
             "Email: {$lead->email}";
 
         $this->sendNotification(
@@ -109,19 +110,19 @@ class SendFollowUpReminders extends Command
      */
     protected function sendUpcomingReminder(Lead $lead): void
     {
-        if (!$lead->assignedUser) {
+        if (! $lead->assignedUser) {
             return;
         }
 
         $daysUntil = now()->diffInDays(Carbon::parse($lead->next_follow_up_date));
 
-        $message = "📅 UPCOMING FOLLOW-UP\n\n" .
-            "Lead: {$lead->name} ({$lead->lead_number})\n" .
-            "Status: {$lead->status->name}\n" .
-            "Source: {$lead->source->name}\n" .
-            "Follow-up Date: {$lead->next_follow_up_date->format('Y-m-d')}\n" .
-            "Days Until: {$daysUntil}\n" .
-            "Mobile: {$lead->mobile_number}\n" .
+        $message = "📅 UPCOMING FOLLOW-UP\n\n".
+            "Lead: {$lead->name} ({$lead->lead_number})\n".
+            "Status: {$lead->status->name}\n".
+            "Source: {$lead->source->name}\n".
+            "Follow-up Date: {$lead->next_follow_up_date->format('Y-m-d')}\n".
+            "Days Until: {$daysUntil}\n".
+            "Mobile: {$lead->mobile_number}\n".
             "Email: {$lead->email}";
 
         $this->sendNotification(
@@ -140,15 +141,15 @@ class SendFollowUpReminders extends Command
     {
         $lead = $activity->lead;
 
-        if (!$lead->assignedUser) {
+        if (! $lead->assignedUser) {
             return;
         }
 
-        $message = "📋 ACTIVITY SCHEDULED TODAY\n\n" .
-            "Activity: {$activity->subject}\n" .
-            "Type: {$activity->activity_type}\n" .
-            "Lead: {$lead->name} ({$lead->lead_number})\n" .
-            "Scheduled Time: {$activity->scheduled_at->format('H:i')}\n" .
+        $message = "📋 ACTIVITY SCHEDULED TODAY\n\n".
+            "Activity: {$activity->subject}\n".
+            "Type: {$activity->activity_type}\n".
+            "Lead: {$lead->name} ({$lead->lead_number})\n".
+            "Scheduled Time: {$activity->scheduled_at->format('H:i')}\n".
             "Description: {$activity->description}";
 
         $this->sendNotification(
@@ -178,8 +179,8 @@ class SendFollowUpReminders extends Command
 
             // You could also use WhatsApp, SMS, or your notification service here
         } catch (\Exception $e) {
-            Log::error("Failed to send follow-up reminder: " . $e->getMessage());
-            $this->error("Failed to send reminder to {$email}: " . $e->getMessage());
+            Log::error('Failed to send follow-up reminder: '.$e->getMessage());
+            $this->error("Failed to send reminder to {$email}: ".$e->getMessage());
         }
     }
 }

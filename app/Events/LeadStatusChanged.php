@@ -14,7 +14,9 @@ class LeadStatusChanged
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Lead $lead;
+
     public ?LeadStatus $oldStatus;
+
     public LeadStatus $newStatus;
 
     public function __construct(Lead $lead, ?LeadStatus $oldStatus, LeadStatus $newStatus)
@@ -27,7 +29,7 @@ class LeadStatusChanged
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('leads.' . $this->lead->id),
+            new PrivateChannel('leads.'.$this->lead->id),
         ];
     }
 }

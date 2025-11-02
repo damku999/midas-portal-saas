@@ -37,7 +37,7 @@ class AdminSeeder extends Seeder
 
         if ($adminRole) {
             $user->assignRole($adminRole);
-            $this->command->info('Admin role assigned to user: ' . $user->email);
+            $this->command->info('Admin role assigned to user: '.$user->email);
         } else {
             $this->command->warn('Admin role not found. User created without role assignment.');
         }

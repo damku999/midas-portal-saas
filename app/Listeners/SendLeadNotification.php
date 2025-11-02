@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Events\LeadAssigned;
+use App\Events\LeadConverted;
 use App\Events\LeadCreated;
 use App\Events\LeadStatusChanged;
-use App\Events\LeadConverted;
-use App\Events\LeadAssigned;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +28,7 @@ class SendLeadNotification implements ShouldQueue
         if ($lead->assignedUser) {
             $this->notifyUser(
                 $lead->assignedUser->email,
-                "New Lead Assigned",
+                'New Lead Assigned',
                 "A new lead '{$lead->name}' ({$lead->lead_number}) has been assigned to you."
             );
         }
@@ -52,7 +52,7 @@ class SendLeadNotification implements ShouldQueue
         if ($lead->assignedUser) {
             $this->notifyUser(
                 $lead->assignedUser->email,
-                "Lead Status Changed",
+                'Lead Status Changed',
                 "Lead '{$lead->name}' ({$lead->lead_number}) status changed from {$oldStatus->name} to {$newStatus->name}."
             );
         }
@@ -84,7 +84,7 @@ class SendLeadNotification implements ShouldQueue
 
             $this->notifyUser(
                 $lead->assignedUser->email,
-                "Lead Converted Successfully",
+                'Lead Converted Successfully',
                 $message
             );
         }
@@ -109,7 +109,7 @@ class SendLeadNotification implements ShouldQueue
         // Notify new assigned user
         $this->notifyUser(
             $newUser->email,
-            "New Lead Assigned",
+            'New Lead Assigned',
             "Lead '{$lead->name}' ({$lead->lead_number}) has been assigned to you."
         );
 
@@ -117,7 +117,7 @@ class SendLeadNotification implements ShouldQueue
         if ($oldUser) {
             $this->notifyUser(
                 $oldUser->email,
-                "Lead Re-assigned",
+                'Lead Re-assigned',
                 "Lead '{$lead->name}' ({$lead->lead_number}) has been re-assigned to {$newUser->name}."
             );
         }
@@ -141,7 +141,7 @@ class SendLeadNotification implements ShouldQueue
             });
             */
         } catch (\Exception $e) {
-            Log::error("Failed to send notification: " . $e->getMessage());
+            Log::error('Failed to send notification: '.$e->getMessage());
         }
     }
 
@@ -193,7 +193,7 @@ class SendLeadNotification implements ShouldQueue
             });
             */
         } catch (\Exception $e) {
-            Log::error("Failed to send welcome email: " . $e->getMessage());
+            Log::error('Failed to send welcome email: '.$e->getMessage());
         }
     }
 }

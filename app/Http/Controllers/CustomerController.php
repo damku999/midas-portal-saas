@@ -153,8 +153,6 @@ class CustomerController extends AbstractBaseCrudController
     /**
      * Show Customer Details - Redirects to Edit
      *
-     * @param  Customer  $customer
-     * @return RedirectResponse
      *
      * @author Claude Code
      */

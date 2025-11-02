@@ -56,7 +56,7 @@ class CheckTenantLimits
             };
 
             return back()
-                ->with('error', $limitMessage . ' Please upgrade your plan to add more.')
+                ->with('error', $limitMessage.' Please upgrade your plan to add more.')
                 ->with('upgrade_required', true);
         }
 

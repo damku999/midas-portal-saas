@@ -30,7 +30,7 @@ class AuthController extends Controller
         ]);
 
         // Rate limiting
-        $key = 'central-login:' . $request->ip();
+        $key = 'central-login:'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
@@ -48,7 +48,7 @@ class AuthController extends Controller
             $user = Auth::guard('central')->user();
 
             // Check if user is active
-            if (!$user->is_active) {
+            if (! $user->is_active) {
                 Auth::guard('central')->logout();
                 throw ValidationException::withMessages([
                     'email' => ['Your account has been deactivated.'],
@@ -56,7 +56,7 @@ class AuthController extends Controller
             }
 
             // Check if user has admin permissions
-            if (!$user->isSuperAdmin() && !$user->isSupportAdmin() && !$user->isBillingAdmin()) {
+            if (! $user->isSuperAdmin() && ! $user->isSupportAdmin() && ! $user->isBillingAdmin()) {
                 Auth::guard('central')->logout();
                 throw ValidationException::withMessages([
                     'email' => ['You do not have permission to access the admin panel.'],

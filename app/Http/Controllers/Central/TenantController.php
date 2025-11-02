@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\AuditLog;
 use App\Models\Central\Plan;
 use App\Models\Central\Subscription;
 use App\Models\Central\Tenant;
-use App\Models\Central\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -27,9 +27,9 @@ class TenantController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('domains', function ($domainQuery) use ($search) {
-                      $domainQuery->where('domain', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('domains', function ($domainQuery) use ($search) {
+                        $domainQuery->where('domain', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -105,7 +105,7 @@ class TenantController extends Controller
             ]);
 
             // Create domain
-            $domain = $validated['subdomain'] . '.' . config('app.domain', 'midastech.in');
+            $domain = $validated['subdomain'].'.'.config('app.domain', 'midastech.in');
             $tenant->domains()->create([
                 'domain' => $domain,
             ]);
@@ -141,7 +141,7 @@ class TenantController extends Controller
                 $password = $validated['admin_password'] ?? Str::random(16);
 
                 DB::table('users')->insert([
-                    'name' => $validated['admin_first_name'] . ' ' . $validated['admin_last_name'],
+                    'name' => $validated['admin_first_name'].' '.$validated['admin_last_name'],
                     'email' => $validated['admin_email'],
                     'password' => Hash::make($password),
                     'email_verified_at' => now(),
@@ -187,7 +187,7 @@ class TenantController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'Failed to create tenant: ' . $e->getMessage());
+                ->with('error', 'Failed to create tenant: '.$e->getMessage());
         }
     }
 
@@ -309,7 +309,7 @@ class TenantController extends Controller
         ]);
 
         $companyName = $tenant->data['company_name'] ?? '';
-        $expectedConfirmation = 'DELETE ' . strtoupper($companyName);
+        $expectedConfirmation = 'DELETE '.strtoupper($companyName);
 
         if ($validated['confirmation'] !== $expectedConfirmation) {
             return back()->with('error', 'Confirmation text does not match. Tenant not deleted.');
@@ -339,7 +339,7 @@ class TenantController extends Controller
         } catch (\Exception $e) {
             DB::connection('central')->rollBack();
 
-            return back()->with('error', 'Failed to delete tenant: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete tenant: '.$e->getMessage());
         }
     }
 }

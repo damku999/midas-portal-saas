@@ -26,10 +26,7 @@ class ProtectedRecordException extends Exception
     /**
      * Create a new ProtectedRecordException instance
      *
-     * @param  string  $message
      * @param  mixed  $protectedRecord
-     * @param  string  $attemptedAction
-     * @param  array  $context
      */
     public function __construct(
         string $message = 'This record is protected and cannot be modified',

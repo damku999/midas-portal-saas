@@ -117,6 +117,7 @@ class UsageTrackingService
             case 'storage':
                 $storageMB = $usage['storage_mb'];
                 $limitMB = $plan->max_storage_gb * 1024;
+
                 return $plan->max_storage_gb === -1 ? 0 : ($storageMB / $limitMB) * 100;
             default:
                 return 0;
@@ -147,6 +148,7 @@ class UsageTrackingService
                     return -1;
                 }
                 $usedGB = $usage['storage_mb'] / 1024;
+
                 return max(0, $plan->max_storage_gb - $usedGB);
             default:
                 return 0;
@@ -172,13 +174,13 @@ class UsageTrackingService
 
         foreach ($tables as $table) {
             $tableName = array_values((array) $table)[0];
-            $size = DB::select("
+            $size = DB::select('
                 SELECT
                     ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024, 2) as size_mb
                 FROM information_schema.TABLES
                 WHERE TABLE_SCHEMA = DATABASE()
                 AND TABLE_NAME = ?
-            ", [$tableName]);
+            ', [$tableName]);
 
             $totalSize += $size[0]->size_mb ?? 0;
         }
@@ -254,7 +256,7 @@ class UsageTrackingService
             if ($limit['max'] !== -1 && $limit['percentage'] >= 80) {
                 $warnings[] = [
                     'type' => $type,
-                    'message' => ucfirst($type) . ' usage at ' . round($limit['percentage']) . '%',
+                    'message' => ucfirst($type).' usage at '.round($limit['percentage']).'%',
                     'severity' => $limit['percentage'] >= 95 ? 'critical' : 'warning',
                 ];
             }

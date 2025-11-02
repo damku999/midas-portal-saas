@@ -6,8 +6,8 @@ use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Repositories\Contracts\LeadRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LeadService
 {
@@ -51,7 +51,7 @@ class LeadService
 
         try {
             // Set created_by to current user if not provided
-            if (!isset($data['created_by'])) {
+            if (! isset($data['created_by'])) {
                 $data['created_by'] = Auth::id();
             }
 
@@ -62,6 +62,7 @@ class LeadService
             $this->logActivity($lead->id, LeadActivity::TYPE_NOTE, 'Lead Created', 'New lead created in the system');
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -82,7 +83,7 @@ class LeadService
 
             // Get current lead state
             $lead = $this->leadRepository->findById($id);
-            if (!$lead) {
+            if (! $lead) {
                 throw new \Exception("Lead not found with ID: {$id}");
             }
 
@@ -102,6 +103,7 @@ class LeadService
             }
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -217,6 +219,7 @@ class LeadService
             );
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -243,6 +246,7 @@ class LeadService
             );
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -270,6 +274,7 @@ class LeadService
             );
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -296,6 +301,7 @@ class LeadService
             );
 
             DB::commit();
+
             return $lead->fresh();
         } catch (\Exception $e) {
             DB::rollBack();

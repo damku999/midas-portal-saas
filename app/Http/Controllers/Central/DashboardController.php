@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\AuditLog;
 use App\Models\Central\Plan;
 use App\Models\Central\Subscription;
 use App\Models\Central\Tenant;
-use App\Models\Central\AuditLog;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {

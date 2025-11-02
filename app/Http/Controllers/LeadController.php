@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\LeadService;
-use App\Services\LeadConversionService;
 use App\Models\LeadSource;
 use App\Models\LeadStatus;
-use App\Models\User;
-use App\Models\RelationshipManager;
 use App\Models\ReferenceUser;
+use App\Models\RelationshipManager;
+use App\Models\User;
+use App\Services\LeadConversionService;
+use App\Services\LeadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LeadController extends Controller
 {
     protected LeadService $leadService;
+
     protected LeadConversionService $conversionService;
 
     public function __construct(LeadService $leadService, LeadConversionService $conversionService)
@@ -100,7 +100,7 @@ class LeadController extends Controller
                 ->with('success', 'Lead created successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to create lead: ' . $e->getMessage());
+                ->with('error', 'Failed to create lead: '.$e->getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ class LeadController extends Controller
         try {
             $lead = $this->leadService->getLeadById($id);
 
-            if (!$lead) {
+            if (! $lead) {
                 return redirect()->route('leads.index')
                     ->with('error', 'Lead not found.');
             }
@@ -128,13 +128,13 @@ class LeadController extends Controller
                     'creator',
                     'updater',
                     'activities.creator',
-                    'documents.uploader'
+                    'documents.uploader',
                 ]),
                 'statuses' => LeadStatus::active()->ordered()->get(),
             ]);
         } catch (\Exception $e) {
             return redirect()->route('leads.index')
-                ->with('error', 'Failed to load lead: ' . $e->getMessage());
+                ->with('error', 'Failed to load lead: '.$e->getMessage());
         }
     }
 
@@ -146,7 +146,7 @@ class LeadController extends Controller
         try {
             $lead = $this->leadService->getLeadById($id);
 
-            if (!$lead) {
+            if (! $lead) {
                 return redirect()->route('leads.index')
                     ->with('error', 'Lead not found.');
             }
@@ -161,7 +161,7 @@ class LeadController extends Controller
             ]);
         } catch (\Exception $e) {
             return redirect()->route('leads.index')
-                ->with('error', 'Failed to load lead: ' . $e->getMessage());
+                ->with('error', 'Failed to load lead: '.$e->getMessage());
         }
     }
 
@@ -199,7 +199,7 @@ class LeadController extends Controller
                 ->with('success', 'Lead updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to update lead: ' . $e->getMessage());
+                ->with('error', 'Failed to update lead: '.$e->getMessage());
         }
     }
 
@@ -214,7 +214,7 @@ class LeadController extends Controller
             return redirect()->route('leads.index')
                 ->with('success', 'Lead deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete lead: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete lead: '.$e->getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ class LeadController extends Controller
 
             return back()->with('success', 'Lead status updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update status: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update status: '.$e->getMessage());
         }
     }
 
@@ -255,7 +255,7 @@ class LeadController extends Controller
 
             return back()->with('success', 'Lead assigned successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to assign lead: ' . $e->getMessage());
+            return back()->with('error', 'Failed to assign lead: '.$e->getMessage());
         }
     }
 
@@ -277,9 +277,9 @@ class LeadController extends Controller
             $result = $this->conversionService->convertLeadToCustomer($id, $validated);
 
             return redirect()->route('leads.show', $id)
-                ->with('success', $result['message'] . ". Customer ID: {$result['customer']->id}");
+                ->with('success', $result['message'].". Customer ID: {$result['customer']->id}");
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to convert lead: ' . $e->getMessage());
+            return back()->with('error', 'Failed to convert lead: '.$e->getMessage());
         }
     }
 
@@ -303,7 +303,7 @@ class LeadController extends Controller
             return redirect()->route('leads.show', $lead->id)
                 ->with('success', 'Lead linked to existing customer successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to link lead: ' . $e->getMessage());
+            return back()->with('error', 'Failed to link lead: '.$e->getMessage());
         }
     }
 
@@ -320,13 +320,13 @@ class LeadController extends Controller
         try {
             $results = $this->conversionService->bulkConvertLeads($validated['lead_ids']);
 
-            $message = "Conversion complete: {$results['total']} total, " .
-                count($results['successful']) . " successful, " .
-                count($results['failed']) . " failed.";
+            $message = "Conversion complete: {$results['total']} total, ".
+                count($results['successful']).' successful, '.
+                count($results['failed']).' failed.';
 
             return back()->with('success', $message)->with('conversion_results', $results);
         } catch (\Exception $e) {
-            return back()->with('error', 'Bulk conversion failed: ' . $e->getMessage());
+            return back()->with('error', 'Bulk conversion failed: '.$e->getMessage());
         }
     }
 
@@ -366,7 +366,7 @@ class LeadController extends Controller
             return redirect()->route('leads.show', $lead->id)
                 ->with('success', 'Lead marked as lost.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to mark lead as lost: ' . $e->getMessage());
+            return back()->with('error', 'Failed to mark lead as lost: '.$e->getMessage());
         }
     }
 
@@ -390,7 +390,7 @@ class LeadController extends Controller
 
             return back()->with('success', "Successfully assigned {$count} leads.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Bulk assign failed: ' . $e->getMessage());
+            return back()->with('error', 'Bulk assign failed: '.$e->getMessage());
         }
     }
 
@@ -412,14 +412,14 @@ class LeadController extends Controller
 
             $leads = $this->leadService->getAllLeads($filters, null);
 
-            $filename = 'leads_export_' . date('Y-m-d_His') . '.csv';
+            $filename = 'leads_export_'.date('Y-m-d_His').'.csv';
 
             $headers = [
                 'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             ];
 
-            $callback = function() use ($leads) {
+            $callback = function () use ($leads) {
                 $file = fopen('php://output', 'w');
 
                 // Add CSV headers
@@ -466,7 +466,7 @@ class LeadController extends Controller
                         $lead->status->name ?? '',
                         $lead->priority ?? '',
                         $lead->product_interest ?? '',
-                        ($lead->assignedUser ? $lead->assignedUser->first_name . ' ' . $lead->assignedUser->last_name : ''),
+                        ($lead->assignedUser ? $lead->assignedUser->first_name.' '.$lead->assignedUser->last_name : ''),
                         $lead->relationshipManager->name ?? '',
                         $lead->referenceUser->name ?? '',
                         $lead->next_follow_up_date ?? '',
@@ -481,7 +481,7 @@ class LeadController extends Controller
 
             return response()->stream($callback, 200, $headers);
         } catch (\Exception $e) {
-            return back()->with('error', 'Export failed: ' . $e->getMessage());
+            return back()->with('error', 'Export failed: '.$e->getMessage());
         }
     }
 

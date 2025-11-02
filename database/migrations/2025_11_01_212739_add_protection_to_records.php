@@ -11,6 +11,7 @@ return new class extends Migration
      *
      * Add protection columns to tables with email fields to prevent
      * deletion/modification of critical records like webmonks.in@gmail.com
+     *
      * and all *@webmonks.in domain records.
      */
     public function up(): void

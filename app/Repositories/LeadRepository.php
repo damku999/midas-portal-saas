@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Lead;
 use App\Repositories\Contracts\LeadRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -21,23 +20,23 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $query = $this->model->with(['source', 'status', 'assignedUser']);
 
-        if (!empty($filters['status_id'])) {
+        if (! empty($filters['status_id'])) {
             $query->where('status_id', $filters['status_id']);
         }
 
-        if (!empty($filters['source_id'])) {
+        if (! empty($filters['source_id'])) {
             $query->where('source_id', $filters['source_id']);
         }
 
-        if (!empty($filters['assigned_to'])) {
+        if (! empty($filters['assigned_to'])) {
             $query->where('assigned_to', $filters['assigned_to']);
         }
 
-        if (!empty($filters['priority'])) {
+        if (! empty($filters['priority'])) {
             $query->where('priority', $filters['priority']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('name', 'like', "%{$filters['search']}%")
                     ->orWhere('email', 'like', "%{$filters['search']}%")
@@ -46,11 +45,11 @@ class LeadRepository implements LeadRepositoryInterface
             });
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -80,11 +79,12 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
         $lead->update($data);
+
         return $lead->fresh();
     }
 
@@ -92,7 +92,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -103,7 +103,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->model->withTrashed()->find($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -114,7 +114,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->model->withTrashed()->find($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -211,7 +211,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -230,7 +230,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -245,7 +245,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 
@@ -262,7 +262,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         $lead = $this->findById($id);
 
-        if (!$lead) {
+        if (! $lead) {
             throw new \Exception("Lead not found with ID: {$id}");
         }
 

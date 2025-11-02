@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\LeadService;
-use App\Services\LeadConversionService;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadStatus;
-use App\Models\LeadSource;
+use App\Services\LeadConversionService;
+use App\Services\LeadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class LeadDashboardController extends Controller
 {
     protected LeadService $leadService;
+
     protected LeadConversionService $conversionService;
 
     public function __construct(LeadService $leadService, LeadConversionService $conversionService)

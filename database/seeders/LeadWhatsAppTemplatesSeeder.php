@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\LeadWhatsAppTemplate;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class LeadWhatsAppTemplatesSeeder extends Seeder
 {
@@ -213,7 +213,7 @@ Need help? I'm just a call away!
             [
                 'name' => 'Reminder - Upcoming Meeting',
                 'category' => 'reminder',
-                'message_template' => "Hello {name}! 👋
+                'message_template' => 'Hello {name}! 👋
 
 This is a reminder about our scheduled discussion tomorrow regarding your {product_interest} requirements.
 
@@ -234,7 +234,7 @@ Looking forward to our conversation!
 Best regards,
 {advisor_name}
 {company_name}
-{company_website}",
+{company_website}',
                 'variables' => ['name', 'product_interest', 'current_date', 'company_phone', 'advisor_name', 'company_name', 'company_website'],
                 'is_active' => true,
                 'usage_count' => 0,
@@ -311,6 +311,6 @@ Warm regards,
             LeadWhatsAppTemplate::create($template);
         }
 
-        $this->command->info('✅ Created ' . count($templates) . ' WhatsApp lead marketing templates successfully!');
+        $this->command->info('✅ Created '.count($templates).' WhatsApp lead marketing templates successfully!');
     }
 }

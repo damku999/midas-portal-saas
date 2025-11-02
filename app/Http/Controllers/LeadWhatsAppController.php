@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExecuteCampaignJob;
+use App\Jobs\SendBulkWhatsAppJob;
 use App\Models\Lead;
-use App\Models\LeadWhatsAppMessage;
 use App\Models\LeadWhatsAppCampaign;
+use App\Models\LeadWhatsAppMessage;
 use App\Models\LeadWhatsAppTemplate;
 use App\Services\LeadWhatsAppService;
-use App\Jobs\SendBulkWhatsAppJob;
-use App\Jobs\ExecuteCampaignJob;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class LeadWhatsAppController extends Controller
 {
@@ -63,7 +63,7 @@ class LeadWhatsAppController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send WhatsApp message: ' . $e->getMessage(),
+                'message' => 'Failed to send WhatsApp message: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -134,7 +134,7 @@ class LeadWhatsAppController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send bulk messages: ' . $e->getMessage(),
+                'message' => 'Failed to send bulk messages: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -213,7 +213,7 @@ class LeadWhatsAppController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to create campaign: ' . $e->getMessage())
+                ->with('error', 'Failed to create campaign: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -239,7 +239,7 @@ class LeadWhatsAppController extends Controller
         try {
             $campaign = LeadWhatsAppCampaign::findOrFail($id);
 
-            if (!$campaign->canExecute()) {
+            if (! $campaign->canExecute()) {
                 return response()->json([
                     'success' => false,
                     'message' => "Campaign cannot be executed in current status: {$campaign->status}",
@@ -274,7 +274,7 @@ class LeadWhatsAppController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to execute campaign: ' . $e->getMessage(),
+                'message' => 'Failed to execute campaign: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -287,7 +287,7 @@ class LeadWhatsAppController extends Controller
         try {
             $campaign = LeadWhatsAppCampaign::findOrFail($id);
 
-            if (!$campaign->canPause()) {
+            if (! $campaign->canPause()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Campaign cannot be paused in current status',
@@ -304,7 +304,7 @@ class LeadWhatsAppController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to pause campaign: ' . $e->getMessage(),
+                'message' => 'Failed to pause campaign: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -331,7 +331,7 @@ class LeadWhatsAppController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retry messages: ' . $e->getMessage(),
+                'message' => 'Failed to retry messages: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -469,7 +469,7 @@ class LeadWhatsAppController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to create template: ' . $e->getMessage())
+                ->with('error', 'Failed to create template: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -480,6 +480,7 @@ class LeadWhatsAppController extends Controller
     public function editTemplate($id)
     {
         $template = LeadWhatsAppTemplate::findOrFail($id);
+
         return view('leads.whatsapp.templates.edit', compact('template'));
     }
 
@@ -532,7 +533,7 @@ class LeadWhatsAppController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to update template: ' . $e->getMessage())
+                ->with('error', 'Failed to update template: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -560,7 +561,7 @@ class LeadWhatsAppController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete template: ' . $e->getMessage(),
+                'message' => 'Failed to delete template: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -581,10 +582,10 @@ class LeadWhatsAppController extends Controller
             $leadMobile = $request->input('mobile');
             $errorMessage = $request->input('error_message');
 
-            if (!$messageId && !$leadMobile) {
+            if (! $messageId && ! $leadMobile) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid webhook data'
+                    'message' => 'Invalid webhook data',
                 ], 400);
             }
 
@@ -598,21 +599,22 @@ class LeadWhatsAppController extends Controller
                 $lead = Lead::where('mobile_number', $leadMobile)->first();
                 if ($lead) {
                     $query->where('lead_id', $lead->id)
-                          ->whereIn('status', ['pending', 'sent'])
-                          ->latest();
+                        ->whereIn('status', ['pending', 'sent'])
+                        ->latest();
                 }
             }
 
             $message = $query->first();
 
-            if (!$message) {
+            if (! $message) {
                 Log::warning('WhatsApp message not found for webhook', [
                     'message_id' => $messageId,
-                    'mobile' => $leadMobile
+                    'mobile' => $leadMobile,
                 ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Message not found'
+                    'message' => 'Message not found',
                 ], 404);
             }
 
@@ -645,23 +647,23 @@ class LeadWhatsAppController extends Controller
 
             Log::info('WhatsApp status updated', [
                 'message_id' => $message->id,
-                'status' => $status
+                'status' => $status,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Status updated successfully'
+                'message' => 'Status updated successfully',
             ]);
 
         } catch (Exception $e) {
             Log::error('Webhook processing failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Webhook processing failed'
+                'message' => 'Webhook processing failed',
             ], 500);
         }
     }
