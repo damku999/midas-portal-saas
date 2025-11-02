@@ -260,7 +260,7 @@ class TenantController extends Controller
     public function suspend(Request $request, Tenant $tenant)
     {
         $validated = $request->validate([
-            'reason' => 'required|string|max:500',
+            'reason' => 'nullable|string|max:500',
         ]);
 
         if ($tenant->subscription) {
@@ -271,7 +271,7 @@ class TenantController extends Controller
                 "Suspended tenant: {$tenant->data['company_name']}",
                 auth('central')->user(),
                 $tenant->id,
-                ['reason' => $validated['reason']]
+                ['reason' => $validated['reason'] ?? 'No reason provided']
             );
         }
 

@@ -51,7 +51,13 @@
       "Bash(C:\\xampp\\mysql\\bin\\mysql:*)",
       "mcp__laravel-boost__database-connections",
       "Bash(echo:*)",
-      "WebFetch(domain:midastech.in)"
+      "WebFetch(domain:midastech.in)",
+      "Bash(tasklist)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Read(//c/xampp/apache/conf/extra/**)",
+      "Read(//c/Windows/System32/drivers/etc/**)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

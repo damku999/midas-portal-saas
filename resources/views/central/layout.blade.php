@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <style>
         :root {
@@ -176,21 +178,26 @@
 
         <!-- Content -->
         <div class="content-wrapper">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
             @yield('content')
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalAction">Confirm</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -199,8 +206,80 @@
         @csrf
     </form>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        // Show session messages
+        @if(session('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
+
+        @if(session('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
+
+        @if(session('info'))
+            toastr.info("{{ session('info') }}");
+        @endif
+
+        @if(session('warning'))
+            toastr.warning("{{ session('warning') }}");
+        @endif
+
+        // Confirmation modal helper
+        function showConfirmModal(title, message, onConfirm, btnText = 'Confirm', btnClass = 'btn-danger') {
+            $('#confirmModalTitle').text(title);
+            $('#confirmModalBody').text(message);
+            $('#confirmModalAction').text(btnText).removeClass().addClass('btn ' + btnClass);
+
+            $('#confirmModalAction').off('click').on('click', function() {
+                $('#confirmModal').modal('hide');
+                if (typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+            });
+
+            $('#confirmModal').modal('show');
+        }
+
+        // Handle forms with confirmation
+        $(document).on('click', '[data-confirm]', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var message = $this.data('confirm');
+            var title = $this.data('confirm-title') || 'Confirm Action';
+            var btnText = $this.data('confirm-button') || 'Confirm';
+            var btnClass = $this.data('confirm-class') || 'btn-danger';
+
+            showConfirmModal(title, message, function() {
+                if ($this.is('form')) {
+                    $this.submit();
+                } else if ($this.closest('form').length) {
+                    $this.closest('form').submit();
+                } else if ($this.attr('href')) {
+                    window.location.href = $this.attr('href');
+                }
+            }, btnText, btnClass);
+        });
+    </script>
 
     @stack('scripts')
 </body>

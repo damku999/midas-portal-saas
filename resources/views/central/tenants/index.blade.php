@@ -112,11 +112,11 @@
                                     @if($tenant->subscription && $tenant->subscription->status === 'active')
                                         <form action="{{ route('central.tenants.suspend', $tenant) }}"
                                               method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to suspend this tenant?');">
+                                              class="d-inline suspend-tenant-form"
+                                              data-tenant-name="{{ $tenant->data['company_name'] ?? 'this tenant' }}">
                                             @csrf
-                                            <button type="submit"
-                                                    class="btn btn-outline-warning"
+                                            <button type="button"
+                                                    class="btn btn-outline-warning suspend-tenant-btn"
                                                     title="Suspend">
                                                 <i class="fas fa-ban"></i>
                                             </button>
@@ -157,3 +157,26 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Handle suspend tenant confirmation
+    $('.suspend-tenant-btn').on('click', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        const tenantName = form.data('tenant-name');
+
+        showConfirmModal(
+            'Suspend Tenant',
+            `Are you sure you want to suspend ${tenantName}? The tenant will not be able to access their account until reactivated.`,
+            function() {
+                form.submit();
+            },
+            'Yes, Suspend',
+            'btn-warning'
+        );
+    });
+});
+</script>
+@endpush

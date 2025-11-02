@@ -234,9 +234,11 @@
             <div class="card-body">
                 @if($tenant->subscription)
                     @if($tenant->subscription->status === 'active' || $tenant->subscription->status === 'trial')
-                        <form action="{{ route('central.tenants.suspend', $tenant) }}" method="POST" class="mb-2" onsubmit="return confirm('Are you sure you want to suspend this tenant?');">
+                        <form action="{{ route('central.tenants.suspend', $tenant) }}" method="POST" class="mb-2" id="suspendTenantForm">
                             @csrf
-                            <button type="submit" class="btn btn-warning w-100 mb-2">
+                            <button type="button"
+                                    class="btn btn-warning w-100 mb-2"
+                                    onclick="confirmSuspendTenant()">
                                 <i class="fas fa-ban me-2"></i>Suspend Tenant
                             </button>
                         </form>
@@ -272,10 +274,16 @@
                 </p>
                 <form action="{{ route('central.tenants.destroy', $tenant) }}"
                       method="POST"
-                      onsubmit="return confirm('Are you absolutely sure? This will permanently delete all tenant data!');">
+                      id="deleteTenantForm">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger w-100">
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            data-confirm="Are you absolutely sure? This will permanently delete all tenant data including database, files, and configurations. This action cannot be undone!"
+                            data-confirm-title="Delete Tenant"
+                            data-confirm-button="Yes, Delete Permanently"
+                            data-confirm-class="btn-danger"
+                            onclick="confirmDeleteTenant()">
                         <i class="fas fa-trash-alt me-2"></i>Delete Tenant
                     </button>
                 </form>
@@ -293,4 +301,108 @@
         margin-bottom: 0 !important;
     }
 </style>
+@endpush
+
+<!-- Delete Confirmation Modal with Input -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Tenant - Final Warning
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger mb-3">
+                    <strong>Warning!</strong> This action CANNOT be undone!
+                </div>
+                <p class="mb-3">This will permanently delete:</p>
+                <ul class="mb-3">
+                    <li>Tenant database and all data</li>
+                    <li>All tenant files and uploads</li>
+                    <li>User accounts and configurations</li>
+                    <li>Subscription history</li>
+                </ul>
+                <p class="mb-3">To confirm deletion, please type:</p>
+                <p class="mb-2"><strong><code>DELETE {{ strtoupper($tenant->data['company_name'] ?? '') }}</code></strong></p>
+                <input type="text" class="form-control" id="deleteConfirmationInput" placeholder="Type here to confirm..." autocomplete="off">
+                <small class="text-muted">This confirmation is case-sensitive</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                    <i class="fas fa-trash-alt me-2"></i>Yes, Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+const companyName = @json($tenant->data['company_name'] ?? '');
+const expectedConfirmation = 'DELETE ' + companyName.toUpperCase();
+
+function confirmSuspendTenant() {
+    showConfirmModal(
+        'Suspend Tenant',
+        'Are you sure you want to suspend this tenant? The tenant will not be able to access their account until reactivated.',
+        function() {
+            document.getElementById('suspendTenantForm').submit();
+        },
+        'Yes, Suspend',
+        'btn-warning'
+    );
+}
+
+function confirmDeleteTenant() {
+    // Show custom modal
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    modal.show();
+
+    // Reset input
+    document.getElementById('deleteConfirmationInput').value = '';
+    document.getElementById('confirmDeleteBtn').disabled = true;
+}
+
+// Enable delete button only when confirmation text matches
+document.getElementById('deleteConfirmationInput').addEventListener('input', function(e) {
+    const input = e.target.value;
+    const deleteBtn = document.getElementById('confirmDeleteBtn');
+
+    if (input === expectedConfirmation) {
+        deleteBtn.disabled = false;
+        deleteBtn.classList.remove('btn-secondary');
+        deleteBtn.classList.add('btn-danger');
+    } else {
+        deleteBtn.disabled = true;
+        deleteBtn.classList.remove('btn-danger');
+        deleteBtn.classList.add('btn-secondary');
+    }
+});
+
+// Handle delete confirmation
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    const input = document.getElementById('deleteConfirmationInput').value;
+
+    if (input === expectedConfirmation) {
+        // Add hidden input with confirmation text to form
+        const form = document.getElementById('deleteTenantForm');
+        const confirmationInput = document.createElement('input');
+        confirmationInput.type = 'hidden';
+        confirmationInput.name = 'confirmation';
+        confirmationInput.value = input;
+        form.appendChild(confirmationInput);
+
+        // Submit form
+        form.submit();
+
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal')).hide();
+    } else {
+        toastr.error('Confirmation text does not match!');
+    }
+});
+</script>
 @endpush
