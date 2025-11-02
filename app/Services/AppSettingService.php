@@ -16,6 +16,11 @@ class AppSettingService
      */
     public static function get(string $key, $default = null)
     {
+        // Return default if not in tenant context (e.g., central admin)
+        if (!tenancy()->initialized) {
+            return $default;
+        }
+
         $cacheKey = self::CACHE_PREFIX.$key;
 
         return Cache::remember($cacheKey, self::CACHE_TTL, static function () use ($key, $default) {
@@ -70,6 +75,11 @@ class AppSettingService
      */
     public static function getByCategory(string $category): array
     {
+        // Return empty array if not in tenant context (e.g., central admin)
+        if (!tenancy()->initialized) {
+            return [];
+        }
+
         $cacheKey = self::CACHE_PREFIX.'category_'.$category;
 
         return Cache::remember($cacheKey, self::CACHE_TTL, static function () use ($category): array {

@@ -50,7 +50,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
 
             // Central Admin Routes (loaded first, highest priority)
-            Route::prefix('admin')
+            Route::prefix('midas-admin')
                 ->middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/central.php'));

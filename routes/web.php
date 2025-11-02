@@ -35,9 +35,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Public Website Routes (no tenant middleware)
+Route::get('/', [App\Http\Controllers\PublicController::class, 'home'])->name('public.home')->withoutMiddleware(['universal']);
+Route::get('/features', [App\Http\Controllers\PublicController::class, 'features'])->name('public.features')->withoutMiddleware(['universal']);
+Route::get('/pricing', [App\Http\Controllers\PublicController::class, 'pricing'])->name('public.pricing')->withoutMiddleware(['universal']);
+Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->name('public.about')->withoutMiddleware(['universal']);
+Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact')->withoutMiddleware(['universal']);
+Route::post('/contact', [App\Http\Controllers\PublicController::class, 'submitContact'])->name('public.contact.submit')->withoutMiddleware(['universal']);
 
 // Customer Portal Routes are now defined in routes/customer.php
 
@@ -117,7 +121,7 @@ Route::middleware('auth')->prefix('notification-templates')->name('notification-
 });
 
 // Notification Logs
-Route::middleware('auth')->prefix('admin/notification-logs')->name('admin.notification-logs.')->group(function () {
+Route::middleware('auth')->prefix('notification-logs')->name('notification-logs.')->group(function () {
     Route::get('/', [App\Http\Controllers\NotificationLogController::class, 'index'])->name('index');
     Route::get('/analytics', [App\Http\Controllers\NotificationLogController::class, 'analytics'])->name('analytics');
     Route::get('/{log}', [App\Http\Controllers\NotificationLogController::class, 'show'])->name('show');
@@ -127,7 +131,7 @@ Route::middleware('auth')->prefix('admin/notification-logs')->name('admin.notifi
 });
 
 // Customer Devices (Push Notification Management)
-Route::middleware('auth')->prefix('admin/customer-devices')->name('admin.customer-devices.')->group(function () {
+Route::middleware('auth')->prefix('customer-devices')->name('customer-devices.')->group(function () {
     Route::get('/', [App\Http\Controllers\CustomerDeviceController::class, 'index'])->name('index');
     Route::get('/{device}', [App\Http\Controllers\CustomerDeviceController::class, 'show'])->name('show');
     Route::post('/{device}/deactivate', [App\Http\Controllers\CustomerDeviceController::class, 'deactivate'])->name('deactivate');

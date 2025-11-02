@@ -13,23 +13,27 @@ class DynamicConfigServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            // Load Application Settings
-            $this->loadApplicationSettings();
+            // Only load tenant-specific settings when we have an active tenant context
+            // Skip for central admin routes to avoid looking for app_settings in central database
+            if (tenancy()->initialized) {
+                // Load Application Settings
+                $this->loadApplicationSettings();
 
-            // Load WhatsApp Settings
-            $this->loadWhatsAppSettings();
+                // Load WhatsApp Settings
+                $this->loadWhatsAppSettings();
 
-            // Load Mail Settings
-            $this->loadMailSettings();
+                // Load Mail Settings
+                $this->loadMailSettings();
 
-            // Load Notification Settings
-            $this->loadNotificationSettings();
+                // Load Notification Settings
+                $this->loadNotificationSettings();
 
-            // Load SMS Settings
-            $this->loadSmsSettings();
+                // Load SMS Settings
+                $this->loadSmsSettings();
 
-            // Load Push Notification Settings
-            $this->loadPushSettings();
+                // Load Push Notification Settings
+                $this->loadPushSettings();
+            }
 
         } catch (\Exception $e) {
             // Silently fail during migration/installation

@@ -17,7 +17,7 @@
     <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <form method="GET" action="{{ route('admin.notification-logs.analytics') }}" class="form-inline">
+            <form method="GET" action="{{ route('notification-logs.analytics') }}" class="form-inline">
                 <div class="form-group mr-3">
                     <label class="mr-2">From:</label>
                     <input type="date" name="from_date" class="form-control" value="{{ $fromDate->format('Y-m-d') }}">
@@ -29,7 +29,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Update
                 </button>
-                <a href="{{ route('admin.notification-logs.index') }}" class="btn btn-secondary ml-2">
+                <a href="{{ route('notification-logs.index') }}" class="btn btn-secondary ml-2">
                     <i class="fas fa-list"></i> View Logs
                 </a>
             </form>
@@ -270,7 +270,7 @@
                                         <small class="text-danger">{{ Str::limit($log->error_message, 50) }}</small>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.notification-logs.show', $log) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ route('notification-logs.show', $log) }}" class="btn btn-sm btn-info">
                                             View
                                         </a>
                                     </td>

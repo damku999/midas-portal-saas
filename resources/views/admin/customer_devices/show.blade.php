@@ -7,7 +7,7 @@
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-mobile-alt"></i> Device Details
         </h1>
-        <a href="{{ route('admin.customer-devices.index') }}" class="btn btn-sm btn-secondary">
+        <a href="{{ route('customer-devices.index') }}" class="btn btn-sm btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Devices
         </a>
     </div>

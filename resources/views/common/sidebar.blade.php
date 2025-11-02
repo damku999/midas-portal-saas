@@ -146,7 +146,7 @@
     <!-- NOTIFICATIONS SUBMENU -->
     @if(auth()->check() && auth()->user()->hasPermissionTo('notification-template-list'))
     @php
-        $notificationRoutes = ['notification-templates.*', 'admin.notification-logs.*', 'admin.customer-devices.*'];
+        $notificationRoutes = ['notification-templates.*', 'notification-logs.*', 'customer-devices.*'];
         $isNotificationActive = collect($notificationRoutes)->contains(fn($route) => request()->routeIs($route));
     @endphp
     <div class="nav-item">
@@ -169,19 +169,19 @@
                     <i class="fas fa-file-alt me-3 fs-6"></i>
                     <span>Templates</span>
                 </a>
-                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('admin.notification-logs.index') && !request()->routeIs('admin.notification-logs.analytics') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('admin.notification-logs.index') }}">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('notification-logs.index') && !request()->routeIs('notification-logs.analytics') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('notification-logs.index') }}">
                     <i class="fas fa-list me-3 fs-6"></i>
                     <span>Notification Logs</span>
                 </a>
-                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('admin.notification-logs.analytics') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('admin.notification-logs.analytics') }}">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('notification-logs.analytics') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('notification-logs.analytics') }}">
                     <i class="fas fa-chart-line me-3 fs-6"></i>
                     <span>Analytics</span>
                 </a>
-                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('admin.customer-devices.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('admin.customer-devices.index') }}">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('customer-devices.*') ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('customer-devices.index') }}">
                     <i class="fas fa-mobile-alt me-3 fs-6"></i>
                     <span>Customer Devices</span>
                 </a>
-                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('admin.notification-logs.index') && request('status') == 'failed' ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('admin.notification-logs.index', ['status' => 'failed']) }}">
+                <a class="nav-link d-flex align-items-center py-2 mx-2 my-1 rounded text-white-50 text-decoration-none {{ request()->routeIs('notification-logs.index') && request('status') == 'failed' ? 'bg-light bg-opacity-10 text-white fw-semibold' : '' }}" href="{{ route('notification-logs.index', ['status' => 'failed']) }}">
                     <i class="fas fa-exclamation-triangle text-danger me-3 fs-6"></i>
                     <span>Failed Notifications</span>
                 </a>

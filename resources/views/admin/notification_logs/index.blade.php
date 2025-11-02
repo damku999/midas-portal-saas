@@ -12,7 +12,7 @@
                 </div>
                 <div class="card-body">
                     <!-- Filters -->
-                    <form method="GET" action="{{ route('admin.notification-logs.index') }}" class="mb-4">
+                    <form method="GET" action="{{ route('notification-logs.index') }}" class="mb-4">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -74,10 +74,10 @@
                                 </div>
                             </div>
                             <div class="col-md-6 text-right">
-                                <a href="{{ route('admin.notification-logs.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('notification-logs.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-redo"></i> Reset
                                 </a>
-                                <a href="{{ route('admin.notification-logs.analytics') }}" class="btn btn-info">
+                                <a href="{{ route('notification-logs.analytics') }}" class="btn btn-info">
                                     <i class="fas fa-chart-bar"></i> Analytics
                                 </a>
                             </div>
@@ -85,7 +85,7 @@
                     </form>
 
                     <!-- Bulk Actions -->
-                    <form id="bulkResendForm" method="POST" action="{{ route('admin.notification-logs.bulk-resend') }}">
+                    <form id="bulkResendForm" method="POST" action="{{ route('notification-logs.bulk-resend') }}">
                         @csrf
                         <div class="mb-3">
                             <button type="submit" class="btn btn-warning btn-sm" id="bulkResendBtn" disabled>
@@ -163,7 +163,7 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.notification-logs.show', $log) }}"
+                                            <a href="{{ route('notification-logs.show', $log) }}"
                                                class="btn btn-sm btn-info"
                                                title="View Details">
                                                 <i class="fas fa-eye"></i>

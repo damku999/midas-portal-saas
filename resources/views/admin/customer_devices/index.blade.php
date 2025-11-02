@@ -126,7 +126,7 @@
             <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.customer-devices.index') }}">
+            <form method="GET" action="{{ route('customer-devices.index') }}">
                 <div class="row">
                     <div class="col-md-3">
                         <input type="text" name="search" class="form-control" placeholder="Search customer/device..."
@@ -153,7 +153,7 @@
                         </button>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('admin.customer-devices.index') }}" class="btn btn-secondary btn-block">
+                        <a href="{{ route('customer-devices.index') }}" class="btn btn-secondary btn-block">
                             <i class="fas fa-redo"></i> Reset
                         </a>
                     </div>
@@ -217,7 +217,7 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('admin.customer-devices.show', $device) }}"
+                                <a href="{{ route('customer-devices.show', $device) }}"
                                    class="btn btn-sm btn-info" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
@@ -257,7 +257,7 @@ function cleanupInvalid() {
         'danger',
         function() {
             showLoading('Cleaning up inactive devices...');
-            fetch('{{ route("admin.customer-devices.cleanup-invalid") }}', {
+            fetch('{{ route("customer-devices.cleanup-invalid") }}', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

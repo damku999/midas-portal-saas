@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <!-- Back Button -->
             <div class="mb-3">
-                <a href="{{ route('admin.notification-logs.index') }}" class="btn btn-secondary">
+                <a href="{{ route('notification-logs.index') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Logs
                 </a>
                 @if($log->canRetry())
