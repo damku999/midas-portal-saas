@@ -177,6 +177,7 @@ return [
         App\Providers\RepositoryServiceProvider::class,
         App\Modules\ModuleServiceProvider::class,
         App\Providers\DynamicConfigServiceProvider::class,
+        App\Providers\TenancyServiceProvider::class,
 
     ],
 
