@@ -219,11 +219,11 @@ class DefaultTenantSeeder extends Seeder
     private function seedCustomerTypes(): void
     {
         $types = [
-            ['name' => 'Individual', 'description' => 'Individual customer', 'is_active' => true],
-            ['name' => 'Corporate', 'description' => 'Corporate customer', 'is_active' => true],
-            ['name' => 'Family', 'description' => 'Family group', 'is_active' => true],
-            ['name' => 'Senior Citizen', 'description' => 'Senior citizen customer', 'is_active' => true],
-            ['name' => 'VIP', 'description' => 'VIP customer', 'is_active' => true],
+            ['name' => 'Individual', 'description' => 'Individual customer', 'status' => 1],
+            ['name' => 'Corporate', 'description' => 'Corporate customer', 'status' => 1],
+            ['name' => 'Family', 'description' => 'Family group', 'status' => 1],
+            ['name' => 'Senior Citizen', 'description' => 'Senior citizen customer', 'status' => 1],
+            ['name' => 'VIP', 'description' => 'VIP customer', 'status' => 1],
         ];
 
         foreach ($types as $type) {

@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Customer\CustomerTrustedDevice
  *
@@ -56,8 +54,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class CustomerTrustedDevice extends Model
 {
-    use BelongsToTenant;
-
     protected $table = 'trusted_devices';
 
     protected $fillable = [

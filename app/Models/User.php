@@ -27,8 +27,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\User
  *
@@ -101,7 +99,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 class User extends Authenticatable
 {
     use Auditable;
-    use BelongsToTenant;
     use HasApiTokens;
     use HasFactory;
     use HasRoles;

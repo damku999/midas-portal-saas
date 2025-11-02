@@ -43,27 +43,80 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
-            // API Routes (for mobile app)
-            Route::prefix('api')
-                ->middleware('api')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/api.php'));
+            /*
+            |--------------------------------------------------------------------------
+            | Route Loading Order (CRITICAL - DO NOT CHANGE)
+            |--------------------------------------------------------------------------
+            |
+            | Routes are loaded in this specific order to prevent conflicts:
+            | 1. Central Admin Routes (/midas-admin/*) - NO tenant middleware
+            | 2. Public Website Routes (/, /features, etc.) - Central domains only
+            | 3. Tenant Staff Portal (ALL tenant business routes) - Tenant middleware
+            | 4. Customer Portal (/customer/*) - Tenant middleware
+            |
+            */
 
-            // Central Admin Routes (loaded first, highest priority)
+            // ====================================================================
+            // 1. CENTRAL ADMIN ROUTES
+            // ====================================================================
+            // Accessible ONLY on central domains (midastech.in, midastech.testing.in)
+            // NO tenant identification middleware
+            // Guard: 'central'
+            // ====================================================================
             Route::prefix('midas-admin')
                 ->middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/central.php'));
 
-            // Load web routes (tenant admin routes) - with tenant identification
-            Route::middleware(['web', 'universal'])
+            // ====================================================================
+            // 2. PUBLIC WEBSITE ROUTES (MUST LOAD BEFORE TENANT ROUTES!)
+            // ====================================================================
+            // Accessible ONLY on central domains
+            // Uses domain() to restrict to central domains at route registration level
+            // This prevents tenant middleware from even attempting to initialize
+            // NO authentication required
+            // Loaded BEFORE tenant routes to prevent route conflicts on '/' path
+            // ====================================================================
+            foreach (config('tenancy.central_domains') as $domain) {
+                Route::domain($domain)
+                    ->middleware('web')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/public.php'));
+            }
+
+            // ====================================================================
+            // 3. TENANT STAFF PORTAL ROUTES
+            // ====================================================================
+            // Accessible ONLY on tenant subdomains (tenant.midastech.testing.in)
+            // Middleware stack:
+            // - 'web' → Session, CSRF, cookies
+            // - 'universal' → InitializeTenancyByDomain (identifies tenant)
+            // - 'tenant' → PreventAccessFromCentralDomains (blocks central access)
+            // Guard: 'web' (default)
+            // ====================================================================
+            Route::middleware(['web', 'universal', 'tenant'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
 
-            // Customer Portal Routes loaded last to avoid conflicts - with tenant identification
-            Route::middleware(['web', 'universal'])
+            // ====================================================================
+            // 4. CUSTOMER PORTAL ROUTES
+            // ====================================================================
+            // Accessible ONLY on tenant subdomains (/customer/*)
+            // Middleware stack: Same as tenant staff portal
+            // Guard: 'customer'
+            // ====================================================================
+            Route::middleware(['web', 'universal', 'tenant'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/customer.php'));
+
+            // ====================================================================
+            // 5. API ROUTES (if needed in future)
+            // ====================================================================
+            // Currently disabled - web application only
+            // Route::prefix('api')
+            //     ->middleware('api')
+            //     ->namespace($this->namespace)
+            //     ->group(base_path('routes/api.php'));
         });
     }
 

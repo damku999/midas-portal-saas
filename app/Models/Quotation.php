@@ -15,8 +15,6 @@ use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Quotation
  *
@@ -99,7 +97,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class Quotation extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
     use LogsActivity;
     use SoftDeletes;

@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\NotificationDeliveryTracking
  *
@@ -37,7 +35,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class NotificationDeliveryTracking extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $table = 'notification_delivery_tracking';

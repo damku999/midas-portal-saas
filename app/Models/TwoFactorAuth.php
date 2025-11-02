@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\TwoFactorAuth
  *
@@ -51,7 +49,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class TwoFactorAuth extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $table = 'two_factor_auth';

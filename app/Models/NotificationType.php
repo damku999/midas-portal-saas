@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\NotificationType
  *
@@ -54,7 +52,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class NotificationType extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
     use SoftDeletes;
 

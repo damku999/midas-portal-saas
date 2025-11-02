@@ -22,8 +22,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\RelationshipManager
  *
@@ -76,7 +74,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class RelationshipManager extends Authenticatable
 {
-    use BelongsToTenant;
     use HasApiTokens;
     use HasFactory;
     use HasRoles;

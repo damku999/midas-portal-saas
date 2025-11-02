@@ -6,11 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 class LeadWhatsAppTemplate extends Model
 {
-    use BelongsToTenant;
     use HasFactory, SoftDeletes;
 
     protected $table = 'lead_whatsapp_templates';

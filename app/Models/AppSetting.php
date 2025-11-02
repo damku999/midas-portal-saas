@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\AppSetting
  *
@@ -45,7 +43,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class AppSetting extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [

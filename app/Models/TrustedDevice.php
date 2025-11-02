@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\TrustedDevice
  *
@@ -59,7 +57,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class TrustedDevice extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [

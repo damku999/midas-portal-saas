@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(C:\\xampp\\mysql\\bin\\mysql:*)"
+      "Bash(C:\\xampp\\mysql\\bin\\mysql:*)",
+      "Bash(if [ ! -d \"docs/routing\" ])",
+      "Bash(then mkdir -p docs/routing)",
+      "mcp__laravel-boost__list-routes",
+      "Bash(php artisan route:list:*)",
+      "Bash(php artisan:*)",
+      "Bash(curl:*)",
+      "mcp__laravel-boost__get-config",
+      "mcp__laravel-boost__last-error",
+      "mcp__laravel-boost__read-log-entries",
+      "mcp__laravel-boost__list-available-env-vars",
+      "Bash(if [ ! -d \"database/seeders/Tenant\" ])",
+      "Bash(then echo \"Directory does not exist\")",
+      "Bash(else ls -la \"database/seeders/Tenant\")",
+      "Bash(fi)",
+      "mcp__laravel-boost__database-query",
+      "mcp__laravel-boost__tinker",
+      "Bash(find:*)",
+      "Bash(php:*)"
     ],
     "deny": [],
     "ask": []

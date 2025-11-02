@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Customer\CustomerTwoFactorAuth
  *
@@ -51,8 +49,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class CustomerTwoFactorAuth extends Model
 {
-    use BelongsToTenant;
-
     protected $table = 'two_factor_auth';
 
     protected $fillable = [

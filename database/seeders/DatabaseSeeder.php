@@ -23,7 +23,7 @@ use Database\Seeders\Tenant\AppSettingsSeeder;
 use Database\Seeders\Tenant\NotificationTypesSeeder;
 use Database\Seeders\Tenant\NotificationTemplatesSeeder;
 use Database\Seeders\Tenant\EmailCleanupSeeder;
-use Database\Seeders\Tenant\DataMigrationSeeder;
+use Database\Seeders\DataMigrationSeeder;
 use Illuminate\Database\Seeder;
 
 /**

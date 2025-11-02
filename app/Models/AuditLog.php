@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\AuditLog
  *
@@ -86,7 +84,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class AuditLog extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [

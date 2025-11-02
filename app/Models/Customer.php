@@ -35,8 +35,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Customer
  *
@@ -158,7 +156,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 class Customer extends Authenticatable
 {
     use Auditable;
-    use BelongsToTenant;
     use HasApiTokens;
     use HasCustomerTwoFactorAuth;
     use HasFactory;

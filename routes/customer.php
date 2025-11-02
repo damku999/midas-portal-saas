@@ -116,17 +116,17 @@ Route::prefix('customer')->name('customer.')->group(function () {
         });
 
         // ==========================================
-        // 2FA CHALLENGE ROUTES (Outside auth middleware)
+        // 2FA CHALLENGE ROUTES (During login - not fully authenticated)
         // ==========================================
 
-        // 2FA Challenge Routes (for customer - keep separate route names)
+        // 2FA Challenge Routes (for customer portal - separate from staff portal)
         Route::get('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'showVerification'])
             ->middleware(['throttle:30,1'])
-            ->name('customer.two-factor.challenge');
+            ->name('two-factor.challenge');
 
         Route::post('/two-factor-challenge', [\App\Http\Controllers\TwoFactorAuthController::class, 'verify'])
             ->middleware(['throttle:6,1'])
-            ->name('customer.two-factor.verify');
+            ->name('two-factor.verify');
 
         // ==========================================
         // FAMILY MEMBER MANAGEMENT (Family Heads Only)

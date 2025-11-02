@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Customer\CustomerSecuritySettings
  *
@@ -47,8 +45,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class CustomerSecuritySettings extends Model
 {
-    use BelongsToTenant;
-
     protected $table = 'security_settings';
 
     protected $fillable = [

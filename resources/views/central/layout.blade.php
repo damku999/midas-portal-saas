@@ -262,6 +262,11 @@
 
         // Handle forms with confirmation
         $(document).on('click', '[data-confirm]', function(e) {
+            // Skip if element has onclick attribute (custom handler)
+            if ($(this).attr('onclick')) {
+                return;
+            }
+
             e.preventDefault();
             var $this = $(this);
             var message = $this.data('confirm');

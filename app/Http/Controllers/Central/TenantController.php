@@ -136,15 +136,19 @@ class TenantController extends Controller
             ]);
 
             // Run tenant migrations and seed default data
+            // NOTE: Database creation and migration happen via TenancyServiceProvider events
             $tenant->run(function ($tenant) use ($validated) {
                 // Create admin user in tenant database
                 $password = $validated['admin_password'] ?? Str::random(16);
 
                 DB::table('users')->insert([
-                    'name' => $validated['admin_first_name'].' '.$validated['admin_last_name'],
+                    'first_name' => $validated['admin_first_name'],
+                    'last_name' => $validated['admin_last_name'],
                     'email' => $validated['admin_email'],
                     'password' => Hash::make($password),
                     'email_verified_at' => now(),
+                    'role_id' => 1, // Admin role
+                    'status' => 1, // Active
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

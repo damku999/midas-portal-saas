@@ -7,11 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 class LeadSource extends Model
 {
-    use BelongsToTenant;
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

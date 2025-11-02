@@ -19,8 +19,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\Report
  *
@@ -66,7 +64,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class Report extends Authenticatable
 {
-    use BelongsToTenant;
     use HasFactory;
     use HasRoles;
     use LogsActivity;

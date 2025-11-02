@@ -13,8 +13,6 @@ use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\CustomerInsurance
  *
@@ -171,7 +169,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class CustomerInsurance extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
     use LogsActivity;
     use SoftDeletes;

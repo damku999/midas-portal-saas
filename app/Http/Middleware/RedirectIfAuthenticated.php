@@ -12,6 +12,11 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
+     * Implements guard-specific redirect logic for multi-tenant architecture:
+     * - Central guard → Central admin dashboard (/midas-admin/dashboard)
+     * - Customer guard → Customer portal dashboard (/customer/dashboard)
+     * - Web guard (default/staff) → Staff portal home (/home)
+     *
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @param  string|null  ...$guards
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
@@ -22,12 +27,23 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                // Redirect based on the guard type
+                // ================================================================
+                // GUARD-SPECIFIC REDIRECTS
+                // ================================================================
+
+                // Central Admin Guard - redirect to central admin dashboard
+                if ($guard === 'central') {
+                    return redirect()->route('central.dashboard');
+                }
+
+                // Customer Portal Guard - redirect to customer dashboard
                 if ($guard === 'customer') {
                     return redirect()->route('customer.dashboard');
-                } else {
-                    return redirect(RouteServiceProvider::HOME);
                 }
+
+                // Staff Portal Guard (web/default) - redirect to staff home
+                // Also handles null guard which defaults to 'web'
+                return redirect(RouteServiceProvider::HOME);
             }
         }
 

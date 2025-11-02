@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
-
 /**
  * App\Models\NotificationTemplate
  *
@@ -50,7 +48,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class NotificationTemplate extends Model
 {
-    use BelongsToTenant;
     use HasFactory;
 
     protected $fillable = [
