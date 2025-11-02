@@ -434,7 +434,7 @@ class LeadWhatsAppController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|string|in:greeting,follow-up,promotion,reminder,general',
+            'category' => 'required|string|in:greeting,follow-up,promotion,promotional,reminder,general',
             'message_template' => 'required|string|max:4096',
             'attachment' => 'nullable|file|max:5120|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
@@ -490,7 +490,7 @@ class LeadWhatsAppController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|string|in:greeting,follow-up,promotion,reminder,general',
+            'category' => 'required|string|in:greeting,follow-up,promotion,promotional,reminder,general',
             'message_template' => 'required|string|max:4096',
             'attachment' => 'nullable|file|max:5120|mimes:pdf,jpg,jpeg,png,doc,docx',
             'is_active' => 'boolean',

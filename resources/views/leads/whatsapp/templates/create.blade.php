@@ -41,6 +41,7 @@
                             <option value="greeting" {{ old('category') == 'greeting' ? 'selected' : '' }}>Greeting</option>
                             <option value="follow-up" {{ old('category') == 'follow-up' ? 'selected' : '' }}>Follow-up</option>
                             <option value="promotion" {{ old('category') == 'promotion' ? 'selected' : '' }}>Promotion</option>
+                            <option value="promotional" {{ old('category') == 'promotional' ? 'selected' : '' }}>Promotional</option>
                             <option value="reminder" {{ old('category') == 'reminder' ? 'selected' : '' }}>Reminder</option>
                             <option value="general" {{ old('category') == 'general' ? 'selected' : '' }}>General</option>
                         </select>
