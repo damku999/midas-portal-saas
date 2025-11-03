@@ -22,6 +22,10 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\SecurityHeadersMiddleware::class,
+
+        // Tenancy initialization - MUST run before session to set correct DB connection
+        // Only initializes for tenant domains, skips central domains
+        \App\Http\Middleware\InitializeTenancyByDomainEarly::class,
     ];
 
     /**

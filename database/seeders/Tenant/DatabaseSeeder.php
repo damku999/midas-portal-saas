@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
 use Database\Seeders\Tenant\RoleSeeder;
 use Database\Seeders\Tenant\AdminSeeder;
@@ -23,7 +23,7 @@ use Database\Seeders\Tenant\AppSettingsSeeder;
 use Database\Seeders\Tenant\NotificationTypesSeeder;
 use Database\Seeders\Tenant\NotificationTemplatesSeeder;
 use Database\Seeders\Tenant\EmailCleanupSeeder;
-use Database\Seeders\DataMigrationSeeder;
+use Database\Seeders\Tenant\DataMigrationSeeder;
 use Illuminate\Database\Seeder;
 
 /**

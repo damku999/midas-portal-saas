@@ -89,12 +89,12 @@ class RouteServiceProvider extends ServiceProvider
             // ====================================================================
             // Accessible ONLY on tenant subdomains (tenant.midastech.testing.in)
             // Middleware stack:
+            // - (global) InitializeTenancyByDomain → Identifies tenant BEFORE session
             // - 'web' → Session, CSRF, cookies
-            // - 'universal' → InitializeTenancyByDomain (identifies tenant)
             // - 'tenant' → PreventAccessFromCentralDomains (blocks central access)
             // Guard: 'web' (default)
             // ====================================================================
-            Route::middleware(['web', 'universal', 'tenant'])
+            Route::middleware(['web', 'tenant'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
 
@@ -105,7 +105,7 @@ class RouteServiceProvider extends ServiceProvider
             // Middleware stack: Same as tenant staff portal
             // Guard: 'customer'
             // ====================================================================
-            Route::middleware(['web', 'universal', 'tenant'])
+            Route::middleware(['web', 'tenant'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/customer.php'));
 

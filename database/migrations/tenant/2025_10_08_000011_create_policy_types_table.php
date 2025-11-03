@@ -17,6 +17,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
             $table->boolean('is_life_insurance_policies')->default(0);
             $table->boolean('is_vehicle')->default(0);
+            $table->string('description', 255)->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->integer('created_by')->nullable();

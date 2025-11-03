@@ -14,7 +14,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Check for expired trials daily at 2 AM and suspend tenants
+        $schedule->command('tenants:check-trial-expiration')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Trial expiration check failed');
+            });
+
+        // Send warning emails for trials expiring in 3 days - runs daily at 9 AM
+        $schedule->command('tenants:check-trial-expiration --notify-upcoming')
+            ->dailyAt('09:00')
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Trial expiration warning notifications failed');
+            });
     }
 
     /**

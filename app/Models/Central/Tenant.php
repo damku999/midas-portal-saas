@@ -21,6 +21,19 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     ];
 
     /**
+     * Boot the model and register model event listeners.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically delete associated domains when tenant is deleted
+        static::deleting(function ($tenant) {
+            $tenant->domains()->delete();
+        });
+    }
+
+    /**
      * Get the current subscription for the tenant.
      */
     public function subscription()

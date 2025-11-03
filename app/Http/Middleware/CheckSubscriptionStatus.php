@@ -61,7 +61,7 @@ class CheckSubscriptionStatus
         }
 
         // Trial expired
-        if ($subscription->isTrialExpired()) {
+        if ($subscription->trialEnded()) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'Trial expired',

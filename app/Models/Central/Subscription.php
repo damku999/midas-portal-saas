@@ -77,10 +77,12 @@ class Subscription extends Model
 
     /**
      * Check if subscription is active.
+     * Includes trials that haven't expired yet.
      */
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        // Consider active if status is 'active' OR on valid trial
+        return $this->status === 'active' || $this->onTrial();
     }
 
     /**

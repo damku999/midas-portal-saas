@@ -147,14 +147,16 @@
             </div>
             <div class="card-body">
                 <p class="small text-muted mb-3">
-                    Permanently delete this tenant and all associated data.
+                    Permanently delete this tenant and all associated data. This action cannot be undone.
                 </p>
                 <form action="{{ route('central.tenants.destroy', $tenant) }}"
                       method="POST"
-                      onsubmit="return confirm('Are you sure? This action cannot be undone!');">
+                      id="deleteTenantForm">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                    <button type="button"
+                            class="btn btn-danger btn-sm w-100"
+                            onclick="confirmDeleteTenant()">
                         <i class="fas fa-trash-alt me-2"></i>Delete Tenant
                     </button>
                 </form>
@@ -162,4 +164,25 @@
         </div>
     </div>
 </div>
+
+@php
+    $companyName = $tenant->data['company_name'] ?? ($tenant->domains->first()->domain ?? $tenant->id);
+@endphp
+
+<x-central.delete-confirmation-modal
+    :confirmation-text="$companyName"
+    modal-id="deleteConfirmationModal"
+    form-id="deleteTenantForm"
+    item-type="Tenant"
+/>
+
+@push('scripts')
+<script>
+function confirmDeleteTenant() {
+    // Show custom modal
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    modal.show();
+}
+</script>
+@endpush
 @endsection

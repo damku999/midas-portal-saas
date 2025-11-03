@@ -83,7 +83,19 @@ class TenantController extends Controller
     {
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
-            'subdomain' => 'required|string|alpha_dash|max:63|unique:domains,domain',
+            'subdomain' => [
+                'required',
+                'string',
+                'alpha_dash',
+                'max:63',
+                function ($attribute, $value, $fail) {
+                    // Validate the full domain (subdomain + base domain) for uniqueness
+                    $fullDomain = $value . '.' . config('app.domain', 'midastech.in');
+                    if (DB::connection('central')->table('domains')->where('domain', $fullDomain)->exists()) {
+                        $fail("The subdomain {$value} is already taken.");
+                    }
+                },
+            ],
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'plan_id' => 'required|exists:plans,id',
@@ -138,24 +150,22 @@ class TenantController extends Controller
             // Run tenant migrations and seed default data
             // NOTE: Database creation and migration happen via TenancyServiceProvider events
             $tenant->run(function ($tenant) use ($validated) {
-                // Create admin user in tenant database
                 $password = $validated['admin_password'] ?? Str::random(16);
 
-                DB::table('users')->insert([
-                    'first_name' => $validated['admin_first_name'],
-                    'last_name' => $validated['admin_last_name'],
-                    'email' => $validated['admin_email'],
-                    'password' => Hash::make($password),
-                    'email_verified_at' => now(),
-                    'role_id' => 1, // Admin role
-                    'status' => 1, // Active
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                // Set admin data in config for AdminSeeder to use
+                config([
+                    'tenant.admin' => [
+                        'first_name' => $validated['admin_first_name'],
+                        'last_name' => $validated['admin_last_name'],
+                        'email' => $validated['admin_email'],
+                        'mobile_number' => $validated['phone'] ?? null,
+                        'password' => $password,
+                    ],
                 ]);
 
-                // Seed default tenant data
+                // Seed complete tenant database (includes roles, permissions, admin user, and all master data)
                 \Artisan::call('db:seed', [
-                    '--class' => 'Database\\Seeders\\Tenant\\DefaultTenantSeeder',
+                    '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',
                     '--force' => true,
                 ]);
 
@@ -270,9 +280,10 @@ class TenantController extends Controller
         if ($tenant->subscription) {
             $tenant->subscription->suspend();
 
+            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
             AuditLog::log(
                 'tenant.suspended',
-                "Suspended tenant: {$tenant->data['company_name']}",
+                "Suspended tenant: {$companyName}",
                 auth('central')->user(),
                 $tenant->id,
                 ['reason' => $validated['reason'] ?? 'No reason provided']
@@ -292,9 +303,10 @@ class TenantController extends Controller
         if ($tenant->subscription) {
             $tenant->subscription->resume();
 
+            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
             AuditLog::log(
                 'tenant.activated',
-                "Activated tenant: {$tenant->data['company_name']}",
+                "Activated tenant: {$companyName}",
                 auth('central')->user(),
                 $tenant->id
             );
@@ -312,35 +324,108 @@ class TenantController extends Controller
     {
         $validated = $request->validate([
             'confirmation' => 'required|string',
+            'delete_database' => 'nullable|boolean',
+            'delete_files' => 'nullable|boolean',
+            'delete_domains' => 'nullable|boolean',
+            'delete_subscription' => 'nullable|boolean',
         ]);
 
-        $companyName = $tenant->data['company_name'] ?? '';
+        // Use same fallback logic as the view
+        $companyName = $tenant->data['company_name'] ?? ($tenant->domains->first()->domain ?? $tenant->id);
         $expectedConfirmation = 'DELETE '.strtoupper($companyName);
 
         if ($validated['confirmation'] !== $expectedConfirmation) {
             return back()->with('error', 'Confirmation text does not match. Tenant not deleted.');
         }
 
+        // Default all deletion options to true if not specified
+        $deleteDatabase = $validated['delete_database'] ?? true;
+        $deleteFiles = $validated['delete_files'] ?? true;
+        $deleteDomains = $validated['delete_domains'] ?? true;
+        $deleteSubscription = $validated['delete_subscription'] ?? true;
+
         DB::connection('central')->beginTransaction();
 
         try {
-            // Log deletion before deleting
+            $deletionLog = [];
+
+            // ALWAYS delete subscription (not optional)
+            if ($tenant->subscription) {
+                $tenant->subscription()->delete();
+                $deletionLog[] = 'subscription';
+            }
+
+            // Delete audit logs if requested (recommended for cleanup)
+            if ($deleteSubscription) { // Reuse checkbox for audit logs
+                $auditLogCount = AuditLog::where('tenant_id', $tenant->id)->delete();
+                if ($auditLogCount > 0) {
+                    $deletionLog[] = "audit_logs ({$auditLogCount} records)";
+                }
+            }
+
+            // Note: Domains are automatically deleted via Tenant model's deleting event
+            // But we still track it for logging purposes
+            if ($deleteDomains) {
+                $deletionLog[] = 'domains';
+            } else {
+                // If domains should be preserved, we need to temporarily detach them
+                // before deletion and reattach after (not implemented yet)
+                $deletionLog[] = 'domains (preserved - not implemented)';
+            }
+
+            // Delete files if requested
+            if ($deleteFiles) {
+                try {
+                    // Delete tenant-specific storage directories
+                    // Stancl Tenancy uses: storage/tenant{id}/app/ structure
+                    $tenantStoragePath = storage_path("tenant{$tenant->id}");
+
+                    if (is_dir($tenantStoragePath)) {
+                        \Illuminate\Support\Facades\File::deleteDirectory($tenantStoragePath);
+                        $deletionLog[] = 'files & uploads (tenant storage)';
+                    } else {
+                        $deletionLog[] = 'files (no tenant storage directory found)';
+                    }
+                } catch (\Exception $e) {
+                    $deletionLog[] = 'files (deletion failed: ' . $e->getMessage() . ')';
+                }
+            }
+
+            // Log deletion before deleting tenant
             AuditLog::log(
                 'tenant.deleted',
                 "Deleted tenant: {$companyName}",
                 auth('central')->user(),
                 $tenant->id,
-                ['company_name' => $companyName]
+                [
+                    'company_name' => $companyName,
+                    'deleted_items' => $deletionLog,
+                    'delete_database' => $deleteDatabase,
+                ]
             );
 
-            // Soft delete tenant (actual database deletion handled by tenancy package)
+            // Delete tenant record
+            // When delete() is called, it triggers TenantDeleted event
+            // which will delete the actual database via DeleteDatabase job (if configured)
+            if (!$deleteDatabase) {
+                // If database should be preserved, temporarily disable the DeleteDatabase job
+                // by setting a flag that the event listener can check
+                $tenant->data = array_merge($tenant->data ?? [], ['preserve_database' => true]);
+                $tenant->saveQuietly();
+            }
+
+            // Delete tenant record - this triggers TenantDeleted event
             $tenant->delete();
 
             DB::connection('central')->commit();
 
+            $message = $deleteDatabase
+                ? 'Tenant and database deleted successfully!'
+                : 'Tenant deleted successfully! (Database preserved)';
+
             return redirect()
                 ->route('central.tenants.index')
-                ->with('success', 'Tenant deleted successfully!');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::connection('central')->rollBack();

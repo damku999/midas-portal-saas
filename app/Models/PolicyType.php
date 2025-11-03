@@ -84,6 +84,10 @@ class PolicyType extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'status',
+        'is_life_insurance_policies',
+        'is_vehicle',
+        'description',
     ];
 
     public function customerInsurances()

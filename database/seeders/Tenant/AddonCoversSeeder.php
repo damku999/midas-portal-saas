@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
