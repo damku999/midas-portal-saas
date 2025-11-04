@@ -387,13 +387,16 @@
                             $breakdown = is_string($company->addon_covers_breakdown)
                                 ? json_decode($company->addon_covers_breakdown, true)
                                 : $company->addon_covers_breakdown;
-                            $price = isset($breakdown[$addonName]['price']) ? $breakdown[$addonName]['price'] : 0;
+                            $addonExists = isset($breakdown[$addonName]);
+                            $price = $addonExists ? ($breakdown[$addonName]['price'] ?? 0) : null;
                         @endphp
                         <td class="currency">
-                            @if($price > 0)
+                            @if($addonExists && $price > 0)
                                 {{ format_indian_currency($price) }}
-                            @else
+                            @elseif($addonExists && $price == 0)
                                 <span style="color: green; font-weight: bold;">✓ Covered</span>
+                            @else
+                                <span style="color: #999;">-</span>
                             @endif
                         </td>
                     @endforeach
@@ -468,8 +471,7 @@
             <tr>
                 <td class="row-header">Recommended</td>
                 @foreach ($quotation->quotationCompanies as $company)
-                    <td
-                        style="text-align: center; {{ $company->is_recommended ? 'background: {{ theme_color('success') }}; color: white; font-weight: bold;' : '' }}">
+                    <td style="text-align: center; {{ $company->is_recommended ? 'background: ' . theme_color('success') . '; color: white; font-weight: bold;' : '' }}">
                         {{ $company->is_recommended ? 'YES' : 'NO' }}
                     </td>
                 @endforeach
