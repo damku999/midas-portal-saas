@@ -191,12 +191,13 @@ class TenantCreationService
             'error' => null,
         ];
 
-        Cache::put($this->progressKey, $progress, now()->addMinutes(30));
+        // Use file cache store to persist across requests
+        Cache::store('file')->put($this->progressKey, $progress, now()->addMinutes(30));
     }
 
     private function updateProgress(int $step, string $message, string $status = 'pending'): void
     {
-        $progress = Cache::get($this->progressKey, []);
+        $progress = Cache::store('file')->get($this->progressKey, []);
 
         $this->currentStep = $step;
         $progress['current_step'] = $step;
@@ -209,35 +210,35 @@ class TenantCreationService
             'timestamp' => now()->toDateTimeString(),
         ];
 
-        Cache::put($this->progressKey, $progress, now()->addMinutes(30));
+        Cache::store('file')->put($this->progressKey, $progress, now()->addMinutes(30));
     }
 
     private function markComplete(Tenant $tenant, string $domain): void
     {
-        $progress = Cache::get($this->progressKey, []);
+        $progress = Cache::store('file')->get($this->progressKey, []);
 
         $progress['status'] = 'completed';
         $progress['completed_at'] = now()->toDateTimeString();
         $progress['tenant_id'] = $tenant->id;
         $progress['domain'] = $domain;
 
-        Cache::put($this->progressKey, $progress, now()->addHours(1));
+        Cache::store('file')->put($this->progressKey, $progress, now()->addHours(1));
     }
 
     private function markFailed(string $error): void
     {
-        $progress = Cache::get($this->progressKey, []);
+        $progress = Cache::store('file')->get($this->progressKey, []);
 
         $progress['status'] = 'failed';
         $progress['completed_at'] = now()->toDateTimeString();
         $progress['error'] = $error;
 
-        Cache::put($this->progressKey, $progress, now()->addHours(1));
+        Cache::store('file')->put($this->progressKey, $progress, now()->addHours(1));
     }
 
     public function getProgress(): array
     {
-        return Cache::get($this->progressKey, [
+        return Cache::store('file')->get($this->progressKey, [
             'status' => 'not_started',
             'current_step' => 0,
             'total_steps' => $this->totalSteps,
