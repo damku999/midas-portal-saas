@@ -185,10 +185,60 @@ class UsageTrackingService
             $totalSize += $size[0]->size_mb ?? 0;
         }
 
-        // TODO: Add file storage calculation when filesystem is implemented
-        // $fileStorageMB = $this->calculateFileStorageUsage();
+        // Add file storage calculation
+        $fileStorageMB = $this->calculateFileStorageUsage();
+        $totalSize += $fileStorageMB;
 
         return round($totalSize, 2);
+    }
+
+    /**
+     * Calculate file storage usage in MB for tenant-specific files.
+     */
+    private function calculateFileStorageUsage(): float
+    {
+        $tenant = tenant();
+
+        if (!$tenant) {
+            return 0;
+        }
+
+        // Get tenant storage path
+        // FilesystemTenancyBootstrapper changes storage path to: storage/tenant{id}/app/public/
+        $tenantStoragePath = storage_path('app/public');
+
+        // Check if directory exists
+        if (!is_dir($tenantStoragePath)) {
+            return 0;
+        }
+
+        // Calculate total size recursively
+        $totalSize = 0;
+
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($tenantStoragePath, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $totalSize += $file->getSize();
+                }
+            }
+
+            // Convert bytes to MB
+            return round($totalSize / 1024 / 1024, 2);
+        } catch (\Exception $e) {
+            // Log error and return 0 if directory traversal fails
+            \Log::warning('Failed to calculate file storage usage', [
+                'tenant_id' => $tenant->id,
+                'path' => $tenantStoragePath,
+                'error' => $e->getMessage(),
+            ]);
+
+            return 0;
+        }
     }
 
     /**
