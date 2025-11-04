@@ -66,8 +66,31 @@
                                        value="{{ old('subdomain') }}"
                                        placeholder="company"
                                        required>
-                                <span class="input-group-text">.{{ config('app.domain', 'midastech.in') }}</span>
+                                <span class="input-group-text">.</span>
+                                <select class="form-select @error('domain') is-invalid @enderror"
+                                        id="domain"
+                                        name="domain"
+                                        style="max-width: 250px;"
+                                        required>
+                                    @php
+                                        $domains = config('tenancy-domains.domains', []);
+                                        $currentEnv = app()->environment();
+                                        $autoDetect = config('tenancy-domains.auto_detect_environment', true);
+                                        $defaultDomain = config('tenancy-domains.default', config('app.domain', 'midastech.in'));
+                                    @endphp
+                                    @foreach($domains as $domain => $config)
+                                        @if($config['enabled'] && (!$autoDetect || in_array($currentEnv, $config['environment'])))
+                                            <option value="{{ $domain }}"
+                                                    {{ old('domain', $defaultDomain) == $domain ? 'selected' : '' }}>
+                                                {{ $config['label'] }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
                                 @error('subdomain')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('domain')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -237,7 +260,7 @@
                         <a href="{{ route('central.tenants.index') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Cancel
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="createTenantBtn">
                             <i class="fas fa-save me-2"></i>Create Tenant
                         </button>
                     </div>
@@ -276,6 +299,56 @@
         </div>
     </div>
 </div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="progressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-cog fa-spin me-2"></i>Creating Tenant...
+                </h5>
+            </div>
+            <div class="modal-body">
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Overall Progress</span>
+                        <span class="text-muted" id="progressPercentage">0%</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             id="progressBar"
+                             style="width: 0%">
+                             <span id="progressText">Starting...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Steps -->
+                <div id="progressSteps" class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+                    <p class="text-muted mb-2"><small><i class="fas fa-info-circle"></i> Detailed logs will appear here...</small></p>
+                </div>
+
+                <!-- Error Display -->
+                <div id="errorDisplay" class="alert alert-danger mt-3 d-none">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Error:</strong> <span id="errorMessage"></span>
+                </div>
+
+                <!-- Success Display -->
+                <div id="successDisplay" class="alert alert-success mt-3 d-none">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Success!</strong> Tenant created successfully. Redirecting...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary d-none" id="closeModalBtn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -292,5 +365,151 @@
             subdomainField.value = subdomain;
         }
     });
+
+    // Tenant creation with progress tracking
+    const form = document.querySelector('form');
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressSteps = document.getElementById('progressSteps');
+    const errorDisplay = document.getElementById('errorDisplay');
+    const errorMessage = document.getElementById('errorMessage');
+    const successDisplay = document.getElementById('successDisplay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const createBtn = document.getElementById('createTenantBtn');
+
+    let progressInterval = null;
+    let progressKey = null;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Disable submit button
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+
+        // Show progress modal
+        progressModal.show();
+
+        // Prepare form data
+        const formData = new FormData(form);
+        const sessionId = Math.random().toString(36).substring(7);
+        formData.append('session_id', sessionId);
+
+        try {
+            // Start tenant creation
+            const response = await fetch('{{ route("central.tenants.store-with-progress") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                progressKey = result.progress_key;
+
+                // Start polling for progress
+                progressInterval = setInterval(updateProgress, 500);
+            } else {
+                showError(result.error || 'Failed to create tenant');
+            }
+
+        } catch (error) {
+            showError('Network error: ' + error.message);
+        }
+    });
+
+    async function updateProgress() {
+        if (!progressKey) return;
+
+        try {
+            const response = await fetch('{{ route("central.tenants.progress") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ progress_key: progressKey })
+            });
+
+            const progress = await response.json();
+
+            // Update progress bar
+            progressBar.style.width = progress.percentage + '%';
+            progressPercentage.textContent = progress.percentage + '%';
+            progressText.textContent = progress.current_step + ' / ' + progress.total_steps;
+
+            // Update steps display
+            if (progress.steps && Object.keys(progress.steps).length > 0) {
+                let stepsHTML = '';
+                Object.values(progress.steps).forEach(step => {
+                    const icon = step.status === 'completed' ? '✓' :
+                                step.status === 'failed' ? '✗' :
+                                step.status === 'running' ? '<i class="fas fa-spinner fa-spin"></i>' : '⋯';
+
+                    const colorClass = step.status === 'completed' ? 'text-success' :
+                                      step.status === 'failed' ? 'text-danger' :
+                                      step.status === 'running' ? 'text-primary' : 'text-muted';
+
+                    stepsHTML += `
+                        <div class="mb-2 ${colorClass}">
+                            <small>
+                                <strong>[${step.number}/${progress.total_steps}]</strong>
+                                ${icon} ${step.message}
+                                <span class="text-muted" style="font-size: 0.8em;">(${new Date(step.timestamp).toLocaleTimeString()})</span>
+                            </small>
+                        </div>
+                    `;
+                });
+                progressSteps.innerHTML = stepsHTML;
+
+                // Auto-scroll to bottom
+                progressSteps.scrollTop = progressSteps.scrollHeight;
+            }
+
+            // Check if completed
+            if (progress.status === 'completed') {
+                clearInterval(progressInterval);
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.add('bg-success');
+                progressText.textContent = 'Complete!';
+
+                successDisplay.classList.remove('d-none');
+
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = progress.redirect_url || '{{ route("central.tenants.index") }}';
+                }, 2000);
+            }
+
+            // Check if failed
+            if (progress.status === 'failed') {
+                clearInterval(progressInterval);
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.add('bg-danger');
+                showError(progress.error || 'Tenant creation failed');
+            }
+
+        } catch (error) {
+            clearInterval(progressInterval);
+            showError('Failed to fetch progress: ' + error.message);
+        }
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorDisplay.classList.remove('d-none');
+        closeModalBtn.classList.remove('d-none');
+        createBtn.disabled = false;
+        createBtn.innerHTML = '<i class="fas fa-save me-2"></i>Create Tenant';
+        progressBar.classList.remove('progress-bar-animated');
+        progressBar.classList.add('bg-danger');
+    }
 </script>
 @endpush

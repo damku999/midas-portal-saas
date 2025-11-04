@@ -36,6 +36,8 @@ Route::middleware(['central.auth'])->group(function () {
         Route::get('/', [TenantController::class, 'index'])->name('index');
         Route::get('/create', [TenantController::class, 'create'])->name('create');
         Route::post('/', [TenantController::class, 'store'])->name('store');
+        Route::post('/store-with-progress', [TenantController::class, 'storeWithProgress'])->name('store-with-progress');
+        Route::post('/progress', [TenantController::class, 'getProgress'])->name('progress');
         Route::get('/{tenant}', [TenantController::class, 'show'])->name('show');
         Route::get('/{tenant}/edit', [TenantController::class, 'edit'])->name('edit');
         Route::put('/{tenant}', [TenantController::class, 'update'])->name('update');

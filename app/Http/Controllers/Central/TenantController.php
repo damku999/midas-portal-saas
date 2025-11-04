@@ -7,6 +7,7 @@ use App\Models\Central\AuditLog;
 use App\Models\Central\Plan;
 use App\Models\Central\Subscription;
 use App\Models\Central\Tenant;
+use App\Services\TenantCreationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -88,11 +89,21 @@ class TenantController extends Controller
                 'string',
                 'alpha_dash',
                 'max:63',
-                function ($attribute, $value, $fail) {
+            ],
+            'domain' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
                     // Validate the full domain (subdomain + base domain) for uniqueness
-                    $fullDomain = $value . '.' . config('app.domain', 'midastech.in');
+                    $fullDomain = $request->subdomain . '.' . $value;
                     if (DB::connection('central')->table('domains')->where('domain', $fullDomain)->exists()) {
-                        $fail("The subdomain {$value} is already taken.");
+                        $fail("The subdomain {$request->subdomain} is already taken on {$value}.");
+                    }
+
+                    // Validate domain is in allowed list
+                    $allowedDomains = array_keys(config('tenancy-domains.domains', []));
+                    if (!in_array($value, $allowedDomains)) {
+                        $fail("The selected domain is not valid.");
                     }
                 },
             ],
@@ -117,7 +128,7 @@ class TenantController extends Controller
             ]);
 
             // Create domain
-            $domain = $validated['subdomain'].'.'.config('app.domain', 'midastech.in');
+            $domain = $validated['subdomain'].'.'.$validated['domain'];
             $tenant->domains()->create([
                 'domain' => $domain,
             ]);
@@ -432,5 +443,86 @@ class TenantController extends Controller
 
             return back()->with('error', 'Failed to delete tenant: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Create tenant with progress tracking (AJAX endpoint).
+     */
+    public function storeWithProgress(Request $request)
+    {
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'subdomain' => [
+                'required',
+                'string',
+                'alpha_dash',
+                'max:63',
+            ],
+            'domain' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Validate the full domain (subdomain + base domain) for uniqueness
+                    $fullDomain = $request->subdomain . '.' . $value;
+                    if (DB::connection('central')->table('domains')->where('domain', $fullDomain)->exists()) {
+                        $fail("The subdomain {$request->subdomain} is already taken on {$value}.");
+                    }
+
+                    // Validate domain is in allowed list
+                    $allowedDomains = array_keys(config('tenancy-domains.domains', []));
+                    if (!in_array($value, $allowedDomains)) {
+                        $fail("The selected domain is not valid.");
+                    }
+                },
+            ],
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'plan_id' => 'required|exists:plans,id',
+            'trial_enabled' => 'boolean',
+            'trial_days' => 'nullable|integer|min:1|max:90',
+            'admin_first_name' => 'required|string|max:255',
+            'admin_last_name' => 'required|string|max:255',
+            'admin_email' => 'required|email|max:255',
+            'admin_password' => 'nullable|string|min:8',
+            'send_welcome_email' => 'boolean',
+        ]);
+
+        $sessionId = $request->input('session_id', Str::random(16));
+        $service = new TenantCreationService($sessionId);
+
+        try {
+            $result = $service->create($validated);
+
+            return response()->json([
+                'success' => true,
+                'progress_key' => $service->getProgressKey(),
+                'tenant_id' => $result['tenant']->id,
+                'redirect_url' => route('central.tenants.show', $result['tenant']),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'progress_key' => $service->getProgressKey(),
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Get tenant creation progress (AJAX endpoint).
+     */
+    public function getProgress(Request $request)
+    {
+        $progressKey = $request->input('progress_key');
+
+        if (!$progressKey) {
+            return response()->json(['error' => 'Progress key required'], 400);
+        }
+
+        $service = new TenantCreationService();
+        $service = new TenantCreationService(str_replace('tenant_creation_progress_', '', $progressKey));
+
+        return response()->json($service->getProgress());
     }
 }
