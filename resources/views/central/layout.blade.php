@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Central Admin') - {{ config('app.name') }}</title>
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/logo-icon@2000x.png') }}" />
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -16,8 +19,11 @@
     <style>
         :root {
             --sidebar-width: 250px;
-            --primary-color: #4e73df;
-            --sidebar-bg: #1a1f36;
+            --primary-color: #17a2b8;
+            --primary-hover: #138496;
+            --sidebar-bg: #17a2b8;
+            --webmonks-teal: #17a2b8;
+            --webmonks-teal-light: #5fd0e3;
         }
 
         body {
@@ -72,6 +78,11 @@
         .sidebar-menu li a i {
             margin-right: 10px;
             width: 20px;
+        }
+
+        .sidebar-menu li a .badge {
+            font-size: 0.7rem;
+            margin-left: auto;
         }
 
         .main-content {
@@ -136,7 +147,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">
-            <h4><i class="fas fa-shield-alt"></i> Central Admin</h4>
+            <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" style="max-width: 200px; height: auto; filter: brightness(0) invert(1);">
         </div>
 
         <ul class="sidebar-menu">
@@ -150,6 +161,18 @@
                 <a href="{{ route('central.tenants.index') }}" class="{{ request()->routeIs('central.tenants.*') ? 'active' : '' }}">
                     <i class="fas fa-building"></i>
                     <span>Tenants</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('central.contact-submissions.index') }}" class="{{ request()->routeIs('central.contact-submissions.*') ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Submissions</span>
+                    @php
+                        $newCount = \App\Models\Central\ContactSubmission::where('status', 'new')->count();
+                    @endphp
+                    @if($newCount > 0)
+                        <span class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</span>
+                    @endif
                 </a>
             </li>
             <li>

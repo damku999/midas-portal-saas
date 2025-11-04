@@ -65,22 +65,29 @@ class VerifyCsrfToken extends Middleware
             'timestamp' => now()->toISOString(),
         ]);
 
-        // Store in security events table
-        \DB::table('security_events')->insert([
-            'event_type' => 'csrf_token_mismatch',
-            'user_id' => auth()->id(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->header('User-Agent'),
-            'url' => $request->fullUrl(),
-            'method' => $request->method(),
-            'context' => json_encode([
-                'referer' => $request->header('Referer'),
-                'csrf_token_provided' => ! empty($request->input('_token')),
-            ]),
-            'severity' => 'medium',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Store in security events table (only if table exists)
+        try {
+            if (\Schema::hasTable('security_events')) {
+                \DB::table('security_events')->insert([
+                    'event_type' => 'csrf_token_mismatch',
+                    'user_id' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->header('User-Agent'),
+                    'url' => $request->fullUrl(),
+                    'method' => $request->method(),
+                    'context' => json_encode([
+                        'referer' => $request->header('Referer'),
+                        'csrf_token_provided' => ! empty($request->input('_token')),
+                    ]),
+                    'severity' => 'medium',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silently fail if table doesn't exist
+            Log::debug('Could not log to security_events table: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -22,16 +22,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public Website Home
-Route::get('/', [PublicController::class, 'home']);
+Route::get('/', [PublicController::class, 'home'])->name('public.home');
 
 // Feature Pages
-Route::get('/features', [PublicController::class, 'features']);
-Route::get('/pricing', [PublicController::class, 'pricing']);
-Route::get('/about', [PublicController::class, 'about']);
+Route::get('/features', [PublicController::class, 'features'])->name('public.features');
+Route::get('/pricing', [PublicController::class, 'pricing'])->name('public.pricing');
+Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 
 // Contact Form
-Route::get('/contact', [PublicController::class, 'contact']);
-Route::post('/contact', [PublicController::class, 'submitContact']);
+Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
+Route::post('/contact', [PublicController::class, 'submitContact'])->name('public.contact.submit');
 
 /*
 |--------------------------------------------------------------------------

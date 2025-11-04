@@ -9,6 +9,40 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckSubscriptionStatus
 {
     /**
+     * Routes that should be accessible even with subscription issues
+     */
+    protected $except = [
+        // Subscription status pages
+        'subscription.required',
+        'subscription.suspended',
+        'subscription.cancelled',
+        'subscription.upgrade',
+        'subscription.plans',
+        'subscription.index',
+
+        // Authentication routes (staff)
+        'login',
+        'logout',
+        'password.request',
+        'password.email',
+        'password.reset',
+        'password.update',
+        'tenant.root',
+
+        // Customer authentication routes
+        'customer.login',
+        'customer.logout',
+        'customer.password.request',
+        'customer.password.email',
+        'customer.password.reset',
+        'customer.password.update',
+        'customer.verify-email',
+        'customer.verify-email-notice',
+        'customer.resend-verification',
+        'customer.verification.send',
+    ];
+
+    /**
      * Handle an incoming request.
      */
     public function handle(Request $request, Closure $next): Response
@@ -16,6 +50,11 @@ class CheckSubscriptionStatus
         $tenant = tenant();
 
         if (! $tenant) {
+            return $next($request);
+        }
+
+        // Allow access to subscription status pages and logout to prevent redirect loops
+        if ($request->routeIs($this->except)) {
             return $next($request);
         }
 

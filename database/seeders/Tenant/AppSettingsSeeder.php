@@ -264,6 +264,12 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $cdnSettings = [
             // Bootstrap
+            'cdn_bootstrap_css' => [
+                'value' => 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+                'type' => 'url',
+                'description' => 'Bootstrap CSS CDN URL',
+                'is_encrypted' => false,
+            ],
             'cdn_bootstrap_js' => [
                 'value' => 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
                 'type' => 'url',
@@ -377,19 +383,19 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $brandingSettings = [
             'company_logo_path' => [
-                'value' => 'images/parth_logo.png',
+                'value' => 'images/logo.png',
                 'type' => 'image',
                 'description' => 'Company Logo Image (Upload)',
                 'is_encrypted' => false,
             ],
             'company_logo_alt' => [
-                'value' => 'Parth Rawal Insurance Advisor',
+                'value' => 'WebMonks Technologies',
                 'type' => 'string',
                 'description' => 'Company Logo Alt Text (SEO)',
                 'is_encrypted' => false,
             ],
             'company_favicon_path' => [
-                'value' => 'images/icon.png',
+                'value' => 'images/logo-icon@2000x.png',
                 'type' => 'image',
                 'description' => 'Favicon Image (Upload)',
                 'is_encrypted' => false,
@@ -472,29 +478,29 @@ class AppSettingsSeeder extends Seeder
         // CATEGORY: Theme Configuration
         // ========================================
         $themeSettings = [
-            // Primary Brand Colors
+            // Primary Brand Colors - WebMonks Teal Theme
             'theme_primary_color' => [
-                'value' => '#4e73df',
+                'value' => '#17a2b8',
                 'type' => 'color',
-                'description' => 'Primary Brand Color (Hex)',
+                'description' => 'Primary Brand Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'theme_secondary_color' => [
-                'value' => '#858796',
+                'value' => '#6c757d',
                 'type' => 'color',
                 'description' => 'Secondary Color (Hex)',
                 'is_encrypted' => false,
             ],
             'theme_success_color' => [
-                'value' => '#1cc88a',
+                'value' => '#28a745',
                 'type' => 'color',
                 'description' => 'Success Color (Hex)',
                 'is_encrypted' => false,
             ],
             'theme_info_color' => [
-                'value' => '#36b9cc',
+                'value' => '#5fd0e3',
                 'type' => 'color',
-                'description' => 'Info Color (Hex)',
+                'description' => 'Info Color (Hex) - Light Teal',
                 'is_encrypted' => false,
             ],
             'theme_warning_color' => [
@@ -522,11 +528,11 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
 
-            // Sidebar Theme
+            // Sidebar Theme - WebMonks Teal
             'theme_sidebar_bg_color' => [
-                'value' => '#4e73df',
+                'value' => '#17a2b8',
                 'type' => 'color',
-                'description' => 'Sidebar Background Color (Hex)',
+                'description' => 'Sidebar Background Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'theme_sidebar_text_color' => [
@@ -610,17 +616,17 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
 
-            // Link Colors
+            // Link Colors - WebMonks Teal Theme
             'theme_link_color' => [
-                'value' => '#4e73df',
+                'value' => '#17a2b8',
                 'type' => 'color',
-                'description' => 'Default Link Color (Hex)',
+                'description' => 'Default Link Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'theme_link_hover_color' => [
-                'value' => '#224abe',
+                'value' => '#138496',
                 'type' => 'color',
-                'description' => 'Link Hover Color (Hex)',
+                'description' => 'Link Hover Color (Hex) - Darker Teal',
                 'is_encrypted' => false,
             ],
 
@@ -740,9 +746,9 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $chartSettings = [
             'chart_color_primary' => [
-                'value' => 'rgba(79, 70, 229, 0.8)',
+                'value' => 'rgba(23, 162, 184, 0.8)',
                 'type' => 'color',
-                'description' => 'Chart Primary Color',
+                'description' => 'Chart Primary Color - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'chart_color_success' => [

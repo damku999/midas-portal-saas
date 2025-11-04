@@ -25,7 +25,17 @@
       "Bash(if [ ! -d \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\components\\central\" ])",
       "Bash(then mkdir -p \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\components\\central\")",
       "Bash(if [ ! -d \"resources/views/emails\" ])",
-      "Bash(then mkdir -p \"resources/views/emails\")"
+      "Bash(then mkdir -p \"resources/views/emails\")",
+      "Bash(if [ -f \"app/Models/Models/Central/ContactSubmission.php\" ])",
+      "Bash(then mv \"app/Models/Models/Central/ContactSubmission.php\" \"app/Models/Central/ContactSubmission.php\")",
+      "Bash(else echo \"File not found at expected location\")",
+      "Bash(if [ ! -d \"resources/views/central/contact-submissions\" ])",
+      "Bash(then mkdir -p \"resources/views/central/contact-submissions\")",
+      "Bash(else echo \"Directory already exists\")",
+      "mcp__laravel-boost__browser-logs",
+      "Bash(if [ -f \"storage/logs/laravel.log\" ])",
+      "Bash(then tail -50 storage/logs/laravel.log)",
+      "Bash(else echo \"No log file found\")"
     ],
     "deny": [],
     "ask": []

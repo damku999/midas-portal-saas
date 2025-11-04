@@ -92,20 +92,33 @@ class RouteServiceProvider extends ServiceProvider
             // - (global) InitializeTenancyByDomain → Identifies tenant BEFORE session
             // - 'web' → Session, CSRF, cookies
             // - 'tenant' → PreventAccessFromCentralDomains (blocks central access)
+            // - 'subscription.status' → CheckSubscriptionStatus (CRITICAL - blocks suspended tenants)
             // Guard: 'web' (default)
+            // ====================================================================
+            Route::middleware(['web', 'tenant', 'subscription.status'])
+                ->namespace($this->namespace)
+                ->group(base_path('routes/web.php'));
+
+            // ====================================================================
+            // 3A. TENANT STORAGE ROUTES
+            // ====================================================================
+            // Public storage file serving for tenant-specific files
+            // NO subscription.status middleware - must allow file access even if suspended
+            // (for viewing existing files, though uploads will be blocked)
             // ====================================================================
             Route::middleware(['web', 'tenant'])
                 ->namespace($this->namespace)
-                ->group(base_path('routes/web.php'));
+                ->group(base_path('routes/tenant-storage.php'));
 
             // ====================================================================
             // 4. CUSTOMER PORTAL ROUTES
             // ====================================================================
             // Accessible ONLY on tenant subdomains (/customer/*)
-            // Middleware stack: Same as tenant staff portal
+            // Middleware stack: Same as tenant staff portal + subscription status
+            // - 'subscription.status' → CheckSubscriptionStatus (blocks suspended tenants)
             // Guard: 'customer'
             // ====================================================================
-            Route::middleware(['web', 'tenant'])
+            Route::middleware(['web', 'tenant', 'subscription.status'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/customer.php'));
 

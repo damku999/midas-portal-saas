@@ -73,9 +73,16 @@
                     <!-- Navigation Links -->
                     <div class="text-center">
                         <small class="text-muted mb-2 d-block">Minimum 8 characters with letters and numbers</small>
-                        <a href="{{ route('customer.dashboard') }}" class="small text-decoration-none me-3">Back to Dashboard</a>
-                        <a href="{{ route('customer.login') }}" class="small text-muted text-decoration-none">Login Again</a>
+                        <a href="{{ route('customer.logout') }}" class="small text-decoration-none"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
                     </div>
+
+                    <!-- Hidden Logout Form -->
+                    <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
                 </div>
             </div>
         </div>

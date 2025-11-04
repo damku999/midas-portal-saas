@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Central Admin Login - {{ config('app.name') }}</title>
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/logo-icon@2000x.png') }}" />
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -13,7 +16,7 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #17a2b8 0%, #5fd0e3 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -35,7 +38,7 @@
         }
 
         .login-header {
-            background: linear-gradient(135deg, #1a1f36 0%, #2d3561 100%);
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
             padding: 40px 30px;
             text-align: center;
             color: white;
@@ -61,12 +64,12 @@
         }
 
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #17a2b8 0%, #5fd0e3 100%);
             border: none;
             padding: 12px;
             font-weight: 600;
@@ -75,7 +78,7 @@
         }
 
         .btn-login:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
             transform: translateY(-2px);
         }
 
@@ -95,9 +98,9 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <i class="fas fa-shield-alt shield-icon"></i>
+                <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" style="max-width: 220px; height: auto; filter: brightness(0) invert(1); margin-bottom: 20px;">
                 <h3>Central Admin Panel</h3>
-                <p>{{ config('app.name') }} - Super Admin Access</p>
+                <p>Super Admin Access</p>
             </div>
 
             <div class="login-body">

@@ -58,7 +58,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
     return redirect($request->getSchemeAndHttpHost() . '/login');
 })->name('tenant.root');
 
-// Tenant Staff Authentication Routes
+// Tenant Staff Authentication Routes (NO subscription.status middleware - must allow login/logout)
 Auth::routes(['register' => false]);
 
 // Tenant Staff Dashboard

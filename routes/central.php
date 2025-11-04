@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Central\AuthController;
+use App\Http\Controllers\Central\ContactSubmissionController;
 use App\Http\Controllers\Central\DashboardController;
 use App\Http\Controllers\Central\TenantController;
 use Illuminate\Support\Facades\Route;
@@ -43,5 +44,13 @@ Route::middleware(['central.auth'])->group(function () {
         // Tenant Actions
         Route::post('/{tenant}/suspend', [TenantController::class, 'suspend'])->name('suspend');
         Route::post('/{tenant}/activate', [TenantController::class, 'activate'])->name('activate');
+    });
+
+    // Contact Submissions
+    Route::prefix('contact-submissions')->name('central.contact-submissions.')->group(function () {
+        Route::get('/', [ContactSubmissionController::class, 'index'])->name('index');
+        Route::get('/{contactSubmission}', [ContactSubmissionController::class, 'show'])->name('show');
+        Route::post('/{contactSubmission}/status', [ContactSubmissionController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{contactSubmission}', [ContactSubmissionController::class, 'destroy'])->name('destroy');
     });
 });

@@ -35,6 +35,7 @@ class CustomerAuth
             'customer.family-member.change-password',
             'customer.family-member.password',
             'customer.verify-email-notice',
+            'customer.verify-email',
             'customer.resend-verification',
             'customer.logout',
             // 2FA routes should not require password change check

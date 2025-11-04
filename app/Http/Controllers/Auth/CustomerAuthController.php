@@ -454,33 +454,67 @@ class CustomerAuthController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
+        Log::info('=== RESEND VERIFICATION EMAIL REQUEST ===', [
+            'customer_id' => $customer->id,
+            'customer_email' => $customer->email,
+            'customer_name' => $customer->name,
+            'email_already_verified' => $customer->hasVerifiedEmail(),
+            'email_verified_at' => $customer->email_verified_at,
+        ]);
+
         if ($customer->hasVerifiedEmail()) {
+            Log::info('Email already verified, redirecting to dashboard');
             return redirect()->route('customer.dashboard');
         }
 
         $token = $customer->generateEmailVerificationToken();
 
+        Log::info('Generated verification token', [
+            'customer_id' => $customer->id,
+            'token' => $token,
+            'verification_url' => route('customer.verify-email', $token),
+        ]);
+
         // Send verification email
         try {
+            Log::info('Attempting to send verification email', [
+                'to' => $customer->email,
+                'mail_driver' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+                'mail_from' => config('mail.from.address'),
+            ]);
+
             Mail::to($customer->email)->send(new CustomerEmailVerificationMail($customer, $token));
 
-            Log::info('Email verification email sent successfully', [
+            Log::info('✅ Email verification email sent successfully', [
                 'customer_id' => $customer->id,
                 'email' => $customer->email,
                 'token' => $token,
                 'verification_url' => route('customer.verify-email', $token),
+                'mail_driver' => config('mail.default'),
             ]);
 
-            return back()->with('success', 'Verification link sent to your email.');
+            return redirect()->route('customer.verify-email-notice')
+                ->with('success', 'Verification link sent to your email.');
         } catch (\Exception $exception) {
-            Log::error('Failed to send email verification email', [
+            Log::error('❌ FAILED to send email verification email', [
                 'customer_id' => $customer->id,
                 'email' => $customer->email,
-                'error' => $exception->getMessage(),
+                'error_message' => $exception->getMessage(),
+                'error_code' => $exception->getCode(),
+                'error_file' => $exception->getFile(),
+                'error_line' => $exception->getLine(),
                 'trace' => $exception->getTraceAsString(),
+                'mail_config' => [
+                    'driver' => config('mail.default'),
+                    'host' => config('mail.mailers.smtp.host'),
+                    'port' => config('mail.mailers.smtp.port'),
+                    'encryption' => config('mail.mailers.smtp.encryption'),
+                    'from_address' => config('mail.from.address'),
+                ],
             ]);
 
-            return back()->withErrors(['email' => 'Failed to send verification email. Please try again later.']);
+            return redirect()->route('customer.verify-email-notice')->withErrors(['email' => 'Failed to send verification email. Please try again later.']);
         }
     }
 
@@ -1042,12 +1076,30 @@ class CustomerAuthController extends Controller
         // SECURITY FIX: Validate and sanitize file path to prevent path traversal attacks
         $documentPath = $policy->policy_document_path;
 
+        Log::info('Download policy - Original path', [
+            'policy_id' => $policyId,
+            'policy_no' => $policy->policy_no,
+            'original_path' => $documentPath,
+        ]);
+
         // Remove any path traversal attempts and normalize path
         $documentPath = str_replace(['../', '..\\', '../', '..\\'], '', $documentPath);
         $documentPath = ltrim($documentPath, '/\\');
 
+        Log::info('Download policy - After sanitization', [
+            'policy_id' => $policyId,
+            'sanitized_path' => $documentPath,
+        ]);
+
         // Validate that the path only contains allowed characters (alphanumeric, dash, underscore, slash, dot)
-        if (in_array(preg_match('/^[a-zA-Z0-9\/_\-\.]+$/', $documentPath), [0, false], true)) {
+        if (!preg_match('/^[a-zA-Z0-9\/_\-\.]+$/', $documentPath)) {
+            Log::error('Download policy - Path validation failed', [
+                'policy_id' => $policyId,
+                'policy_no' => $policy->policy_no,
+                'attempted_path' => $documentPath,
+                'regex_failed' => true,
+            ]);
+
             CustomerAuditLog::logFailure('download_policy', 'Invalid file path detected', [
                 'policy_id' => $policyId,
                 'policy_no' => $policy->policy_no,
@@ -1061,6 +1113,13 @@ class CustomerAuthController extends Controller
         // Ensure the path stays within the allowed directory structure
         $allowedDirectory = storage_path('app/public/');
         $fullPath = realpath($allowedDirectory.$documentPath);
+
+        Log::info('Download policy - Path resolution', [
+            'policy_id' => $policyId,
+            'allowed_directory' => $allowedDirectory,
+            'full_path' => $fullPath,
+            'file_exists' => $fullPath ? file_exists($fullPath) : false,
+        ]);
 
         // Verify the resolved path is within the allowed directory
         if (in_array($fullPath, ['', '0', false], true) || ! str_starts_with($fullPath, $allowedDirectory)) {
