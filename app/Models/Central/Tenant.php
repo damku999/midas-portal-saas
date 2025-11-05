@@ -27,9 +27,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         parent::boot();
 
-        // Automatically delete associated domains when tenant is deleted
+        // Automatically delete associated records when tenant is deleted
         static::deleting(function ($tenant) {
             $tenant->domains()->delete();
+            $tenant->subscriptions()->delete();
+            $tenant->auditLogs()->delete();
         });
     }
 

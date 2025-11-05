@@ -111,14 +111,27 @@ class UsageTrackingService
 
         switch ($limitType) {
             case 'users':
-                return $plan->max_users === -1 ? 0 : ($usage['users'] / $plan->max_users) * 100;
+                if ($plan->max_users === -1 || $plan->max_users === 0) {
+                    return 0;
+                }
+                return ($usage['users'] / $plan->max_users) * 100;
             case 'customers':
-                return $plan->max_customers === -1 ? 0 : ($usage['customers'] / $plan->max_customers) * 100;
+                if ($plan->max_customers === -1 || $plan->max_customers === 0) {
+                    return 0;
+                }
+                return ($usage['customers'] / $plan->max_customers) * 100;
             case 'storage':
-                $storageMB = $usage['storage_mb'];
+                if ($plan->max_storage_gb === -1 || $plan->max_storage_gb == 0) {
+                    return 0;
+                }
+                $storageMB = $usage['storage_mb'] ?? 0;
                 $limitMB = $plan->max_storage_gb * 1024;
 
-                return $plan->max_storage_gb === -1 ? 0 : ($storageMB / $limitMB) * 100;
+                if ($limitMB == 0) {
+                    return 0;
+                }
+
+                return ($storageMB / $limitMB) * 100;
             default:
                 return 0;
         }
@@ -147,7 +160,7 @@ class UsageTrackingService
                 if ($plan->max_storage_gb === -1) {
                     return -1;
                 }
-                $usedGB = $usage['storage_mb'] / 1024;
+                $usedGB = ($usage['storage_mb'] ?? 0) / 1024;
 
                 return max(0, $plan->max_storage_gb - $usedGB);
             default:
@@ -292,7 +305,7 @@ class UsageTrackingService
                 'remaining' => $this->getRemainingCapacity($tenant, 'customers'),
             ],
             'storage' => [
-                'current' => round($usage['storage_mb'] / 1024, 2),
+                'current' => round(($usage['storage_mb'] ?? 0) / 1024, 2),
                 'max' => $plan->max_storage_gb,
                 'percentage' => $this->getUsagePercentage($tenant, 'storage'),
                 'remaining' => $this->getRemainingCapacity($tenant, 'storage'),

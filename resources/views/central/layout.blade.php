@@ -11,6 +11,8 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Toastr CSS -->
@@ -161,6 +163,12 @@
                 <a href="{{ route('central.tenants.index') }}" class="{{ request()->routeIs('central.tenants.*') ? 'active' : '' }}">
                     <i class="fas fa-building"></i>
                     <span>Tenants</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('central.plans.index') }}" class="{{ request()->routeIs('central.plans.*') ? 'active' : '' }}">
+                    <i class="fas fa-box"></i>
+                    <span>Plans</span>
                 </a>
             </li>
             <li>

@@ -110,8 +110,21 @@ class TenantController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'plan_id' => 'required|exists:plans,id',
-            'trial_enabled' => 'boolean',
-            'trial_days' => 'nullable|integer|min:1|max:90',
+            'subscription_type' => ['required', Rule::in(['trial', 'paid'])],
+            'trial_days' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:90',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->subscription_type === 'paid' && $value) {
+                        $fail('Trial days cannot be set for paid subscriptions.');
+                    }
+                    if ($request->subscription_type === 'trial' && !$value) {
+                        $fail('Trial days is required for trial subscriptions.');
+                    }
+                },
+            ],
             'admin_first_name' => 'required|string|max:255',
             'admin_last_name' => 'required|string|max:255',
             'admin_email' => 'required|email|max:255',
@@ -144,17 +157,25 @@ class TenantController extends Controller
 
             // Create subscription
             $plan = Plan::findOrFail($validated['plan_id']);
-            $trialEnabled = $validated['trial_enabled'] ?? true;
-            $trialDays = $validated['trial_days'] ?? 14;
+            $isTrial = $validated['subscription_type'] === 'trial';
+            $trialDays = $isTrial ? ($validated['trial_days'] ?? 14) : 0;
+
+            // Calculate ends_at date based on billing interval
+            $endsAt = null;
+            if (!$isTrial) {
+                // For paid subscriptions, set end date based on billing interval
+                $endsAt = $this->calculateSubscriptionEndDate($plan->billing_interval);
+            }
 
             $subscription = Subscription::create([
                 'tenant_id' => $tenant->id,
                 'plan_id' => $plan->id,
-                'status' => $trialEnabled ? 'trial' : 'active',
-                'is_trial' => $trialEnabled,
-                'trial_ends_at' => $trialEnabled ? now()->addDays($trialDays) : null,
+                'status' => $isTrial ? 'trial' : 'active',
+                'is_trial' => $isTrial,
+                'trial_ends_at' => $isTrial ? now()->addDays($trialDays) : null,
                 'starts_at' => now(),
-                'next_billing_date' => now()->addMonth(),
+                'ends_at' => $endsAt,
+                'next_billing_date' => $isTrial ? now()->addDays($trialDays) : now()->addMonth(),
                 'mrr' => $plan->price,
             ]);
 
@@ -247,36 +268,177 @@ class TenantController extends Controller
     public function update(Request $request, Tenant $tenant)
     {
         $validated = $request->validate([
+            // Basic Information
             'company_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'status' => ['required', Rule::in(['trial', 'active', 'suspended', 'cancelled'])],
+
+            // Subscription (only required if tenant has subscription)
+            'plan_id' => 'nullable|exists:plans,id',
+            'status' => [
+                $tenant->subscription ? 'required' : 'nullable',
+                Rule::in(['trial', 'active', 'suspended', 'cancelled', 'expired'])
+            ],
+            'trial_ends_at' => 'nullable|date',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date',
+            'next_billing_date' => 'nullable|date',
+
+            // Branding & Theme
+            'company_tagline' => 'nullable|string|max:255',
+            'company_logo' => 'nullable|file|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'theme_primary_color' => 'nullable|string|max:7',
+
+            // Communication Settings
+            'whatsapp_sender_id' => 'nullable|string|max:20',
+            'whatsapp_auth_token' => 'nullable|string|max:255',
+            'email_from_address' => 'nullable|email|max:255',
+            'email_from_name' => 'nullable|string|max:255',
+
+            // Localization
+            'timezone' => 'nullable|string|timezone',
+            'currency' => 'nullable|string|size:3',
+            'currency_symbol' => 'nullable|string|max:5',
         ]);
 
-        $tenant->update([
-            'data' => array_merge($tenant->data ?? [], [
-                'company_name' => $validated['company_name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'] ?? null,
-            ]),
-        ]);
+        DB::connection('central')->beginTransaction();
 
-        // Update subscription status if changed
-        if ($tenant->subscription && $tenant->subscription->status !== $validated['status']) {
-            $tenant->subscription->update(['status' => $validated['status']]);
+        try {
+            // Handle logo upload
+            if ($request->hasFile('company_logo')) {
+                $logoPath = $request->file('company_logo')->store('tenant-logos', 'public');
 
-            AuditLog::log(
-                'tenant.status_changed',
-                "Changed tenant status to: {$validated['status']}",
-                auth('central')->user(),
-                $tenant->id,
-                ['old_status' => $tenant->subscription->status, 'new_status' => $validated['status']]
-            );
+                // Copy to tenant storage
+                $centralFullPath = storage_path('app/public/' . $logoPath);
+                if (file_exists($centralFullPath)) {
+                    $tenant->run(function () use ($centralFullPath, $logoPath) {
+                        $tenantLogoPath = 'company_logo.' . pathinfo($logoPath, PATHINFO_EXTENSION);
+                        \Illuminate\Support\Facades\Storage::disk('public')->put(
+                            $tenantLogoPath,
+                            file_get_contents($centralFullPath)
+                        );
+                        return $tenantLogoPath;
+                    });
+                }
+                $validated['company_logo'] = $logoPath;
+            }
+
+            // Update tenant data
+            $tenant->update([
+                'data' => array_merge($tenant->data ?? [], array_filter([
+                    'company_name' => $validated['company_name'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'] ?? null,
+                    'company_tagline' => $validated['company_tagline'] ?? null,
+                    'company_logo' => $validated['company_logo'] ?? ($tenant->data['company_logo'] ?? null),
+                    'theme_primary_color' => $validated['theme_primary_color'] ?? null,
+                    'whatsapp_sender_id' => $validated['whatsapp_sender_id'] ?? null,
+                    'whatsapp_auth_token' => $validated['whatsapp_auth_token'] ?? null,
+                    'email_from_address' => $validated['email_from_address'] ?? null,
+                    'email_from_name' => $validated['email_from_name'] ?? null,
+                    'timezone' => $validated['timezone'] ?? null,
+                    'currency' => $validated['currency'] ?? null,
+                    'currency_symbol' => $validated['currency_symbol'] ?? null,
+                ])),
+            ]);
+
+            // Update subscription if changed
+            if ($tenant->subscription) {
+                $subscriptionUpdates = [];
+                $auditChanges = [];
+
+                if (isset($validated['status']) && $tenant->subscription->status !== $validated['status']) {
+                    $subscriptionUpdates['status'] = $validated['status'];
+                    $auditChanges['status'] = ['old' => $tenant->subscription->status, 'new' => $validated['status']];
+
+                    AuditLog::log(
+                        'tenant.status_changed',
+                        "Changed tenant status to: {$validated['status']}",
+                        auth('central')->user(),
+                        $tenant->id,
+                        ['old_status' => $tenant->subscription->status, 'new_status' => $validated['status']]
+                    );
+                }
+
+                if (isset($validated['plan_id']) && $tenant->subscription->plan_id !== $validated['plan_id']) {
+                    $oldPlan = $tenant->subscription->plan;
+                    $newPlan = Plan::find($validated['plan_id']);
+
+                    $subscriptionUpdates['plan_id'] = $validated['plan_id'];
+                    $subscriptionUpdates['mrr'] = $newPlan->price;
+                    $auditChanges['plan'] = ['old' => $oldPlan->name, 'new' => $newPlan->name];
+
+                    AuditLog::log(
+                        'tenant.plan_changed',
+                        "Changed plan from {$oldPlan->name} to {$newPlan->name}",
+                        auth('central')->user(),
+                        $tenant->id,
+                        ['old_plan' => $oldPlan->name, 'new_plan' => $newPlan->name]
+                    );
+                }
+
+                // Handle subscription dates
+                if (isset($validated['trial_ends_at']) && $tenant->subscription->is_trial) {
+                    $oldDate = $tenant->subscription->trial_ends_at ? $tenant->subscription->trial_ends_at->format('Y-m-d') : null;
+                    if ($oldDate !== $validated['trial_ends_at']) {
+                        $subscriptionUpdates['trial_ends_at'] = $validated['trial_ends_at'];
+                        $auditChanges['trial_ends_at'] = ['old' => $oldDate, 'new' => $validated['trial_ends_at']];
+                    }
+                }
+
+                if (isset($validated['starts_at'])) {
+                    $oldDate = $tenant->subscription->starts_at ? $tenant->subscription->starts_at->format('Y-m-d') : null;
+                    if ($oldDate !== $validated['starts_at']) {
+                        $subscriptionUpdates['starts_at'] = $validated['starts_at'];
+                        $auditChanges['starts_at'] = ['old' => $oldDate, 'new' => $validated['starts_at']];
+                    }
+                }
+
+                if (isset($validated['ends_at'])) {
+                    $oldDate = $tenant->subscription->ends_at ? $tenant->subscription->ends_at->format('Y-m-d') : null;
+                    if ($oldDate !== $validated['ends_at']) {
+                        $subscriptionUpdates['ends_at'] = $validated['ends_at'];
+                        $auditChanges['ends_at'] = ['old' => $oldDate, 'new' => $validated['ends_at']];
+                    }
+                }
+
+                if (isset($validated['next_billing_date'])) {
+                    $oldDate = $tenant->subscription->next_billing_date ? $tenant->subscription->next_billing_date->format('Y-m-d') : null;
+                    if ($oldDate !== $validated['next_billing_date']) {
+                        $subscriptionUpdates['next_billing_date'] = $validated['next_billing_date'];
+                        $auditChanges['next_billing_date'] = ['old' => $oldDate, 'new' => $validated['next_billing_date']];
+                    }
+                }
+
+                if (!empty($subscriptionUpdates)) {
+                    $tenant->subscription->update($subscriptionUpdates);
+
+                    // Log subscription date changes if any
+                    if (!empty($auditChanges)) {
+                        AuditLog::log(
+                            'tenant.subscription_updated',
+                            "Updated subscription details",
+                            auth('central')->user(),
+                            $tenant->id,
+                            ['changes' => $auditChanges]
+                        );
+                    }
+                }
+            }
+
+            DB::connection('central')->commit();
+
+            return redirect()
+                ->route('central.tenants.show', $tenant)
+                ->with('success', 'Tenant updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::connection('central')->rollBack();
+
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to update tenant: ' . $e->getMessage());
         }
-
-        return redirect()
-            ->route('central.tenants.show', $tenant)
-            ->with('success', 'Tenant updated successfully!');
     }
 
     /**
@@ -326,6 +488,49 @@ class TenantController extends Controller
         return redirect()
             ->route('central.tenants.show', $tenant)
             ->with('success', 'Tenant activated successfully!');
+    }
+
+    /**
+     * End trial immediately and convert to paid subscription.
+     */
+    public function endTrial(Tenant $tenant)
+    {
+        if (!$tenant->subscription || !$tenant->subscription->is_trial) {
+            return back()->with('error', 'This tenant is not on a trial subscription.');
+        }
+
+        DB::connection('central')->beginTransaction();
+
+        try {
+            $tenant->subscription->update([
+                'is_trial' => false,
+                'status' => 'active',
+                'trial_ends_at' => now(),
+                'starts_at' => now(),
+                'ends_at' => $this->calculateSubscriptionEndDate($tenant->subscription->plan->billing_interval),
+                'next_billing_date' => $this->calculateSubscriptionEndDate($tenant->subscription->plan->billing_interval),
+            ]);
+
+            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
+            AuditLog::log(
+                'tenant.trial_ended',
+                "Ended trial for tenant: {$companyName}",
+                auth('central')->user(),
+                $tenant->id,
+                ['trial_ended_at' => now()->toDateTimeString()]
+            );
+
+            DB::connection('central')->commit();
+
+            return redirect()
+                ->route('central.tenants.show', $tenant)
+                ->with('success', 'Trial ended successfully! Tenant is now on active subscription.');
+
+        } catch (\Exception $e) {
+            DB::connection('central')->rollBack();
+
+            return back()->with('error', 'Failed to end trial: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -479,8 +684,21 @@ class TenantController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'plan_id' => 'required|exists:plans,id',
-            'trial_enabled' => 'boolean',
-            'trial_days' => 'nullable|integer|min:1|max:90',
+            'subscription_type' => ['required', Rule::in(['trial', 'paid'])],
+            'trial_days' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:90',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->subscription_type === 'paid' && $value) {
+                        $fail('Trial days cannot be set for paid subscriptions.');
+                    }
+                    if ($request->subscription_type === 'trial' && !$value) {
+                        $fail('Trial days is required for trial subscriptions.');
+                    }
+                },
+            ],
 
             // Admin user fields
             'admin_first_name' => 'required|string|max:255',
@@ -492,7 +710,7 @@ class TenantController extends Controller
             // Optional branding & theme fields
             'company_tagline' => 'nullable|string|max:255',
             'company_logo' => 'nullable|file|image|mimes:png,jpg,jpeg,svg|max:2048',
-            'theme_primary_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'theme_primary_color' => 'nullable|string|max:7',
 
             // Optional WhatsApp communication fields
             'whatsapp_sender_id' => 'nullable|string|max:20',
@@ -555,5 +773,21 @@ class TenantController extends Controller
         $service = new TenantCreationService(str_replace('tenant_creation_progress_', '', $progressKey));
 
         return response()->json($service->getProgress());
+    }
+
+    /**
+     * Calculate subscription end date based on billing interval.
+     */
+    private function calculateSubscriptionEndDate(string $billingInterval): \Carbon\Carbon
+    {
+        return match ($billingInterval) {
+            'week' => now()->addWeek(),
+            'month' => now()->addMonth(),
+            'two_month' => now()->addMonths(2),
+            'quarter' => now()->addMonths(3),
+            'six_month' => now()->addMonths(6),
+            'year' => now()->addYear(),
+            default => now()->addMonth(), // Default to monthly
+        };
     }
 }

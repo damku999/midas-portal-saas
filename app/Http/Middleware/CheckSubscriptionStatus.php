@@ -99,8 +99,27 @@ class CheckSubscriptionStatus
                 ->with('error', 'Your subscription has been cancelled. Please contact support to reactivate.');
         }
 
-        // Trial expired
+        // Subscription expired (ends_at date has passed)
+        if ($subscription->hasExpired()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Subscription expired',
+                    'message' => 'Your subscription has expired. Please renew to continue.',
+                ], 403);
+            }
+
+            return redirect()->route('subscription.plans')
+                ->with('error', 'Your subscription has expired. Please renew your plan to continue.');
+        }
+
+        // Trial expired - but check if they have an active paid subscription
         if ($subscription->trialEnded()) {
+            // If status is 'active', they have converted to paid - allow access
+            if ($subscription->status === 'active') {
+                return $next($request);
+            }
+
+            // Trial expired and no paid subscription - block access
             if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'Trial expired',
@@ -108,7 +127,7 @@ class CheckSubscriptionStatus
                 ], 403);
             }
 
-            return redirect()->route('subscription.upgrade')
+            return redirect()->route('subscription.plans')
                 ->with('warning', 'Your trial period has expired. Please upgrade your plan to continue using all features.');
         }
 

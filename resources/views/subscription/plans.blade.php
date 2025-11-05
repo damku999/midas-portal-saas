@@ -13,7 +13,7 @@
     <div class="alert alert-info mb-4">
         <i class="fas fa-info-circle me-2"></i>
         You are currently on the <strong>{{ $currentSubscription->plan->name }}</strong> plan.
-        @if($currentSubscription->isOnTrial())
+        @if($currentSubscription->onTrial())
             Your trial ends {{ $currentSubscription->trial_ends_at->diffForHumans() }}.
         @endif
     </div>

@@ -14,6 +14,8 @@ Midas Portal is an enterprise-grade insurance management system designed for ins
 
 ### Key Features
 
+- 🏢 **Multi-Tenancy**: Full SaaS architecture with isolated tenant databases
+- 💳 **Subscription Management**: Trial periods, automated billing, payment gateway integration
 - 📋 **Customer Management**: Complete customer lifecycle with family group support
 - 🏢 **Policy Management**: Track vehicle, life, and health insurance policies
 - 💰 **Quotation System**: Multi-company quote comparison with PDF generation
@@ -21,19 +23,28 @@ Midas Portal is an enterprise-grade insurance management system designed for ins
 - 📧 **Multi-Channel Notifications**: Email, WhatsApp, SMS, and Push notifications
 - 🔐 **Advanced Security**: 2FA, device tracking, audit logs, and CSP headers
 - 📊 **Reporting & Analytics**: Commission tracking and performance dashboards
-- 🌍 **Multi-Portal**: Separate admin and customer portals
+- 🌍 **Multi-Portal**: Central admin, tenant admin, and customer portals
 
 ---
 
 ## 📚 Documentation
 
+> **📂 All documentation is in [`claudedocs/`](claudedocs/)** - [Start Here: Documentation Index](claudedocs/README.md)
+
 ### Quick Links
 
-| Document | Description |
-|----------|-------------|
-| **[📋 Documentation Index](claudedocs/DOCUMENTATION_INDEX.md)** | Central index for all documentation - start here! |
-| **[📖 Complete Project Documentation](claudedocs/PROJECT_INDEX.md)** | Comprehensive reference (2,560 lines) covering architecture, database schema, API endpoints, security implementation, services layer, deployment guides, and development workflows |
-| **[🎯 Lead Management System](claudedocs/LEAD_MANAGEMENT_COMPLETE.md)** | Complete lead management module documentation with features, API endpoints, and setup guide |
+| Category | Document | Description |
+|----------|----------|-------------|
+| **📖 Core** | [Architecture](claudedocs/ARCHITECTURE.md) | System architecture and design patterns |
+| **📖 Core** | [API Reference](claudedocs/API_REFERENCE.md) | Complete API documentation (340+ routes) |
+| **📖 Core** | [Features](claudedocs/FEATURES.md) | Feature specifications |
+| **🚀 Setup** | [Local Development](claudedocs/setup/LOCAL_TENANT_ACCESS_GUIDE.md) | Multi-tenancy local setup |
+| **🚀 Setup** | [ngrok Webhooks](claudedocs/setup/NGROK_QUICK_START.md) | Local webhook testing |
+| **💳 Features** | [Payment Integration](claudedocs/features/PAYMENT_GATEWAY_INTEGRATION.md) | Razorpay & Stripe integration |
+| **💳 Features** | [Trial System](claudedocs/features/TRIAL_CONVERSION_SYSTEM.md) | Automated trial management |
+| **💳 Features** | [File Storage](claudedocs/features/FILE_STORAGE_MULTI_TENANCY.md) | Tenant-isolated storage |
+| **⚙️ Operations** | [Deployment](claudedocs/operations/DEPLOYMENT.md) | Production deployment guide |
+| **⚙️ Operations** | [Troubleshooting](claudedocs/operations/TROUBLESHOOTING.md) | Common issues & solutions |
 
 ---
 

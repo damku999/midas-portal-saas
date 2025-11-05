@@ -29,6 +29,23 @@ class Kernel extends ConsoleKernel
             ->onFailure(function () {
                 \Log::error('Trial expiration warning notifications failed');
             });
+
+        // NEW: Process trial subscriptions - send reminders and auto-convert
+        // Runs daily at 8 AM to send reminders (7,3,1 days before expiration)
+        $schedule->command('subscriptions:process-trials --send-reminders')
+            ->dailyAt('08:00')
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Trial reminder sending failed');
+            });
+
+        // Auto-convert expired trials with payment method on file - runs hourly
+        $schedule->command('subscriptions:process-trials --auto-convert')
+            ->hourly()
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Trial auto-conversion failed');
+            });
     }
 
     /**

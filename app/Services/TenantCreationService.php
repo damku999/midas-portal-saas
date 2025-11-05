@@ -73,21 +73,29 @@ class TenantCreationService
             // Step 5: Create subscription
             $this->updateProgress(5, 'Setting up subscription...', 'running');
             $plan = Plan::findOrFail($validated['plan_id']);
-            $trialEnabled = $validated['trial_enabled'] ?? true;
-            $trialDays = $validated['trial_days'] ?? 14;
+            $isTrial = $validated['subscription_type'] === 'trial';
+            $trialDays = $isTrial ? ($validated['trial_days'] ?? 14) : 0;
+
+            // Calculate ends_at date based on billing interval
+            $endsAt = null;
+            if (!$isTrial) {
+                // For paid subscriptions, set end date based on billing interval
+                $endsAt = $this->calculateSubscriptionEndDate($plan->billing_interval);
+            }
 
             $subscription = Subscription::create([
                 'tenant_id' => $tenant->id,
                 'plan_id' => $plan->id,
-                'status' => $trialEnabled ? 'trial' : 'active',
-                'is_trial' => $trialEnabled,
-                'trial_ends_at' => $trialEnabled ? now()->addDays($trialDays) : null,
+                'status' => $isTrial ? 'trial' : 'active',
+                'is_trial' => $isTrial,
+                'trial_ends_at' => $isTrial ? now()->addDays($trialDays) : null,
                 'starts_at' => now(),
-                'next_billing_date' => now()->addMonth(),
+                'ends_at' => $endsAt,
+                'next_billing_date' => $isTrial ? now()->addDays($trialDays) : now()->addMonth(),
                 'mrr' => $plan->price,
             ]);
 
-            $statusText = $trialEnabled ? "trial ({$trialDays} days)" : 'active';
+            $statusText = $isTrial ? "trial ({$trialDays} days)" : 'paid';
             $this->updateProgress(5, "✓ Subscription created ({$plan->name}, {$statusText})", 'completed');
 
             // Step 6: Create tenant database
@@ -108,6 +116,26 @@ class TenantCreationService
             // Step 8: Seed database with roles, permissions, and master data
             $this->updateProgress(8, 'Seeding database with master data...', 'running');
             $password = $validated['admin_password'] ?? Str::random(16);
+
+            // Copy logo from central storage to tenant storage if provided
+            $tenantLogoPath = null;
+            if (!empty($validated['company_logo'])) {
+                $centralLogoPath = $validated['company_logo'];
+                $centralFullPath = storage_path('app/public/' . $centralLogoPath);
+
+                if (file_exists($centralFullPath)) {
+                    $tenant->run(function () use ($centralFullPath, &$tenantLogoPath, $centralLogoPath) {
+                        // Copy to tenant storage
+                        $tenantLogoPath = 'company_logo.' . pathinfo($centralLogoPath, PATHINFO_EXTENSION);
+                        \Illuminate\Support\Facades\Storage::disk('public')->put(
+                            $tenantLogoPath,
+                            file_get_contents($centralFullPath)
+                        );
+                    });
+                    // Update the logo path to tenant-relative path
+                    $validated['company_logo'] = $tenantLogoPath;
+                }
+            }
 
             $tenant->run(function ($tenant) use ($validated, $password) {
                 // Set admin data in config for AdminSeeder to use
@@ -298,5 +326,21 @@ class TenantCreationService
             'percentage' => 0,
             'steps' => [],
         ]);
+    }
+
+    /**
+     * Calculate subscription end date based on billing interval.
+     */
+    private function calculateSubscriptionEndDate(string $billingInterval): \Carbon\Carbon
+    {
+        return match ($billingInterval) {
+            'week' => now()->addWeek(),
+            'month' => now()->addMonth(),
+            'two_month' => now()->addMonths(2),
+            'quarter' => now()->addMonths(3),
+            'six_month' => now()->addMonths(6),
+            'year' => now()->addYear(),
+            default => now()->addMonth(), // Default to monthly
+        };
     }
 }

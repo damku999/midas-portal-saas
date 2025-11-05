@@ -76,6 +76,7 @@ Route::middleware(['auth', 'subscription.status'])->prefix('subscription')->name
     Route::get('/plans', [App\Http\Controllers\SubscriptionController::class, 'plans'])->name('plans');
     Route::get('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'upgrade'])->name('upgrade');
     Route::post('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'processUpgrade'])->name('process-upgrade');
+    Route::post('/verify-payment', [App\Http\Controllers\SubscriptionController::class, 'verifyPayment'])->name('verify-payment');
     Route::get('/usage', [App\Http\Controllers\SubscriptionController::class, 'usage'])->name('usage');
 });
 
@@ -188,6 +189,10 @@ Route::prefix('webhooks')->name('webhooks.')->group(function () {
     Route::post('/whatsapp/delivery-status', [App\Http\Controllers\NotificationWebhookController::class, 'whatsAppDeliveryStatus'])->name('whatsapp.delivery-status');
     Route::post('/email/delivery-status', [App\Http\Controllers\NotificationWebhookController::class, 'emailDeliveryStatus'])->name('email.delivery-status');
     Route::any('/test', [App\Http\Controllers\NotificationWebhookController::class, 'test'])->name('test');
+
+    // Payment Gateway Webhooks (no auth - verified by signature)
+    Route::post('/payments/razorpay', [App\Http\Controllers\PaymentWebhookController::class, 'razorpay'])->name('payments.razorpay');
+    Route::post('/payments/stripe', [App\Http\Controllers\PaymentWebhookController::class, 'stripe'])->name('payments.stripe');
 });
 
 /*

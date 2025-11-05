@@ -40,6 +40,7 @@ class Subscription extends Model
         'cancelled_at',
         'cancellation_reason',
         'metadata',
+        'auto_renew',
     ];
 
     /**
@@ -57,6 +58,7 @@ class Subscription extends Model
         'mrr' => 'decimal:2',
         'payment_method' => 'array',
         'metadata' => 'array',
+        'auto_renew' => 'boolean',
     ];
 
     /**
@@ -81,6 +83,11 @@ class Subscription extends Model
      */
     public function isActive(): bool
     {
+        // Check if subscription has expired (ends_at date passed)
+        if ($this->hasExpired()) {
+            return false;
+        }
+
         // Consider active if status is 'active' OR on valid trial
         return $this->status === 'active' || $this->onTrial();
     }
@@ -99,6 +106,14 @@ class Subscription extends Model
     public function trialEnded(): bool
     {
         return $this->is_trial && $this->trial_ends_at && $this->trial_ends_at->isPast();
+    }
+
+    /**
+     * Check if subscription has expired (based on ends_at date).
+     */
+    public function hasExpired(): bool
+    {
+        return $this->ends_at && $this->ends_at->isPast();
     }
 
     /**
@@ -207,5 +222,14 @@ class Subscription extends Model
     public function scopeCancelled($query)
     {
         return $query->where('status', 'cancelled');
+    }
+
+    /**
+     * Scope to get expired subscriptions.
+     */
+    public function scopeExpired($query)
+    {
+        return $query->whereNotNull('ends_at')
+            ->where('ends_at', '<=', now());
     }
 }

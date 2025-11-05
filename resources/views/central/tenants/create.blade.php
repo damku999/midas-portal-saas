@@ -430,20 +430,57 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label">
+                                Subscription Type <span class="text-danger">*</span>
+                            </label>
+                            <div class="mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input @error('subscription_type') is-invalid @enderror"
+                                           type="radio"
+                                           name="subscription_type"
+                                           id="subscription_type_trial"
+                                           value="trial"
+                                           {{ old('subscription_type', 'trial') == 'trial' ? 'checked' : '' }}
+                                           required>
+                                    <label class="form-check-label" for="subscription_type_trial">
+                                        Trial Period
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input @error('subscription_type') is-invalid @enderror"
+                                           type="radio"
+                                           name="subscription_type"
+                                           id="subscription_type_paid"
+                                           value="paid"
+                                           {{ old('subscription_type') == 'paid' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="subscription_type_paid">
+                                        Paid (Immediate)
+                                    </label>
+                                </div>
+                            </div>
+                            @error('subscription_type')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Choose trial or paid subscription</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3" id="trial_days_row">
+                        <div class="col-md-12">
                             <label for="trial_days" class="form-label">
-                                Trial Period (Days)
+                                Trial Period (Days) <span class="text-danger">*</span>
                             </label>
                             <input type="number"
                                    class="form-control @error('trial_days') is-invalid @enderror"
                                    id="trial_days"
                                    name="trial_days"
                                    value="{{ old('trial_days', 14) }}"
-                                   min="0"
+                                   min="1"
                                    max="90">
                             @error('trial_days')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Enter 0 for no trial period</small>
+                            <small class="text-muted">Number of days for the trial period (1-90 days)</small>
                         </div>
                     </div>
 
@@ -585,6 +622,32 @@
             colorHex.value = e.target.value.toUpperCase();
         });
     }
+
+    // Toggle trial days field based on subscription type
+    const trialRadio = document.getElementById('subscription_type_trial');
+    const paidRadio = document.getElementById('subscription_type_paid');
+    const trialDaysRow = document.getElementById('trial_days_row');
+    const trialDaysInput = document.getElementById('trial_days');
+
+    function toggleTrialDays() {
+        if (paidRadio.checked) {
+            trialDaysRow.style.display = 'none';
+            trialDaysInput.removeAttribute('required');
+            trialDaysInput.value = ''; // Clear value for paid subscriptions
+        } else {
+            trialDaysRow.style.display = '';
+            trialDaysInput.setAttribute('required', 'required');
+            if (!trialDaysInput.value) {
+                trialDaysInput.value = '14'; // Default to 14 days
+            }
+        }
+    }
+
+    trialRadio.addEventListener('change', toggleTrialDays);
+    paidRadio.addEventListener('change', toggleTrialDays);
+
+    // Initialize on page load
+    toggleTrialDays();
 
     // Tenant creation with progress tracking
     const form = document.querySelector('form');

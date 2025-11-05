@@ -96,11 +96,35 @@ class Plan extends Model
     }
 
     /**
-     * Get annual price.
+     * Get human-readable billing interval.
+     */
+    public function getBillingIntervalLabelAttribute(): string
+    {
+        return match ($this->billing_interval) {
+            'week' => 'Weekly',
+            'month' => 'Monthly',
+            'two_month' => 'Every 2 Months',
+            'quarter' => 'Quarterly',
+            'six_month' => 'Half-Yearly',
+            'year' => 'Yearly',
+            default => ucfirst($this->billing_interval),
+        };
+    }
+
+    /**
+     * Get annual price based on billing interval.
      */
     public function getAnnualPriceAttribute(): float
     {
-        return $this->billing_interval === 'yearly' ? $this->price : $this->price * 12;
+        return match ($this->billing_interval) {
+            'week' => $this->price * 52,
+            'month' => $this->price * 12,
+            'two_month' => $this->price * 6,
+            'quarter' => $this->price * 4,
+            'six_month' => $this->price * 2,
+            'year' => $this->price,
+            default => $this->price * 12,
+        };
     }
 
     /**

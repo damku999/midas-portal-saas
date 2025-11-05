@@ -37,7 +37,7 @@ class CentralAdminSeeder extends Seeder
                 'slug' => 'starter',
                 'description' => 'Perfect for small insurance agencies getting started',
                 'price' => 2999.00,
-                'billing_interval' => 'monthly',
+                'billing_interval' => 'month',
                 'max_users' => 3,
                 'max_customers' => 100,
                 'max_leads_per_month' => 50,
@@ -59,7 +59,7 @@ class CentralAdminSeeder extends Seeder
                 'slug' => 'professional',
                 'description' => 'For growing agencies with advanced needs',
                 'price' => 5999.00,
-                'billing_interval' => 'monthly',
+                'billing_interval' => 'month',
                 'max_users' => 10,
                 'max_customers' => 500,
                 'max_leads_per_month' => 200,
@@ -82,7 +82,7 @@ class CentralAdminSeeder extends Seeder
                 'slug' => 'enterprise',
                 'description' => 'For large organizations with unlimited needs',
                 'price' => 14999.00,
-                'billing_interval' => 'monthly',
+                'billing_interval' => 'month',
                 'max_users' => -1, // Unlimited
                 'max_customers' => -1, // Unlimited
                 'max_leads_per_month' => -1, // Unlimited

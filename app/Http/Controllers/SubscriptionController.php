@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Central\Plan;
 use App\Models\Central\Subscription;
+use App\Services\PaymentService;
 use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,10 +12,12 @@ use Illuminate\Support\Facades\DB;
 class SubscriptionController extends Controller
 {
     protected UsageTrackingService $usageService;
+    protected PaymentService $paymentService;
 
-    public function __construct(UsageTrackingService $usageService)
+    public function __construct(UsageTrackingService $usageService, PaymentService $paymentService)
     {
         $this->usageService = $usageService;
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -90,8 +93,10 @@ class SubscriptionController extends Controller
     public function processUpgrade(Request $request, Plan $plan)
     {
         $validated = $request->validate([
-            'payment_method' => 'required|string|in:razorpay,stripe,bank_transfer',
+            'payment_gateway' => 'required|string|in:razorpay,stripe,bank_transfer',
             'billing_cycle' => 'required|string|in:monthly,annual',
+            'auto_renew' => 'sometimes|boolean',
+            'payment_details' => 'sometimes|array',
         ]);
 
         $tenant = tenant();
@@ -105,37 +110,111 @@ class SubscriptionController extends Controller
         try {
             $subscription = Subscription::where('tenant_id', $tenant->id)->firstOrFail();
 
-            // Calculate prorated amount if applicable
-            $proratedAmount = $this->calculateProratedAmount($subscription, $plan);
+            // Calculate amount (use plan price, or prorated for mid-cycle upgrades)
+            $amount = $validated['billing_cycle'] === 'annual'
+                ? $plan->annual_price
+                : $plan->price;
 
-            // Update subscription
+            // Create payment order
+            $paymentResult = $this->paymentService->createOrder(
+                $subscription,
+                $amount,
+                $validated['payment_gateway'],
+                'upgrade'
+            );
+
+            if (!$paymentResult['success']) {
+                throw new \Exception($paymentResult['error']);
+            }
+
+            // Calculate subscription end date based on billing cycle
+            $endsAt = $validated['billing_cycle'] === 'annual'
+                ? now()->addYear()
+                : $this->calculateSubscriptionEndDate($plan->billing_interval);
+
+            // Update subscription (will be activated after payment verification)
             $subscription->update([
                 'plan_id' => $plan->id,
-                'status' => 'active',
-                'is_trial' => false,
-                'trial_ends_at' => null,
+                'ends_at' => $endsAt,
                 'next_billing_date' => $validated['billing_cycle'] === 'annual'
                     ? now()->addYear()
                     : now()->addMonth(),
-                'mrr' => $validated['billing_cycle'] === 'annual'
-                    ? $plan->price
-                    : $plan->price,
+                'mrr' => $amount,
+                'auto_renew' => $validated['auto_renew'] ?? false,
             ]);
 
             DB::connection('central')->commit();
 
-            // TODO: Process actual payment with payment gateway
-            // $paymentResult = $this->processPayment($validated['payment_method'], $proratedAmount);
-
-            return redirect()->route('subscription.index')
-                ->with('success', 'Plan upgraded successfully! Your new features are now available.');
+            // Return payment order data to frontend for gateway integration
+            return response()->json([
+                'success' => true,
+                'payment' => $paymentResult['payment'],
+                'order_data' => $paymentResult['order_data'],
+                'redirect_url' => route('subscription.index'),
+            ]);
 
         } catch (\Exception $e) {
             DB::connection('central')->rollBack();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
             return back()
                 ->withInput()
                 ->with('error', 'Failed to upgrade plan: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Verify payment after gateway callback.
+     */
+    public function verifyPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'payment_id' => 'required|integer',
+            'razorpay_payment_id' => 'required_if:gateway,razorpay',
+            'razorpay_order_id' => 'required_if:gateway,razorpay',
+            'razorpay_signature' => 'required_if:gateway,razorpay',
+        ]);
+
+        try {
+            $result = $this->paymentService->verifyPayment(
+                $validated['payment_id'],
+                $request->all()
+            );
+
+            if ($result['success']) {
+                // Update subscription status to active
+                $payment = \App\Models\Central\Payment::find($validated['payment_id']);
+                $subscription = $payment->subscription;
+
+                $subscription->update([
+                    'status' => 'active',
+                    'is_trial' => false,
+                    'trial_ends_at' => null,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment verified successfully!',
+                    'redirect_url' => route('subscription.index'),
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'error' => $result['error'] ?? 'Payment verification failed',
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -196,5 +275,21 @@ class SubscriptionController extends Controller
         $newAmount = ($newPlan->price / $totalDays) * $daysRemaining;
 
         return max(0, $newAmount - $unusedAmount);
+    }
+
+    /**
+     * Calculate subscription end date based on billing interval.
+     */
+    private function calculateSubscriptionEndDate(string $billingInterval): \Carbon\Carbon
+    {
+        return match ($billingInterval) {
+            'week' => now()->addWeek(),
+            'month' => now()->addMonth(),
+            'two_month' => now()->addMonths(2),
+            'quarter' => now()->addMonths(3),
+            'six_month' => now()->addMonths(6),
+            'year' => now()->addYear(),
+            default => now()->addMonth(), // Default to monthly
+        };
     }
 }
