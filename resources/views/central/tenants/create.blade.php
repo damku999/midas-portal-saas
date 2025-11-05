@@ -32,7 +32,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('central.tenants.store') }}" method="POST">
+                <form action="{{ route('central.tenants.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Company Information -->
@@ -196,6 +196,214 @@
                         </div>
                     </div>
 
+                    <!-- Branding & Theme (Optional) -->
+                    <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">
+                        Branding & Theme
+                        <small class="text-muted fw-normal">(Optional - uses central defaults if not provided)</small>
+                    </h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="company_tagline" class="form-label">
+                                Company Tagline
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('company_tagline') is-invalid @enderror"
+                                   id="company_tagline"
+                                   name="company_tagline"
+                                   value="{{ old('company_tagline') }}"
+                                   placeholder="Your Trusted Insurance Partner">
+                            @error('company_tagline')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Appears in emails and documents</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="theme_primary_color" class="form-label">
+                                Primary Brand Color
+                            </label>
+                            <div class="input-group">
+                                <input type="color"
+                                       class="form-control form-control-color @error('theme_primary_color') is-invalid @enderror"
+                                       id="theme_primary_color"
+                                       name="theme_primary_color"
+                                       value="{{ old('theme_primary_color', '#17a2b8') }}"
+                                       style="width: 60px;">
+                                <input type="text"
+                                       class="form-control"
+                                       id="theme_primary_color_hex"
+                                       value="{{ old('theme_primary_color', '#17a2b8') }}"
+                                       placeholder="#17a2b8"
+                                       readonly>
+                            </div>
+                            @error('theme_primary_color')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Used for buttons, links, and branding</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="company_logo" class="form-label">
+                                Company Logo
+                            </label>
+                            <input type="file"
+                                   class="form-control @error('company_logo') is-invalid @enderror"
+                                   id="company_logo"
+                                   name="company_logo"
+                                   accept="image/png,image/jpeg,image/jpg,image/svg+xml">
+                            @error('company_logo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">PNG, JPG, JPEG, or SVG (max 2MB). Leave empty to use central default logo.</small>
+                        </div>
+                    </div>
+
+                    <!-- Communication Settings (Optional) -->
+                    <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">
+                        Communication Settings
+                        <small class="text-muted fw-normal">(Optional - uses central defaults if not provided)</small>
+                    </h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="whatsapp_sender_id" class="form-label">
+                                WhatsApp Sender ID
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('whatsapp_sender_id') is-invalid @enderror"
+                                   id="whatsapp_sender_id"
+                                   name="whatsapp_sender_id"
+                                   value="{{ old('whatsapp_sender_id') }}"
+                                   placeholder="919800071314">
+                            @error('whatsapp_sender_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Phone number without + or spaces</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="whatsapp_auth_token" class="form-label">
+                                WhatsApp Auth Token
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('whatsapp_auth_token') is-invalid @enderror"
+                                   id="whatsapp_auth_token"
+                                   name="whatsapp_auth_token"
+                                   value="{{ old('whatsapp_auth_token') }}"
+                                   placeholder="Enter API authentication token">
+                            @error('whatsapp_auth_token')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Leave empty to use central WhatsApp config</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email_from_address" class="form-label">
+                                Email From Address
+                            </label>
+                            <input type="email"
+                                   class="form-control @error('email_from_address') is-invalid @enderror"
+                                   id="email_from_address"
+                                   name="email_from_address"
+                                   value="{{ old('email_from_address') }}"
+                                   placeholder="noreply@company.com">
+                            @error('email_from_address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Email address for outgoing notifications</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email_from_name" class="form-label">
+                                Email From Name
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('email_from_name') is-invalid @enderror"
+                                   id="email_from_name"
+                                   name="email_from_name"
+                                   value="{{ old('email_from_name') }}"
+                                   placeholder="Company Name">
+                            @error('email_from_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Display name for outgoing emails</small>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings (Collapsible) -->
+                    <div class="accordion mt-4 mb-3" id="advancedSettings">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced">
+                                    <i class="fas fa-cog me-2"></i>Advanced Settings (Optional)
+                                </button>
+                            </h2>
+                            <div id="collapseAdvanced" class="accordion-collapse collapse" data-bs-parent="#advancedSettings">
+                                <div class="accordion-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="timezone" class="form-label">
+                                                Timezone
+                                            </label>
+                                            <select class="form-select @error('timezone') is-invalid @enderror"
+                                                    id="timezone"
+                                                    name="timezone">
+                                                <option value="">Use Default (Asia/Kolkata)</option>
+                                                <option value="Asia/Kolkata" {{ old('timezone') == 'Asia/Kolkata' ? 'selected' : '' }}>Asia/Kolkata (IST)</option>
+                                                <option value="America/New_York" {{ old('timezone') == 'America/New_York' ? 'selected' : '' }}>America/New_York (EST)</option>
+                                                <option value="Europe/London" {{ old('timezone') == 'Europe/London' ? 'selected' : '' }}>Europe/London (GMT)</option>
+                                                <option value="Asia/Dubai" {{ old('timezone') == 'Asia/Dubai' ? 'selected' : '' }}>Asia/Dubai (GST)</option>
+                                            </select>
+                                            @error('timezone')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="currency" class="form-label">
+                                                Currency Code
+                                            </label>
+                                            <select class="form-select @error('currency') is-invalid @enderror"
+                                                    id="currency"
+                                                    name="currency">
+                                                <option value="">Use Default (INR)</option>
+                                                <option value="INR" {{ old('currency') == 'INR' ? 'selected' : '' }}>INR - Indian Rupee</option>
+                                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD - US Dollar</option>
+                                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
+                                                <option value="GBP" {{ old('currency') == 'GBP' ? 'selected' : '' }}>GBP - British Pound</option>
+                                                <option value="AED" {{ old('currency') == 'AED' ? 'selected' : '' }}>AED - UAE Dirham</option>
+                                            </select>
+                                            @error('currency')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="currency_symbol" class="form-label">
+                                                Currency Symbol
+                                            </label>
+                                            <input type="text"
+                                                   class="form-control @error('currency_symbol') is-invalid @enderror"
+                                                   id="currency_symbol"
+                                                   name="currency_symbol"
+                                                   value="{{ old('currency_symbol') }}"
+                                                   placeholder="₹"
+                                                   maxlength="5">
+                                            @error('currency_symbol')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Subscription Plan -->
                     <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">Subscription Plan</h6>
 
@@ -340,11 +548,13 @@
                 <!-- Success Display -->
                 <div id="successDisplay" class="alert alert-success mt-3 d-none">
                     <i class="fas fa-check-circle me-2"></i>
-                    <strong>Success!</strong> Tenant created successfully. Redirecting...
+                    <strong>Success!</strong> Tenant created successfully.
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary d-none" id="closeModalBtn" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary d-none" id="closeModalBtn" onclick="redirectToTenant()">
+                    <i class="fas fa-external-link-alt me-2"></i>View Tenant
+                </button>
             </div>
         </div>
     </div>
@@ -366,6 +576,16 @@
         }
     });
 
+    // Sync color picker with hex input
+    const colorPicker = document.getElementById('theme_primary_color');
+    const colorHex = document.getElementById('theme_primary_color_hex');
+
+    if (colorPicker && colorHex) {
+        colorPicker.addEventListener('input', function(e) {
+            colorHex.value = e.target.value.toUpperCase();
+        });
+    }
+
     // Tenant creation with progress tracking
     const form = document.querySelector('form');
     const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
@@ -381,6 +601,7 @@
 
     let progressInterval = null;
     let progressKey = null;
+    let redirectUrl = null;
 
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -391,6 +612,19 @@
 
         // Show progress modal
         progressModal.show();
+
+        // Show initial loading state
+        progressBar.style.width = '5%';
+        progressPercentage.textContent = '5%';
+        progressText.textContent = 'Initializing...';
+        progressSteps.innerHTML = `
+            <div class="mb-2 text-primary">
+                <small>
+                    <i class="fas fa-spinner fa-spin"></i> Preparing to create tenant...
+                    <span class="text-muted" style="font-size: 0.8em;">(${new Date().toLocaleTimeString()})</span>
+                </small>
+            </div>
+        `;
 
         // Prepare form data
         const formData = new FormData(form);
@@ -412,6 +646,7 @@
 
             if (result.success) {
                 progressKey = result.progress_key;
+                redirectUrl = result.redirect_url;
 
                 // Start polling for progress
                 progressInterval = setInterval(updateProgress, 500);
@@ -481,11 +716,12 @@
                 progressText.textContent = 'Complete!';
 
                 successDisplay.classList.remove('d-none');
+                closeModalBtn.classList.remove('d-none');
 
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    window.location.href = progress.redirect_url || '{{ route("central.tenants.index") }}';
-                }, 2000);
+                // Store redirect URL if provided
+                if (progress.redirect_url) {
+                    redirectUrl = progress.redirect_url;
+                }
             }
 
             // Check if failed
@@ -506,10 +742,20 @@
         errorMessage.textContent = message;
         errorDisplay.classList.remove('d-none');
         closeModalBtn.classList.remove('d-none');
+        closeModalBtn.textContent = 'Close';
+        closeModalBtn.onclick = () => location.reload();
         createBtn.disabled = false;
         createBtn.innerHTML = '<i class="fas fa-save me-2"></i>Create Tenant';
         progressBar.classList.remove('progress-bar-animated');
         progressBar.classList.add('bg-danger');
+    }
+
+    function redirectToTenant() {
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        } else {
+            window.location.href = '{{ route("central.tenants.index") }}';
+        }
     }
 </script>
 @endpush

@@ -451,6 +451,7 @@ class TenantController extends Controller
     public function storeWithProgress(Request $request)
     {
         $validated = $request->validate([
+            // Required basic fields
             'company_name' => 'required|string|max:255',
             'subdomain' => [
                 'required',
@@ -480,12 +481,42 @@ class TenantController extends Controller
             'plan_id' => 'required|exists:plans,id',
             'trial_enabled' => 'boolean',
             'trial_days' => 'nullable|integer|min:1|max:90',
+
+            // Admin user fields
             'admin_first_name' => 'required|string|max:255',
             'admin_last_name' => 'required|string|max:255',
             'admin_email' => 'required|email|max:255',
             'admin_password' => 'nullable|string|min:8',
             'send_welcome_email' => 'boolean',
+
+            // Optional branding & theme fields
+            'company_tagline' => 'nullable|string|max:255',
+            'company_logo' => 'nullable|file|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'theme_primary_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+
+            // Optional WhatsApp communication fields
+            'whatsapp_sender_id' => 'nullable|string|max:20',
+            'whatsapp_auth_token' => 'nullable|string|max:255',
+
+            // Optional email communication fields
+            'email_from_address' => 'nullable|email|max:255',
+            'email_from_name' => 'nullable|string|max:255',
+
+            // Optional localization fields
+            'timezone' => 'nullable|string|timezone',
+            'currency' => 'nullable|string|size:3',
+            'currency_symbol' => 'nullable|string|max:5',
+
+            // Additional optional company fields
+            'company_phone' => 'nullable|string|max:20',
+            'company_phone_whatsapp' => 'nullable|string|max:20',
         ]);
+
+        // Handle logo file upload if provided
+        if ($request->hasFile('company_logo')) {
+            $logoPath = $request->file('company_logo')->store('tenant-logos', 'public');
+            $validated['company_logo'] = $logoPath;
+        }
 
         $sessionId = $request->input('session_id', Str::random(16));
         $service = new TenantCreationService($sessionId);

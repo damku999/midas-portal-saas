@@ -10,6 +10,11 @@ class BranchesSeeder extends Seeder
     /**
      * Run the database seeds.
      *
+     * Intelligently seeds branch based on tenant configuration:
+     * - Uses custom branch name if provided in config
+     * - Falls back to company name as default branch
+     * - Uses "Main Branch" as last resort
+     *
      * @return void
      */
     public function run()
@@ -17,11 +22,16 @@ class BranchesSeeder extends Seeder
         // Clear existing data
         DB::table('branches')->truncate();
 
-        // Insert branch data (production data)
+        // Get custom branch name from tenant config, or use company name, or default
+        $customSettings = config('tenant.settings', []);
+        $companyName = $customSettings['company_name'] ?? env('APP_NAME', 'Main Branch');
+        $branchName = $customSettings['branch_name'] ?? strtoupper($companyName);
+
+        // Insert initial branch
         DB::table('branches')->insert([
             [
                 'id' => 1,
-                'name' => 'AHMEDABAD',
+                'name' => $branchName,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -32,6 +42,6 @@ class BranchesSeeder extends Seeder
             ],
         ]);
 
-        $this->command->info('Branches seeded successfully!');
+        $this->command->info("✓ Branch seeded: {$branchName}");
     }
 }

@@ -10,6 +10,11 @@ class BrokersSeeder extends Seeder
     /**
      * Run the database seeds.
      *
+     * Skips seeding by default to avoid tenant-specific production data.
+     * Tenants should add their own brokers through the UI.
+     *
+     * Set TENANT_SEED_SAMPLE_DATA=true in .env to seed sample brokers for testing.
+     *
      * @return void
      */
     public function run()
@@ -17,12 +22,21 @@ class BrokersSeeder extends Seeder
         // Clear existing data
         DB::table('brokers')->truncate();
 
-        // Insert broker data (production data)
+        // Check if we should seed sample data
+        $seedSampleData = config('tenant.settings.seed_sample_data', false)
+            || env('TENANT_SEED_SAMPLE_DATA', false);
+
+        if (!$seedSampleData) {
+            $this->command->warn('⊘ Brokers seeding skipped (tenant-specific data). Add brokers via UI.');
+            return;
+        }
+
+        // Seed sample broker data for testing/demo purposes only
         DB::table('brokers')->insert([
             [
                 'id' => 1,
-                'name' => 'NARENDRA JAIN / NITESH JAIN',
-                'email' => null,
+                'name' => 'Sample Broker 1',
+                'email' => 'broker1@example.com',
                 'mobile_number' => null,
                 'status' => 1,
                 'created_at' => now(),
@@ -34,47 +48,8 @@ class BrokersSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'name' => 'PARTH RAWAL',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 3,
-                'name' => 'PRITESH THAKKAR',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 4,
-                'name' => 'PARTH - NITESH',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 5,
-                'name' => 'ROHAN GAJJAR',
-                'email' => null,
+                'name' => 'Sample Broker 2',
+                'email' => 'broker2@example.com',
                 'mobile_number' => null,
                 'status' => 1,
                 'created_at' => now(),
@@ -86,6 +61,6 @@ class BrokersSeeder extends Seeder
             ],
         ]);
 
-        $this->command->info('Brokers seeded successfully!');
+        $this->command->info('✓ Sample brokers seeded (for testing only)');
     }
 }

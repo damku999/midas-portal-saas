@@ -10,6 +10,11 @@ class RelationshipManagersSeeder extends Seeder
     /**
      * Run the database seeds.
      *
+     * Skips seeding by default to avoid tenant-specific production data.
+     * Tenants should add their own relationship managers through the UI.
+     *
+     * Set TENANT_SEED_SAMPLE_DATA=true in .env to seed sample RMs for testing.
+     *
      * @return void
      */
     public function run()
@@ -17,12 +22,21 @@ class RelationshipManagersSeeder extends Seeder
         // Clear existing data
         DB::table('relationship_managers')->truncate();
 
-        // Insert relationship manager data (production data)
+        // Check if we should seed sample data
+        $seedSampleData = config('tenant.settings.seed_sample_data', false)
+            || env('TENANT_SEED_SAMPLE_DATA', false);
+
+        if (!$seedSampleData) {
+            $this->command->warn('⊘ Relationship Managers seeding skipped (tenant-specific data). Add RMs via UI.');
+            return;
+        }
+
+        // Seed sample relationship manager data for testing/demo purposes only
         DB::table('relationship_managers')->insert([
             [
                 'id' => 1,
-                'name' => 'RELITRADE INSURANCE BROKING PVT LTD',
-                'email' => null,
+                'name' => 'Sample Relationship Manager 1',
+                'email' => 'rm1@example.com',
                 'mobile_number' => null,
                 'status' => 1,
                 'created_at' => now(),
@@ -34,112 +48,8 @@ class RelationshipManagersSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'name' => 'PARTH RAWAL',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 3,
-                'name' => 'RATNAAFIN INSURANCE BROKING PVT LTD',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 4,
-                'name' => 'VINIT - LANDMARK INSURANCE BROKING PVT LTD',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 5,
-                'name' => 'MOIN - LANDMARK INSURANCE BROKING PVT LTD',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 6,
-                'name' => 'GNR - LANDMARK INSURANCE BROKING PVT LTD',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 7,
-                'name' => 'ROHAN GAJJAR ERICSON TPA',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 8,
-                'name' => 'GEO FINTECH',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 9,
-                'name' => 'SAMTA JAIN',
-                'email' => null,
-                'mobile_number' => null,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'deleted_at' => null,
-                'created_by' => 1,
-                'updated_by' => 1,
-                'deleted_by' => null,
-            ],
-            [
-                'id' => 10,
-                'name' => 'TANUSHI JAIN',
-                'email' => null,
+                'name' => 'Sample Relationship Manager 2',
+                'email' => 'rm2@example.com',
                 'mobile_number' => null,
                 'status' => 1,
                 'created_at' => now(),
@@ -151,6 +61,6 @@ class RelationshipManagersSeeder extends Seeder
             ],
         ]);
 
-        $this->command->info('Relationship managers seeded successfully!');
+        $this->command->info('✓ Sample relationship managers seeded (for testing only)');
     }
 }

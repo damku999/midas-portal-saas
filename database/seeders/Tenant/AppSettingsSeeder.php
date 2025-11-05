@@ -15,18 +15,22 @@ class AppSettingsSeeder extends Seeder
         // Clear cache before seeding
         AppSettingService::clearCache();
 
+        // Get custom settings from tenant creation (if provided)
+        // These values override the defaults below
+        $customSettings = config('tenant.settings', []);
+
         // ========================================
         // CATEGORY: Application
         // ========================================
         $applicationSettings = [
             'app_name' => [
-                'value' => env('APP_NAME', 'Insurance Admin Panel'),
+                'value' => $customSettings['company_name'] ?? env('APP_NAME', 'Insurance Admin Panel'),
                 'type' => 'string',
                 'description' => 'Application Display Name',
                 'is_encrypted' => false,
             ],
             'app_timezone' => [
-                'value' => 'Asia/Kolkata',
+                'value' => $customSettings['timezone'] ?? central_config('timezone', 'Asia/Kolkata'),
                 'type' => 'string',
                 'description' => 'Application Timezone (Valid PHP timezone identifier)',
                 'is_encrypted' => false,
@@ -38,13 +42,13 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
             'app_currency' => [
-                'value' => 'INR',
+                'value' => $customSettings['currency'] ?? central_config('currency', 'INR'),
                 'type' => 'string',
                 'description' => 'Default Currency Code (INR, USD, EUR, GBP)',
                 'is_encrypted' => false,
             ],
             'app_currency_symbol' => [
-                'value' => '₹',
+                'value' => $customSettings['currency_symbol'] ?? central_config('currency_symbol', '₹'),
                 'type' => 'string',
                 'description' => 'Default Currency Symbol',
                 'is_encrypted' => false,
@@ -100,19 +104,19 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $whatsappSettings = [
             'whatsapp_sender_id' => [
-                'value' => '919800071314',
+                'value' => $customSettings['whatsapp_sender_id'] ?? central_config('whatsapp_sender', '919800071314'),
                 'type' => 'string',
                 'description' => 'WhatsApp API Sender ID',
                 'is_encrypted' => false,
             ],
             'whatsapp_base_url' => [
-                'value' => 'https://api.botmastersender.com/api/v1/',
+                'value' => $customSettings['whatsapp_base_url'] ?? central_config('whatsapp_base_url', 'https://api.botmastersender.com/api/v1/'),
                 'type' => 'url',
                 'description' => 'WhatsApp API Base URL',
                 'is_encrypted' => false,
             ],
             'whatsapp_auth_token' => [
-                'value' => '53eb1f03-90be-49ce-9dbe-b23fe982b31f',
+                'value' => $customSettings['whatsapp_auth_token'] ?? central_config('whatsapp_auth_token', ''),
                 'type' => 'text',
                 'description' => 'WhatsApp API Authentication Token',
                 'is_encrypted' => true,
@@ -132,13 +136,13 @@ class AppSettingsSeeder extends Seeder
                 'is_encrypted' => false,
             ],
             'mail_from_address' => [
-                'value' => env('MAIL_FROM_ADDRESS', 'support@midastech.in'),
+                'value' => $customSettings['email_from_address'] ?? central_config('mail_from_address', 'support@midastech.in'),
                 'type' => 'email',
                 'description' => 'Default From Email Address',
                 'is_encrypted' => false,
             ],
             'mail_from_name' => [
-                'value' => env('MAIL_FROM_NAME', env('APP_NAME', 'MIDAS Portal')),
+                'value' => $customSettings['email_from_name'] ?? central_config('mail_from_name', env('APP_NAME', 'MIDAS Portal')),
                 'type' => 'string',
                 'description' => 'Default From Name',
                 'is_encrypted' => false,
@@ -214,43 +218,43 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $companySettings = [
             'company_name' => [
-                'value' => 'Parth Rawal Insurance Advisor',
+                'value' => $customSettings['company_name'] ?? 'Parth Rawal Insurance Advisor',
                 'type' => 'string',
                 'description' => 'Company/Business Name',
                 'is_encrypted' => false,
             ],
             'company_advisor_name' => [
-                'value' => 'Parth Rawal',
+                'value' => $customSettings['company_advisor_name'] ?? 'Parth Rawal',
                 'type' => 'string',
                 'description' => 'Insurance Advisor Name',
                 'is_encrypted' => false,
             ],
             'company_website' => [
-                'value' => 'https://webmonks.in',
+                'value' => $customSettings['company_website'] ?? 'https://webmonks.in',
                 'type' => 'url',
                 'description' => 'Company Website URL',
                 'is_encrypted' => false,
             ],
             'company_phone' => [
-                'value' => '+91 80000 71314',
+                'value' => $customSettings['company_phone'] ?? '+91 80000 71314',
                 'type' => 'string',
                 'description' => 'Company Contact Phone Number (display format)',
                 'is_encrypted' => false,
             ],
             'company_phone_whatsapp' => [
-                'value' => '919800071314',
+                'value' => $customSettings['company_phone_whatsapp'] ?? '919800071314',
                 'type' => 'string',
                 'description' => 'WhatsApp Phone Number (API format without + or spaces)',
                 'is_encrypted' => false,
             ],
             'company_title' => [
-                'value' => 'Your Trusted Insurance Advisor',
+                'value' => $customSettings['company_title'] ?? 'Your Trusted Insurance Advisor',
                 'type' => 'string',
                 'description' => 'Company Professional Title/Role',
                 'is_encrypted' => false,
             ],
             'company_tagline' => [
-                'value' => 'Think of Insurance, Think of Us.',
+                'value' => $customSettings['company_tagline'] ?? 'Think of Insurance, Think of Us.',
                 'type' => 'string',
                 'description' => 'Company Tagline/Motto',
                 'is_encrypted' => false,
@@ -383,19 +387,19 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $brandingSettings = [
             'company_logo_path' => [
-                'value' => 'images/logo.png',
+                'value' => $customSettings['company_logo'] ?? central_config('logo', 'images/logo.png'),
                 'type' => 'image',
                 'description' => 'Company Logo Image (Upload)',
                 'is_encrypted' => false,
             ],
             'company_logo_alt' => [
-                'value' => 'WebMonks Technologies',
+                'value' => $customSettings['company_name'] ?? central_config('logo_alt', 'WebMonks Technologies'),
                 'type' => 'string',
                 'description' => 'Company Logo Alt Text (SEO)',
                 'is_encrypted' => false,
             ],
             'company_favicon_path' => [
-                'value' => 'images/logo-icon@2000x.png',
+                'value' => $customSettings['company_favicon'] ?? central_config('favicon', 'images/logo-icon@2000x.png'),
                 'type' => 'image',
                 'description' => 'Favicon Image (Upload)',
                 'is_encrypted' => false,
@@ -421,13 +425,13 @@ class AppSettingsSeeder extends Seeder
         // ========================================
         $footerSettings = [
             'footer_developer_name' => [
-                'value' => 'Midas Tech',
+                'value' => central_config('developer_name', 'Midas Tech'),
                 'type' => 'string',
                 'description' => 'Developer/Company Name for Footer Credits',
                 'is_encrypted' => false,
             ],
             'footer_developer_url' => [
-                'value' => 'https://midastech.in',
+                'value' => central_config('developer_url', 'https://midastech.in'),
                 'type' => 'url',
                 'description' => 'Developer Website URL',
                 'is_encrypted' => false,
@@ -480,37 +484,37 @@ class AppSettingsSeeder extends Seeder
         $themeSettings = [
             // Primary Brand Colors - WebMonks Teal Theme
             'theme_primary_color' => [
-                'value' => '#17a2b8',
+                'value' => $customSettings['theme_primary_color'] ?? central_config('primary_color', '#17a2b8'),
                 'type' => 'color',
                 'description' => 'Primary Brand Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'theme_secondary_color' => [
-                'value' => '#6c757d',
+                'value' => central_config('secondary_color', '#6c757d'),
                 'type' => 'color',
                 'description' => 'Secondary Color (Hex)',
                 'is_encrypted' => false,
             ],
             'theme_success_color' => [
-                'value' => '#28a745',
+                'value' => central_config('success_color', '#28a745'),
                 'type' => 'color',
                 'description' => 'Success Color (Hex)',
                 'is_encrypted' => false,
             ],
             'theme_info_color' => [
-                'value' => '#5fd0e3',
+                'value' => central_config('info_color', '#5fd0e3'),
                 'type' => 'color',
                 'description' => 'Info Color (Hex) - Light Teal',
                 'is_encrypted' => false,
             ],
             'theme_warning_color' => [
-                'value' => '#f6c23e',
+                'value' => central_config('warning_color', '#f6c23e'),
                 'type' => 'color',
                 'description' => 'Warning Color (Hex)',
                 'is_encrypted' => false,
             ],
             'theme_danger_color' => [
-                'value' => '#e74a3b',
+                'value' => central_config('danger_color', '#e74a3b'),
                 'type' => 'color',
                 'description' => 'Danger/Error Color (Hex)',
                 'is_encrypted' => false,
@@ -530,7 +534,7 @@ class AppSettingsSeeder extends Seeder
 
             // Sidebar Theme - WebMonks Teal
             'theme_sidebar_bg_color' => [
-                'value' => '#17a2b8',
+                'value' => $customSettings['theme_primary_color'] ?? central_config('primary_color', '#17a2b8'),
                 'type' => 'color',
                 'description' => 'Sidebar Background Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
@@ -618,13 +622,13 @@ class AppSettingsSeeder extends Seeder
 
             // Link Colors - WebMonks Teal Theme
             'theme_link_color' => [
-                'value' => '#17a2b8',
+                'value' => $customSettings['theme_primary_color'] ?? central_config('primary_color', '#17a2b8'),
                 'type' => 'color',
                 'description' => 'Default Link Color (Hex) - WebMonks Teal',
                 'is_encrypted' => false,
             ],
             'theme_link_hover_color' => [
-                'value' => '#138496',
+                'value' => $customSettings['theme_primary_color'] ?? central_config('primary_color', '#138496'),
                 'type' => 'color',
                 'description' => 'Link Hover Color (Hex) - Darker Teal',
                 'is_encrypted' => false,

@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -36,6 +38,23 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {});
+
+        // Handle tenant identification failures
+        $this->renderable(function (TenantCouldNotBeIdentifiedOnDomainException $e, $request) {
+            // Log the error for debugging
+            Log::error('Tenant could not be identified', [
+                'domain' => $request->getHost(),
+                'url' => $request->fullUrl(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'exception' => $e->getMessage(),
+            ]);
+
+            // Return user-friendly error page
+            return response()->view('errors.tenant', [
+                'domain' => $request->getHost(),
+            ], 404);
+        });
     }
 
     /**

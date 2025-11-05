@@ -121,6 +121,59 @@ class TenantCreationService
                     ],
                 ]);
 
+                // Prepare custom settings for AppSettingsSeeder
+                $customSettings = [];
+
+                // Branding & Theme
+                if (!empty($validated['company_name'])) {
+                    $customSettings['company_name'] = $validated['company_name'];
+                }
+                if (!empty($validated['company_tagline'])) {
+                    $customSettings['company_tagline'] = $validated['company_tagline'];
+                }
+                if (!empty($validated['company_logo'])) {
+                    $customSettings['company_logo'] = $validated['company_logo'];
+                }
+                if (!empty($validated['theme_primary_color'])) {
+                    $customSettings['theme_primary_color'] = $validated['theme_primary_color'];
+                }
+
+                // Communication Settings
+                if (!empty($validated['whatsapp_sender_id'])) {
+                    $customSettings['whatsapp_sender_id'] = $validated['whatsapp_sender_id'];
+                }
+                if (!empty($validated['whatsapp_auth_token'])) {
+                    $customSettings['whatsapp_auth_token'] = $validated['whatsapp_auth_token'];
+                }
+                if (!empty($validated['email_from_address'])) {
+                    $customSettings['email_from_address'] = $validated['email_from_address'];
+                }
+                if (!empty($validated['email_from_name'])) {
+                    $customSettings['email_from_name'] = $validated['email_from_name'];
+                }
+
+                // Localization
+                if (!empty($validated['timezone'])) {
+                    $customSettings['timezone'] = $validated['timezone'];
+                }
+                if (!empty($validated['currency'])) {
+                    $customSettings['currency'] = $validated['currency'];
+                }
+                if (!empty($validated['currency_symbol'])) {
+                    $customSettings['currency_symbol'] = $validated['currency_symbol'];
+                }
+
+                // Additional Company Info
+                if (!empty($validated['company_phone'])) {
+                    $customSettings['company_phone'] = $validated['company_phone'];
+                }
+                if (!empty($validated['company_phone_whatsapp'])) {
+                    $customSettings['company_phone_whatsapp'] = $validated['company_phone_whatsapp'];
+                }
+
+                // Set custom settings in config for AppSettingsSeeder to use
+                config(['tenant.settings' => $customSettings]);
+
                 // Seed complete tenant database
                 Artisan::call('db:seed', [
                     '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',

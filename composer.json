@@ -44,7 +44,8 @@
         },
         "files": [
             "app/helpers.php",
-            "app/Helpers/SettingsHelper.php"
+            "app/Helpers/SettingsHelper.php",
+            "app/Helpers/CentralConfigHelper.php"
         ]
     },
     "autoload-dev": {
