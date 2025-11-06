@@ -2,9 +2,9 @@
 
 > **Complete API endpoint documentation for the Midas Portal Insurance Management System**
 >
-> **Last Updated**: 2025-11-02
+> **Last Updated**: 2025-01-06
 > **Laravel Version**: 10.49.1
-> **Total Routes**: 340+
+> **Total Routes**: 455
 
 ---
 
@@ -24,6 +24,12 @@
 12. [Reports & Analytics](#reports--analytics)
 13. [Health & Monitoring](#health--monitoring)
 14. [User & Role Management](#user--role-management)
+15. [Central Admin (Midas Admin) Endpoints](#central-admin-midas-admin-endpoints)
+16. [Subscription Management](#subscription-management)
+17. [Payment Webhooks](#payment-webhooks)
+18. [Marketing & Campaigns](#marketing--campaigns)
+19. [Log Viewer & System Monitoring](#log-viewer--system-monitoring)
+20. [Public Website Endpoints](#public-website-endpoints)
 
 ---
 
@@ -1351,6 +1357,1244 @@ Authorization: Bearer {token}
 
 ---
 
+## Central Admin (Midas Admin) Endpoints
+
+The Central Admin portal manages all tenants, subscription plans, and system-wide operations.
+
+### Central Admin Authentication
+
+#### Admin Login
+```http
+GET /midas-admin/login
+Response: Login form
+
+POST /midas-admin/login
+Content-Type: application/json
+
+{
+  "email": "admin@midastech.in",
+  "password": "password"
+}
+
+Response 200:
+{
+  "success": true,
+  "redirect": "/midas-admin"
+}
+```
+
+#### Admin Logout
+```http
+POST /midas-admin/logout
+Response: Redirect to login
+```
+
+### Central Dashboard
+```http
+GET /midas-admin
+Requires: Central Admin authentication
+
+Response 200:
+{
+  "total_tenants": 45,
+  "active_tenants": 42,
+  "suspended_tenants": 2,
+  "trial_tenants": 8,
+  "total_revenue": 250000,
+  "recent_signups": [...],
+  "expiring_trials": [...]
+}
+```
+
+### Tenant Management
+
+#### List Tenants
+```http
+GET /midas-admin/tenants
+Requires: Central Admin authentication
+
+Response 200:
+{
+  "data": [
+    {
+      "id": "abc123",
+      "company_name": "ABC Insurance Brokers",
+      "subdomain": "abc",
+      "domain": "abc.midastech.in",
+      "status": "active",
+      "plan": "Professional",
+      "trial_ends_at": null,
+      "subscription_ends_at": "2025-12-31",
+      "created_at": "2025-01-01"
+    }
+  ]
+}
+```
+
+#### Create Tenant
+```http
+GET /midas-admin/tenants/create
+Response: Tenant creation form
+
+POST /midas-admin/tenants/store-with-progress
+Content-Type: application/json
+
+{
+  "company_name": "ABC Insurance Brokers",
+  "subdomain": "abc",
+  "domain": "abc.midastech.in",
+  "admin_first_name": "John",
+  "admin_last_name": "Doe",
+  "admin_email": "admin@abc.com",
+  "admin_password": "password",
+  "plan_id": 2,
+  "trial_days": 14
+}
+
+Response 200:
+{
+  "success": true,
+  "tenant_id": "abc123",
+  "message": "Tenant created successfully"
+}
+```
+
+#### Tenant Creation Progress Tracking
+```http
+POST /midas-admin/tenants/progress
+Content-Type: application/json
+
+{
+  "tenant_id": "abc123"
+}
+
+Response 200:
+{
+  "progress": 70,
+  "current_step": 7,
+  "total_steps": 10,
+  "current_step_name": "Running database migrations",
+  "status": "in_progress",
+  "logs": [
+    {
+      "step": 1,
+      "message": "Validating subdomain availability",
+      "status": "completed",
+      "timestamp": "2025-01-06 10:00:01"
+    },
+    ...
+  ]
+}
+```
+
+#### View Tenant Details
+```http
+GET /midas-admin/tenants/{tenant}
+
+Response 200:
+{
+  "id": "abc123",
+  "company_name": "ABC Insurance Brokers",
+  "domain": "abc.midastech.in",
+  "status": "active",
+  "plan": {...},
+  "subscription": {...},
+  "database": "tenant_abc123",
+  "storage_usage": "245 MB",
+  "user_count": 12,
+  "customer_count": 450,
+  "policy_count": 780
+}
+```
+
+#### Update Tenant
+```http
+GET /midas-admin/tenants/{tenant}/edit
+Response: Edit form
+
+PUT /midas-admin/tenants/{tenant}
+Content-Type: application/json
+
+{
+  "company_name": "ABC Insurance Brokers Pvt Ltd",
+  "status": "active"
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Tenant updated successfully"
+}
+```
+
+#### Activate Tenant
+```http
+POST /midas-admin/tenants/{tenant}/activate
+
+Response 200:
+{
+  "success": true,
+  "message": "Tenant activated successfully"
+}
+```
+
+#### Suspend Tenant
+```http
+POST /midas-admin/tenants/{tenant}/suspend
+Content-Type: application/json
+
+{
+  "reason": "Payment overdue"
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Tenant suspended successfully"
+}
+```
+
+#### End Trial Period
+```http
+POST /midas-admin/tenants/{tenant}/end-trial
+
+Response 200:
+{
+  "success": true,
+  "message": "Trial period ended"
+}
+```
+
+#### Delete Tenant
+```http
+DELETE /midas-admin/tenants/{tenant}
+
+Response 200:
+{
+  "success": true,
+  "message": "Tenant deleted successfully"
+}
+```
+
+### Subscription Plans Management
+
+#### List Plans
+```http
+GET /midas-admin/plans
+
+Response 200:
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Starter",
+      "price": 2999,
+      "billing_cycle": "monthly",
+      "features": {
+        "max_users": 3,
+        "max_customers": 100,
+        "max_policies": 500,
+        "storage_gb": 5
+      },
+      "is_active": true
+    }
+  ]
+}
+```
+
+#### Create Plan
+```http
+GET /midas-admin/plans/create
+Response: Plan creation form
+
+POST /midas-admin/plans
+Content-Type: application/json
+
+{
+  "name": "Enterprise",
+  "description": "For large insurance brokerages",
+  "price": 9999,
+  "billing_cycle": "monthly",
+  "trial_days": 14,
+  "features": {
+    "max_users": -1,
+    "max_customers": -1,
+    "max_policies": -1,
+    "storage_gb": 100
+  },
+  "is_active": true
+}
+
+Response 200:
+{
+  "success": true,
+  "plan_id": 4
+}
+```
+
+#### View Plan Details
+```http
+GET /midas-admin/plans/{plan}
+
+Response 200:
+{
+  "id": 1,
+  "name": "Starter",
+  "price": 2999,
+  "features": {...},
+  "active_subscriptions": 15,
+  "total_revenue": 44985
+}
+```
+
+#### Update Plan
+```http
+GET /midas-admin/plans/{plan}/edit
+Response: Edit form
+
+PUT /midas-admin/plans/{plan}
+Content-Type: application/json
+
+{
+  "name": "Starter Plus",
+  "price": 3499
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Plan updated successfully"
+}
+```
+
+#### Toggle Plan Status
+```http
+POST /midas-admin/plans/{plan}/toggle-status
+
+Response 200:
+{
+  "success": true,
+  "is_active": false,
+  "message": "Plan deactivated"
+}
+```
+
+#### Delete Plan
+```http
+DELETE /midas-admin/plans/{plan}
+
+Response 200:
+{
+  "success": true,
+  "message": "Plan deleted successfully"
+}
+```
+
+### Contact Submissions Management
+
+#### List Contact Submissions
+```http
+GET /midas-admin/contact-submissions
+
+Response 200:
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "9876543210",
+      "company": "ABC Corp",
+      "message": "Interested in insurance management software",
+      "status": "new",
+      "created_at": "2025-01-06 10:30:00"
+    }
+  ]
+}
+```
+
+#### View Contact Submission
+```http
+GET /midas-admin/contact-submissions/{contactSubmission}
+
+Response 200:
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "company": "ABC Corp",
+  "message": "Interested in insurance management software",
+  "status": "new",
+  "ip_address": "192.168.1.1",
+  "user_agent": "Mozilla/5.0...",
+  "created_at": "2025-01-06 10:30:00"
+}
+```
+
+#### Update Submission Status
+```http
+POST /midas-admin/contact-submissions/{contactSubmission}/status
+Content-Type: application/json
+
+{
+  "status": "contacted"
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Status updated successfully"
+}
+```
+
+#### Delete Contact Submission
+```http
+DELETE /midas-admin/contact-submissions/{contactSubmission}
+
+Response 200:
+{
+  "success": true,
+  "message": "Contact submission deleted"
+}
+```
+
+---
+
+## Subscription Management
+
+Tenant subscription management with Razorpay integration.
+
+### View Current Subscription
+```http
+GET /subscription
+Requires: Tenant authentication
+
+Response 200:
+{
+  "subscription": {
+    "plan": "Professional",
+    "status": "active",
+    "billing_cycle": "monthly",
+    "price": 5999,
+    "started_at": "2025-01-01",
+    "ends_at": "2025-02-01",
+    "is_trial": false,
+    "trial_ends_at": null,
+    "auto_renewal": true
+  },
+  "usage": {
+    "users": {"current": 5, "limit": 10},
+    "customers": {"current": 250, "limit": 500},
+    "policies": {"current": 800, "limit": 2000},
+    "storage": {"current_mb": 450, "limit_mb": 10240}
+  }
+}
+```
+
+### View Available Plans
+```http
+GET /subscription/plans
+
+Response 200:
+{
+  "current_plan": "Professional",
+  "plans": [
+    {
+      "id": 1,
+      "name": "Starter",
+      "price": 2999,
+      "billing_cycle": "monthly",
+      "features": {...},
+      "is_current": false,
+      "can_downgrade": false
+    },
+    {
+      "id": 2,
+      "name": "Professional",
+      "price": 5999,
+      "billing_cycle": "monthly",
+      "features": {...},
+      "is_current": true
+    }
+  ]
+}
+```
+
+### Upgrade Subscription
+```http
+GET /subscription/upgrade/{plan}
+Response: Upgrade confirmation page with Razorpay payment integration
+
+POST /subscription/upgrade/{plan}
+Content-Type: application/json
+
+{
+  "billing_cycle": "monthly",
+  "payment_method": "razorpay",
+  "razorpay_payment_id": "pay_123456789",
+  "razorpay_order_id": "order_123456789",
+  "razorpay_signature": "signature_hash"
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Subscription upgraded successfully",
+  "subscription": {...}
+}
+```
+
+### Verify Payment
+```http
+POST /subscription/verify-payment
+Content-Type: application/json
+
+{
+  "razorpay_payment_id": "pay_123456789",
+  "razorpay_order_id": "order_123456789",
+  "razorpay_signature": "signature_hash"
+}
+
+Response 200:
+{
+  "success": true,
+  "verified": true,
+  "payment_status": "captured"
+}
+```
+
+### View Usage Statistics
+```http
+GET /subscription/usage
+
+Response 200:
+{
+  "users": {
+    "current": 5,
+    "limit": 10,
+    "percentage": 50
+  },
+  "customers": {
+    "current": 250,
+    "limit": 500,
+    "percentage": 50
+  },
+  "policies": {
+    "current": 800,
+    "limit": 2000,
+    "percentage": 40
+  },
+  "storage": {
+    "current_mb": 450,
+    "limit_mb": 10240,
+    "current_gb": 0.44,
+    "limit_gb": 10,
+    "percentage": 4.39
+  }
+}
+```
+
+### Subscription Required Page
+```http
+GET /subscription/required
+Response: Page shown when subscription is expired or inactive
+```
+
+### Subscription Cancelled Page
+```http
+GET /subscription/cancelled
+Response: Page shown when subscription is cancelled
+```
+
+### Subscription Suspended Page
+```http
+GET /subscription/suspended
+Response: Page shown when subscription is suspended by admin
+```
+
+---
+
+## Payment Webhooks
+
+Webhook endpoints for payment gateway integrations.
+
+### Razorpay Payment Webhook
+```http
+POST /webhooks/payments/razorpay
+Content-Type: application/json
+X-Razorpay-Signature: {signature}
+
+{
+  "event": "payment.captured",
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_123456789",
+        "order_id": "order_123456789",
+        "status": "captured",
+        "amount": 599900,
+        "currency": "INR"
+      }
+    }
+  }
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Webhook processed successfully"
+}
+```
+
+### Stripe Payment Webhook
+```http
+POST /webhooks/payments/stripe
+Content-Type: application/json
+Stripe-Signature: {signature}
+
+{
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_123456789",
+      "amount": 599900,
+      "currency": "inr",
+      "status": "succeeded"
+    }
+  }
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Webhook processed successfully"
+}
+```
+
+### Email Delivery Status Webhook
+```http
+POST /webhooks/email/delivery-status
+Content-Type: application/json
+
+{
+  "notification_log_id": 123,
+  "status": "delivered",
+  "timestamp": "2025-01-06 10:30:00",
+  "provider_message_id": "msg_123456789"
+}
+
+Response 200:
+{
+  "success": true
+}
+```
+
+### WhatsApp Delivery Status Webhook
+```http
+POST /webhooks/whatsapp/delivery-status
+Content-Type: application/json
+
+{
+  "notification_log_id": 456,
+  "status": "read",
+  "timestamp": "2025-01-06 10:35:00",
+  "whatsapp_message_id": "wamid.123456789"
+}
+
+Response 200:
+{
+  "success": true
+}
+```
+
+### Test Webhook
+```http
+ANY /webhooks/test
+Content-Type: application/json
+
+{
+  "test": "data"
+}
+
+Response 200:
+{
+  "received": true,
+  "method": "POST",
+  "headers": {...},
+  "body": {...}
+}
+```
+
+---
+
+## Marketing & Campaigns
+
+Marketing campaign management with WhatsApp integration.
+
+### Marketing Dashboard
+```http
+GET /marketing/whatsapp
+
+Response 200:
+{
+  "total_campaigns": 15,
+  "active_campaigns": 3,
+  "total_sent": 5420,
+  "total_delivered": 5215,
+  "total_read": 4890,
+  "delivery_rate": 96.2,
+  "read_rate": 90.2,
+  "recent_campaigns": [...]
+}
+```
+
+### Preview WhatsApp Message
+```http
+POST /marketing/whatsapp/preview
+Content-Type: application/json
+
+{
+  "template_id": 5,
+  "recipient_type": "leads",
+  "filters": {
+    "status_id": 1,
+    "source_id": 2
+  }
+}
+
+Response 200:
+{
+  "preview": {
+    "template_name": "Policy Renewal Reminder",
+    "message_content": "Dear {{customer_name}}, your policy expires on {{expiry_date}}...",
+    "recipient_count": 145,
+    "estimated_cost": 145.00
+  }
+}
+```
+
+### Send Marketing Campaign
+```http
+POST /marketing/whatsapp/send
+Content-Type: application/json
+
+{
+  "template_id": 5,
+  "recipient_type": "customers",
+  "filters": {
+    "policy_expiry_from": "2025-01-01",
+    "policy_expiry_to": "2025-01-31"
+  },
+  "schedule_at": "2025-01-07 09:00:00"
+}
+
+Response 200:
+{
+  "success": true,
+  "campaign_id": 23,
+  "recipient_count": 145,
+  "message": "Campaign scheduled successfully"
+}
+```
+
+---
+
+## Log Viewer & System Monitoring
+
+System log viewer and monitoring endpoints (Opcodes Log Viewer package).
+
+### Log Viewer Dashboard
+```http
+GET /webmonks-log-viewer
+Requires: System Admin permission
+
+Response: Log viewer dashboard interface
+```
+
+### List Log Files
+```http
+GET /webmonks-log-viewer/api/files
+
+Response 200:
+{
+  "data": [
+    {
+      "identifier": "laravel-2025-01-06.log",
+      "name": "laravel-2025-01-06.log",
+      "size": 524288,
+      "size_formatted": "512 KB",
+      "created_at": "2025-01-06 00:00:00",
+      "log_count": 1234
+    }
+  ]
+}
+```
+
+### View Log File
+```http
+GET /webmonks-log-viewer/api/logs?file={fileIdentifier}
+
+Response 200:
+{
+  "data": [
+    {
+      "index": 1,
+      "level": "error",
+      "message": "SQLSTATE[42S02]: Base table or view not found",
+      "context": {...},
+      "datetime": "2025-01-06 10:30:15"
+    }
+  ]
+}
+```
+
+### Download Log File
+```http
+GET /webmonks-log-viewer/api/files/{fileIdentifier}/download
+Response: File download
+```
+
+### Request Log File Download
+```http
+GET /webmonks-log-viewer/api/files/{fileIdentifier}/download/request
+
+Response 200:
+{
+  "download_url": "/webmonks-log-viewer/api/files/{fileIdentifier}/download?token=abc123"
+}
+```
+
+### Delete Log File
+```http
+DELETE /webmonks-log-viewer/api/files/{fileIdentifier}
+
+Response 200:
+{
+  "success": true,
+  "message": "Log file deleted successfully"
+}
+```
+
+### Delete Multiple Log Files
+```http
+POST /webmonks-log-viewer/api/delete-multiple-files
+Content-Type: application/json
+
+{
+  "files": ["laravel-2025-01-01.log", "laravel-2025-01-02.log"]
+}
+
+Response 200:
+{
+  "success": true,
+  "deleted_count": 2
+}
+```
+
+### Clear File Cache
+```http
+POST /webmonks-log-viewer/api/files/{fileIdentifier}/clear-cache
+
+Response 200:
+{
+  "success": true,
+  "message": "Cache cleared successfully"
+}
+```
+
+### Clear All Cache
+```http
+POST /webmonks-log-viewer/api/clear-cache-all
+
+Response 200:
+{
+  "success": true,
+  "message": "All cache cleared successfully"
+}
+```
+
+### List Log Folders
+```http
+GET /webmonks-log-viewer/api/folders
+
+Response 200:
+{
+  "data": [
+    {
+      "identifier": "storage/logs",
+      "path": "storage/logs",
+      "file_count": 45,
+      "total_size": 15728640
+    }
+  ]
+}
+```
+
+### Download Folder as ZIP
+```http
+GET /webmonks-log-viewer/api/folders/{folderIdentifier}/download
+Response: ZIP file download
+```
+
+### Delete Folder
+```http
+DELETE /webmonks-log-viewer/api/folders/{folderIdentifier}
+
+Response 200:
+{
+  "success": true,
+  "message": "Folder deleted successfully"
+}
+```
+
+### List Log Hosts
+```http
+GET /webmonks-log-viewer/api/hosts
+
+Response 200:
+{
+  "data": [
+    {
+      "identifier": "main-server",
+      "name": "Main Server",
+      "file_count": 123
+    }
+  ]
+}
+```
+
+### Enhanced Monitoring - Resources
+```http
+GET /monitoring/resources
+
+Response 200:
+{
+  "cpu": {
+    "usage_percent": 45.2,
+    "load_average": [1.5, 1.2, 1.0]
+  },
+  "memory": {
+    "total_mb": 8192,
+    "used_mb": 5120,
+    "free_mb": 3072,
+    "usage_percent": 62.5
+  },
+  "disk": {
+    "total_gb": 500,
+    "used_gb": 245,
+    "free_gb": 255,
+    "usage_percent": 49
+  }
+}
+```
+
+### Enhanced Monitoring - Performance Metrics
+```http
+GET /monitoring/performance
+
+Response 200:
+{
+  "avg_response_time_ms": 125,
+  "requests_per_minute": 450,
+  "error_rate_percent": 0.5,
+  "database_query_time_ms": 35
+}
+```
+
+### Enhanced Monitoring - Application Metrics
+```http
+GET /monitoring/metrics
+
+Response 200:
+{
+  "users": {
+    "total": 45,
+    "active_today": 38,
+    "logged_in_now": 12
+  },
+  "customers": 1250,
+  "policies": 3400,
+  "claims_today": 8,
+  "cache_hit_rate": 85.5
+}
+```
+
+### Enhanced Monitoring - System Logs
+```http
+GET /monitoring/logs?level=error&limit=50
+
+Response 200:
+{
+  "logs": [
+    {
+      "level": "error",
+      "message": "Failed to send WhatsApp message",
+      "timestamp": "2025-01-06 10:30:00",
+      "context": {...}
+    }
+  ]
+}
+```
+
+---
+
+## Public Website Endpoints
+
+Public-facing website routes for marketing and information.
+
+### Homepage
+```http
+GET / (for public domains: midastech.in, www.midastech.in, 127.0.0.1, localhost)
+
+Response 200: Homepage with product information and features
+```
+
+### About Page
+```http
+GET /about
+
+Response 200: About Midas Portal page
+```
+
+### Features Page
+```http
+GET /features
+
+Response 200: Detailed features and capabilities page
+```
+
+### Pricing Page
+```http
+GET /pricing
+
+Response 200: Pricing plans and subscription information
+```
+
+### Contact Page
+```http
+GET /contact
+
+Response 200: Contact form
+```
+
+### Submit Contact Form
+```http
+POST /contact
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "company": "ABC Corp",
+  "message": "Interested in insurance management software"
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Thank you for contacting us. We will get back to you soon."
+}
+```
+
+---
+
+## Tenant Storage
+
+### Access Tenant Storage Files
+```http
+GET /storage/{path}
+Example: /storage/tenant-logos/abc-logo.png
+
+Response: File content with appropriate headers
+```
+
+### Tenancy Assets
+```http
+GET /tenancy/assets/{path}
+Example: /tenancy/assets/logo.png
+
+Response: Asset file from tenant-specific storage
+```
+
+---
+
+## Additional Master Data Delete Endpoints
+
+### Delete Branch
+```http
+DELETE /branches/destroy/{branch}
+Note: Alternative to existing branches/delete route
+
+Response 200:
+{
+  "success": true,
+  "message": "Branch deleted successfully"
+}
+```
+
+### Delete Broker
+```http
+DELETE /brokers/destroy/{broker}
+
+Response 200:
+{
+  "success": true,
+  "message": "Broker deleted successfully"
+}
+```
+
+### Delete Fuel Type
+```http
+DELETE /fuel_type/destroy/{fuel_type}
+
+Response 200:
+{
+  "success": true,
+  "message": "Fuel type deleted successfully"
+}
+```
+
+### Delete Insurance Company
+```http
+DELETE /insurance_companies/destroy/{insurance_company}
+
+Response 200:
+{
+  "success": true,
+  "message": "Insurance company deleted successfully"
+}
+```
+
+### Delete Policy Type
+```http
+DELETE /policy_type/destroy/{policy_type}
+
+Response 200:
+{
+  "success": true,
+  "message": "Policy type deleted successfully"
+}
+```
+
+### Delete Premium Type
+```http
+DELETE /premium_type/destroy/{premium_type}
+
+Response 200:
+{
+  "success": true,
+  "message": "Premium type deleted successfully"
+}
+```
+
+### Delete Addon Cover
+```http
+DELETE /addon-covers/destroy/{addon_cover}
+
+Response 200:
+{
+  "success": true,
+  "message": "Addon cover deleted successfully"
+}
+```
+
+---
+
+## Common Delete Endpoint
+
+### Generic Delete Operation
+```http
+POST /delete_common
+Content-Type: application/json
+
+{
+  "model": "Customer",
+  "id": 123
+}
+
+Response 200:
+{
+  "success": true,
+  "message": "Record deleted successfully"
+}
+```
+
+---
+
+## Boost Browser Logs
+
+### Submit Browser Logs (Laravel Boost MCP)
+```http
+POST /_boost/browser-logs
+Content-Type: application/json
+
+{
+  "logs": [
+    {
+      "level": "error",
+      "message": "Uncaught TypeError: Cannot read property 'value' of null",
+      "url": "/customers",
+      "timestamp": "2025-01-06T10:30:00.000Z"
+    }
+  ]
+}
+
+Response 200:
+{
+  "success": true,
+  "logged_count": 1
+}
+```
+
+---
+
+## Laravel Ignition (Development)
+
+### Ignition Health Check
+```http
+GET /_ignition/health-check
+
+Response 200:
+{
+  "can_execute_commands": true
+}
+```
+
+### Execute Solution
+```http
+POST /_ignition/execute-solution
+Content-Type: application/json
+
+{
+  "solution": "MakeViewVariableOptionalSolution",
+  "parameters": {...}
+}
+
+Response 200:
+{
+  "success": true
+}
+```
+
+### Update Config
+```http
+POST /_ignition/update-config
+Content-Type: application/json
+
+{
+  "theme": "dark"
+}
+
+Response 200:
+{
+  "success": true
+}
+```
+
+---
+
 ## Support
 
 For API support and questions:
@@ -1360,6 +2604,6 @@ For API support and questions:
 
 ---
 
-**Last Updated**: 2025-11-02
-**Document Version**: 1.0
+**Last Updated**: 2025-01-06
+**Document Version**: 2.0
 **API Version**: v1

@@ -28,14 +28,15 @@ The Midas Portal is a **multi-tenant SaaS platform** using database-per-tenant a
 
 1. **Database-Per-Tenant**: Complete data isolation with separate databases
 2. **Subdomain-Based Routing**: Tenant identification via subdomain (e.g., `acme.midastech.in`)
-3. **Three-Portal System**: Central admin, tenant staff portal, customer portal
+3. **Four-Portal System**: Public website, central admin, tenant staff portal, customer portal
 4. **Guard-Based Authentication**: Separate authentication contexts prevent cross-portal access
 5. **Domain Access Control**: Middleware enforces strict domain-based boundaries
 
-### Three-Portal Architecture
+### Four-Portal Architecture
 
 | Portal | Domain Access | Guard | Purpose |
 |--------|--------------|-------|---------|
+| **Public Website** | midastech.in | none | Marketing & lead generation |
 | **Central Admin** | midastech.in/midas-admin | `central` | Platform administration |
 | **Tenant Staff Portal** | {tenant}.midastech.in | `web` | Business operations |
 | **Customer Portal** | {tenant}.midastech.in/customer | `customer` | Customer self-service |
@@ -470,7 +471,60 @@ protected function redirectTo($request)
 
 ## Portal Structure
 
-### 1. Central Admin Portal
+### 1. Public Website Portal
+
+**Domain**: midastech.in (central domain only)
+**Purpose**: Marketing website, lead generation, tenant signup, pricing information
+
+**Key Features**:
+- Marketing homepage with product showcase
+- Feature listing and benefits
+- Pricing plans display
+- Contact form for lead capture
+- Tenant signup/registration
+- Responsive design for all devices
+- SEO optimized pages
+
+**Key Routes**:
+- `/` - Homepage with hero section, features overview
+- `/features` - Detailed feature showcase
+- `/pricing` - Pricing tiers (Starter/Professional/Enterprise)
+- `/about` - Company information
+- `/contact` - Contact form submission
+
+**Technologies**:
+- Bootstrap 5.3.2 for responsive layout
+- jQuery 3.7.1 for interactions
+- Blade templates for server-side rendering
+- No authentication required (public access)
+
+**Access Control**:
+- **Accessible from**: Central domain only (midastech.in)
+- **Blocked from**: Tenant subdomains (404 error)
+- **Middleware**: `web`, `central.only`
+
+**Contact Form Handling**:
+- Form submissions stored in `contact_submissions` table (central database)
+- Email notification sent to admin
+- Admin can view/manage submissions from central admin panel
+- Anti-spam protection with rate limiting (5 submissions/minute)
+
+**Navigation Behavior**:
+- `/login` → Redirects to `/midas-admin/login` (central admin)
+- `/register` → Redirects to homepage with info message
+- Header links to central admin for authenticated users
+
+**Controllers**:
+- `PublicController@home` - Homepage
+- `PublicController@features` - Features page
+- `PublicController@pricing` - Pricing page
+- `PublicController@about` - About page
+- `PublicController@contact` - Contact form (GET/POST)
+- `PublicController@submitContact` - Process form submission
+
+**Templates Location**: `resources/views/public/`
+
+### 2. Central Admin Portal
 
 **Domain**: midastech.in/midas-admin
 **Purpose**: Platform management - create/manage tenants, subscriptions, global settings
@@ -499,7 +553,7 @@ protected function redirectTo($request)
 - **Delete Tenant**: Soft delete with 30-day recovery window
 - **Impersonate User**: Login as tenant user for support
 
-### 2. Tenant Staff Portal
+### 3. Tenant Staff Portal
 
 **Domain**: {tenant}.midastech.in
 **Purpose**: Business operations - manage members, services, billing, appointments
@@ -517,7 +571,7 @@ protected function redirectTo($request)
 
 **Authentication**: Guard `web`, User Model `App\Models\User`
 
-### 3. Customer Portal
+### 4. Customer Portal
 
 **Domain**: {tenant}.midastech.in/customer
 **Purpose**: Customer self-service - view memberships, make payments, book appointments
@@ -625,17 +679,19 @@ RAZORPAY_KEY_SECRET=
 
 ## Summary
 
-The Midas Portal uses a **strict domain-based separation** architecture:
+The Midas Portal uses a **strict domain-based separation** architecture with **4 distinct portals**:
 
-1. **Central Admin**: Operates on central domain, manages platform
-2. **Tenant Staff Portal**: Operates on tenant subdomains, manages business
-3. **Customer Portal**: Operates on tenant subdomains under /customer/*, customer self-service
+1. **Public Website**: Operates on central domain, marketing and lead generation
+2. **Central Admin**: Operates on central domain (/midas-admin), manages platform
+3. **Tenant Staff Portal**: Operates on tenant subdomains, manages business operations
+4. **Customer Portal**: Operates on tenant subdomains under /customer/*, customer self-service
 
 Each portal has:
-- **Isolated authentication** (separate guards)
+- **Isolated authentication** (separate guards where applicable)
 - **Domain-based access control** (middleware enforcement)
 - **Proper redirect logic** (domain-aware redirects)
 - **Database isolation** (central vs tenant databases)
+- **Clear routing boundaries** (no cross-portal route conflicts)
 
 This architecture ensures:
 - ✅ No cross-portal authentication leaks
@@ -644,6 +700,8 @@ This architecture ensures:
 - ✅ Scalable multi-tenant system
 - ✅ Complete data isolation per tenant
 - ✅ Consistent URL patterns across all tenants
+- ✅ Public marketing site isolated from tenant operations
+- ✅ Central administration separate from public website
 
 ---
 
