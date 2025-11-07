@@ -111,20 +111,32 @@ php artisan serve --host=0.0.0.0 --port=8000
 3. Test plan limits enforcement
 4. Verify MRR calculation in central admin
 
-### 2.6 Test Error Handling
+### 2.6 Test Payment Gateway Integration
+1. Configure test payment gateway credentials (see Section 6)
+2. Test subscription creation with payment
+3. Verify webhook handling for payment success/failure
+4. Test trial-to-paid conversion flow
+5. Verify payment records in central database
+
+### 2.7 Test Error Handling
 - Invalid subdomain: Should show "Tenant Not Found"
 - Suspended tenant: Should show "Account Suspended"
 - Expired trial: Should prompt for upgrade
 
-### 2.7 Testing Checklist
+### 2.8 Testing Checklist
 - [ ] Central admin login works
 - [ ] Can create/edit/suspend tenants
 - [ ] Tenant database auto-created
 - [ ] Tenant isolation verified
 - [ ] Subscription tracking works
 - [ ] Usage metrics accurate
+- [ ] Payment gateway integration works
+- [ ] Webhook endpoints responding
+- [ ] Trial conversion tested
 - [ ] Error pages display correctly
 - [ ] Audit logs recorded
+- [ ] Email notifications sent
+- [ ] WhatsApp notifications working (if configured)
 
 ---
 
@@ -395,8 +407,481 @@ php artisan up
 
 ---
 
+## 6. Payment Gateway Configuration
+
+### 6.1 Razorpay Setup (Primary Gateway)
+
+#### Create Razorpay Account
+1. Visit https://razorpay.com and create account
+2. Complete KYC verification for production access
+3. Navigate to Settings → API Keys
+
+#### Test Mode Configuration
+```env
+# .env configuration
+RAZORPAY_KEY=rzp_test_XXXXXXXXXXXX
+RAZORPAY_SECRET=YYYYYYYYYYYYYYYY
+RAZORPAY_WEBHOOK_SECRET=whsec_ZZZZZZZZZZZ
+RAZORPAY_ENABLED=true
+```
+
+#### Production Mode Configuration
+```env
+# .env configuration
+RAZORPAY_KEY=rzp_live_XXXXXXXXXXXX
+RAZORPAY_SECRET=YYYYYYYYYYYYYYYY
+RAZORPAY_WEBHOOK_SECRET=whsec_ZZZZZZZZZZZ
+RAZORPAY_ENABLED=true
+```
+
+#### Configure Razorpay Dashboard
+1. **Webhook Setup** (Settings → Webhooks):
+   - Webhook URL: `https://yourdomain.com/webhooks/razorpay`
+   - Events to subscribe:
+     - `payment.captured`
+     - `payment.failed`
+     - `subscription.charged`
+     - `subscription.cancelled`
+     - `subscription.paused`
+     - `subscription.resumed`
+     - `refund.created`
+   - Save webhook secret to `RAZORPAY_WEBHOOK_SECRET`
+
+2. **Payment Methods** (Settings → Configuration):
+   - Enable: Cards, UPI, Net Banking, Wallets
+   - Set currency: INR
+   - Configure settlement preferences
+
+3. **Branding** (Settings → Branding):
+   - Upload logo (recommended: 256x256 px)
+   - Set brand color
+   - Add support contact details
+
+#### Test Razorpay Integration
+```bash
+# Test payment creation
+php artisan tinker
+>>> $payment = app(\App\Services\PaymentService::class);
+>>> $order = $payment->createOrder(1000, 'INR', ['tenant_id' => 1]);
+>>> print_r($order);
+
+# Test webhook locally with ngrok
+ngrok http 8000
+# Update Razorpay webhook URL to: https://YOUR_SUBDOMAIN.ngrok.io/webhooks/razorpay
+```
+
+**Test Cards** (Test Mode Only):
+- Success: `4111 1111 1111 1111` (any CVV, future date)
+- Failure: `4000 0000 0000 0002`
+- 3D Secure: `5267 3181 8797 5449`
+
+### 6.2 Stripe Setup (Alternative Gateway)
+
+#### Create Stripe Account
+1. Visit https://stripe.com and create account
+2. Complete business verification
+3. Navigate to Developers → API Keys
+
+#### Configuration
+```env
+# .env configuration
+STRIPE_KEY=pk_test_XXXXXXXXXXXX
+STRIPE_SECRET=sk_test_YYYYYYYYYYYY
+STRIPE_WEBHOOK_SECRET=whsec_ZZZZZZZZZZZ
+STRIPE_ENABLED=false  # Set to true to enable
+```
+
+#### Configure Stripe Dashboard
+1. **Webhook Setup** (Developers → Webhooks):
+   - Endpoint URL: `https://yourdomain.com/webhooks/stripe`
+   - Events:
+     - `payment_intent.succeeded`
+     - `payment_intent.payment_failed`
+     - `customer.subscription.created`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+     - `charge.refunded`
+
+2. **Product Catalog**:
+   - Create products matching your plans
+   - Set pricing (monthly/yearly)
+   - Configure billing intervals
+
+#### Test Stripe Integration
+**Test Cards**:
+- Success: `4242 4242 4242 4242`
+- Decline: `4000 0000 0000 0002`
+- 3D Secure: `4000 0025 0000 3155`
+
+### 6.3 Webhook Security
+
+#### Verify Webhook Signatures
+Both Razorpay and Stripe webhooks are automatically verified in:
+- `app/Http/Controllers/WebhookController.php`
+- Middleware: `VerifyWebhookSignature`
+
+#### IP Whitelisting (Optional)
+Add to `.env`:
+```env
+RAZORPAY_WEBHOOK_IPS=13.232.146.66,13.234.74.26,13.234.74.27
+STRIPE_WEBHOOK_IPS=3.18.12.63,3.130.192.231,13.235.14.237
+```
+
+Configure in `config/payment.php`:
+```php
+'webhook_ip_whitelist' => [
+    'razorpay' => explode(',', env('RAZORPAY_WEBHOOK_IPS', '')),
+    'stripe' => explode(',', env('STRIPE_WEBHOOK_IPS', '')),
+],
+```
+
+#### Webhook Retry Configuration
+```env
+# Automatic retry settings
+WEBHOOK_RETRY_ATTEMPTS=3
+WEBHOOK_RETRY_DELAY=300  # 5 minutes in seconds
+```
+
+### 6.4 Testing Webhooks Locally
+
+#### Using ngrok
+```bash
+# Start local server
+php artisan serve --host=0.0.0.0 --port=8000
+
+# In new terminal, start ngrok
+ngrok http 8000
+
+# Copy ngrok URL (e.g., https://abc123.ngrok.io)
+# Update webhook URLs in Razorpay/Stripe dashboards
+```
+
+#### Manual Webhook Testing
+```bash
+# Test Razorpay webhook
+curl -X POST https://yourdomain.com/webhooks/razorpay \
+  -H "Content-Type: application/json" \
+  -H "X-Razorpay-Signature: SIGNATURE_HERE" \
+  -d '{
+    "event": "payment.captured",
+    "payload": {
+      "payment": {
+        "entity": {
+          "id": "pay_test123",
+          "amount": 100000,
+          "status": "captured"
+        }
+      }
+    }
+  }'
+```
+
+#### Monitor Webhook Logs
+```bash
+# Application logs
+tail -f storage/logs/laravel.log | grep webhook
+
+# Database webhook log
+php artisan tinker
+>>> \App\Models\Central\Payment::latest()->first();
+```
+
+### 6.5 Subscription Deployment Configuration
+
+#### Configure Subscription Plans
+Update plans in central database:
+```sql
+-- Verify plans exist
+SELECT * FROM plans;
+
+-- Update Razorpay plan IDs (from Razorpay dashboard)
+UPDATE plans SET razorpay_plan_id = 'plan_XXXX' WHERE slug = 'starter';
+UPDATE plans SET razorpay_plan_id = 'plan_YYYY' WHERE slug = 'professional';
+UPDATE plans SET razorpay_plan_id = 'plan_ZZZZ' WHERE slug = 'enterprise';
+
+-- Update Stripe price IDs (from Stripe dashboard)
+UPDATE plans SET stripe_price_id = 'price_XXXX' WHERE slug = 'starter';
+UPDATE plans SET stripe_price_id = 'price_YYYY' WHERE slug = 'professional';
+UPDATE plans SET stripe_price_id = 'price_ZZZZ' WHERE slug = 'enterprise';
+```
+
+#### Trial Configuration
+```env
+# Default trial period (days)
+DEFAULT_TRIAL_DAYS=14
+
+# Trial grace period after expiry (days)
+TRIAL_GRACE_PERIOD=3
+
+# Enable/disable auto-trial for new signups
+AUTO_TRIAL_ENABLED=true
+```
+
+#### Automated Trial Processing
+Configure scheduler to run trial checks:
+```bash
+# Verify scheduler is running
+php artisan schedule:list
+
+# Expected output should include:
+# subscriptions:process-trials ... Daily at 00:00
+```
+
+Manual trial processing:
+```bash
+php artisan subscriptions:process-trials
+```
+
+### 6.6 Payment Gateway Monitoring
+
+#### Health Checks
+```bash
+# Check gateway connectivity
+php artisan payment:test-gateway razorpay
+php artisan payment:test-gateway stripe
+
+# Verify webhook endpoints
+curl -I https://yourdomain.com/webhooks/razorpay
+curl -I https://yourdomain.com/webhooks/stripe
+```
+
+#### Monitor Payment Failures
+```sql
+-- Recent failed payments
+SELECT * FROM payments
+WHERE status = 'failed'
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- Payment failure rate (last 30 days)
+SELECT
+    DATE(created_at) as date,
+    COUNT(*) as total,
+    SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+    ROUND(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as failure_rate
+FROM payments
+WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+GROUP BY DATE(created_at)
+ORDER BY date DESC;
+```
+
+#### Gateway Failover Strategy
+```php
+// config/payment.php
+'failover' => [
+    'enabled' => env('PAYMENT_FAILOVER_ENABLED', true),
+    'primary_gateway' => 'razorpay',
+    'fallback_gateway' => 'stripe',
+    'retry_failed_after' => 300, // 5 minutes
+],
+```
+
+### 6.7 Subscription Checklist
+
+**Pre-Production**:
+- [ ] Razorpay/Stripe account verified and activated
+- [ ] Production API keys configured in `.env`
+- [ ] Webhook URLs configured in gateway dashboards
+- [ ] Webhook signature verification tested
+- [ ] Plans synced between database and gateway
+- [ ] Test payments completed successfully
+- [ ] Refund process tested
+- [ ] Trial conversion flow validated
+
+**Production**:
+- [ ] Live payment processed successfully
+- [ ] Webhooks receiving and processing correctly
+- [ ] Email notifications sending on payment events
+- [ ] Subscription status updating correctly
+- [ ] Usage tracking functioning
+- [ ] Trial expiry automation working
+- [ ] Payment failure retry logic active
+- [ ] Dashboard metrics displaying accurately
+
+---
+
+## 7. Multi-Portal Configuration
+
+### 7.1 Portal Routing Setup
+
+#### Domain Configuration
+```env
+# config/tenancy-domains.php
+SUPPORTED_DOMAINS=midastech.in,midastech.testing.in,localhost:8085
+CENTRAL_DOMAIN=midastech.in
+PUBLIC_WEBSITE_DOMAIN=www.midastech.in
+```
+
+#### Nginx Configuration for Multi-Portal
+Create `/etc/nginx/sites-available/midas-portal`:
+```nginx
+# Public Website (www.midastech.in)
+server {
+    listen 80;
+    server_name www.midastech.in;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name www.midastech.in;
+
+    ssl_certificate /etc/letsencrypt/live/midastech.in/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/midastech.in/privkey.pem;
+
+    root /var/www/midas-portal/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+
+# Central Admin Portal (midastech.in)
+server {
+    listen 80;
+    server_name midastech.in;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name midastech.in;
+
+    ssl_certificate /etc/letsencrypt/live/midastech.in/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/midastech.in/privkey.pem;
+
+    root /var/www/midas-portal/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+
+# Tenant Portals (*.midastech.in)
+server {
+    listen 80;
+    server_name *.midastech.in;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name *.midastech.in;
+
+    ssl_certificate /etc/letsencrypt/live/midastech.in/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/midastech.in/privkey.pem;
+
+    root /var/www/midas-portal/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+```
+
+Enable and restart:
+```bash
+sudo ln -s /etc/nginx/sites-available/midas-portal /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+### 7.2 Portal Access Testing
+
+#### Public Website Portal
+```bash
+# Test homepage
+curl -I https://www.midastech.in
+
+# Expected routes:
+# GET / - Homepage
+# GET /features - Features page
+# GET /pricing - Pricing page
+# GET /about - About page
+# POST /contact - Contact form
+```
+
+#### Central Admin Portal
+```bash
+# Test admin login
+curl -I https://midastech.in/admin/login
+
+# Expected routes:
+# GET /admin/login - Admin login
+# GET /admin/dashboard - Admin dashboard
+# GET /admin/tenants - Tenant management
+# GET /admin/plans - Plan management
+```
+
+#### Tenant Staff Portal
+```bash
+# Test tenant access
+curl -I https://tenant1.midastech.in/login
+
+# Expected routes:
+# GET /login - Staff login
+# GET /dashboard - Staff dashboard
+# GET /customers - Customer management
+# GET /policies - Policy management
+```
+
+#### Customer Portal
+```bash
+# Test customer portal
+curl -I https://tenant1.midastech.in/customer/login
+
+# Expected routes:
+# GET /customer/login - Customer login
+# GET /customer/dashboard - Customer dashboard
+# GET /customer/policies - Customer policies view
+```
+
+### 7.3 Multi-Portal Checklist
+- [ ] All four portals accessible via correct domains
+- [ ] Portal routing logic working (subdomain detection)
+- [ ] Authentication isolated per portal
+- [ ] Session management separated
+- [ ] Middleware protecting correct routes
+- [ ] Public website accessible without authentication
+- [ ] Central admin requires admin authentication
+- [ ] Tenant portals isolated by subdomain
+- [ ] Customer portal requires customer authentication
+
+---
+
 ## Support
 
 **Email**: support@midastech.in
 **Documentation**: /docs/multi-tenancy/
 **Issues**: GitHub repository issues section
+
+---
+
+## Related Documentation
+
+- [SUBSCRIPTION_MANAGEMENT.md](../features/SUBSCRIPTION_MANAGEMENT.md) - Subscription system details
+- [PAYMENT_GATEWAY_INTEGRATION.md](../features/PAYMENT_GATEWAY_INTEGRATION.md) - Payment integration guide
+- [MULTI_PORTAL_ARCHITECTURE.md](../core/MULTI_PORTAL_ARCHITECTURE.md) - Multi-portal system architecture
+- [ENVIRONMENT_CONFIGURATION.md](../setup/ENVIRONMENT_CONFIGURATION.md) - Complete environment setup
+- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Common deployment issues
