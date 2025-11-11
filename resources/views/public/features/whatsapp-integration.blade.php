@@ -6,18 +6,21 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="py-5" style="background: var(--gradient-primary); color: white;">
-    <div class="container py-5">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="display-3 fw-bold mb-4">WhatsApp Integration</h1>
-                <p class="lead mb-4">Connect with your customers on their favorite messaging platform. Send automated renewal reminders, policy documents, quotations, and personalized messages with our official WhatsApp Business API integration.</p>
-                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
-                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
-            </div>
-        </div>
-    </div>
-</section>
+@include('public.components.cta-section', [
+    'title' => 'WhatsApp Integration',
+    'description' => 'Connect with your customers on their favorite messaging platform. Send automated renewal reminders, policy documents, quotations, and personalized messages with our official WhatsApp Business API integration.',
+    'primaryText' => 'Start Free Trial',
+    'primaryUrl' => url('/contact'),
+    'primaryIcon' => 'fas fa-rocket',
+    'primaryDataCta' => 'hero-start-trial',
+    'secondaryText' => 'View Pricing',
+    'secondaryUrl' => url('/pricing'),
+    'secondaryIcon' => 'fas fa-tag',
+    'secondaryDataCta' => 'hero-view-pricing',
+    'showNote' => false,
+    'containerClass' => 'py-5',
+    'colClass' => 'col-lg-8'
+])
 
 <!-- Overview Section -->
 <section class="py-5 bg-light">
@@ -241,16 +244,19 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-5" style="background: var(--gradient-primary); color: white;">
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 fw-bold mb-4">Ready to Connect on WhatsApp?</h2>
-                <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
-                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
-                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
-            </div>
-        </div>
-    </div>
-</section>
+@include('public.components.cta-section', [
+    'title' => 'Ready to Connect on WhatsApp?',
+    'description' => 'Start your 14-day free trial today. No credit card required.',
+    'primaryText' => 'Start Free Trial',
+    'primaryUrl' => url('/contact'),
+    'primaryIcon' => 'fas fa-rocket',
+    'primaryDataCta' => 'cta-start-trial',
+    'secondaryText' => 'View Pricing',
+    'secondaryUrl' => url('/pricing'),
+    'secondaryIcon' => 'fas fa-tag',
+    'secondaryDataCta' => 'cta-view-pricing',
+    'showNote' => false,
+    'containerClass' => 'py-5',
+    'colClass' => 'col-lg-8 mx-auto text-center'
+])
 @endsection
