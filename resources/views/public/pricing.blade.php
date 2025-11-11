@@ -163,11 +163,11 @@
 <!-- All Plans Include -->
 <section class="section-modern bg-light bg-pattern-dots">
     <div class="container">
-        <div class="section-header scroll-reveal">
-            <span class="badge badge-gradient mb-3 px-4 py-2">All Plans Include</span>
-            <h2>Essential Features Across All Tiers</h2>
-            <p>Every plan comes with these powerful features to transform your business</p>
-        </div>
+        @include('public.components.section-header', [
+            'badge' => 'All Plans Include',
+            'title' => 'Essential Features Across All Tiers',
+            'description' => 'Every plan comes with these powerful features to transform your business'
+        ])
         <div class="row g-4">
             <div class="col-md-3 col-sm-6">
                 <div class="text-center scroll-reveal hover-scale">
@@ -248,151 +248,90 @@
 <!-- Pricing FAQ -->
 <section class="section-modern bg-white" id="faq">
     <div class="container">
-        <div class="section-header scroll-reveal">
-            <span class="badge badge-gradient mb-3 px-4 py-2">FAQ</span>
-            <h2>Frequently Asked Questions</h2>
-            <p>Common questions about our pricing and plans</p>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion scroll-reveal" id="pricingFAQ">
-                    <div class="accordion-item border-0 shadow-sm mb-3 hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                Can I change my plan later?
-                            </button>
-                        </h3>
-                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate the charges accordingly. There are no penalties for changing plans.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 shadow-sm mb-3 hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                What happens after the free trial?
-                            </button>
-                        </h3>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                After your 14-day free trial, you can choose to continue with a paid plan or cancel at no cost. No credit card is required to start the trial, so there are no automatic charges. We'll remind you before the trial ends.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 shadow-sm mb-3 hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                Are there any setup fees or hidden charges?
-                            </button>
-                        </h3>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                No setup fees, no hidden charges. The price you see is the price you pay. We believe in transparent pricing. All features listed in your plan are included in the monthly price.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 shadow-sm mb-3 hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                What payment methods do you accept?
-                            </button>
-                        </h3>
-                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                We accept all major credit cards (Visa, MasterCard, American Express), debit cards, UPI, net banking, and bank transfers. For Enterprise plans, we can also arrange invoicing with payment terms.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 shadow-sm mb-3 hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                Do you offer discounts for annual billing?
-                            </button>
-                        </h3>
-                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                Yes! Save up to 20% when you choose annual billing. Contact our sales team for special pricing on multi-year commitments and bulk licenses for large agencies.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 shadow-sm hover-lift">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
-                                What if I need more users or storage?
-                            </button>
-                        </h3>
-                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">
-                                You can easily add more users or storage to your plan at any time. Additional users are charged at a prorated rate, and storage upgrades are available in 10GB increments. Contact us for custom requirements.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include('public.components.section-header', [
+            'badge' => 'FAQ',
+            'title' => 'Frequently Asked Questions',
+            'description' => 'Common questions about our pricing and plans'
+        ])
+        @include('public.components.faq-accordion', [
+            'accordionId' => 'pricingFAQ',
+            'showFirst' => true,
+            'faqs' => [
+                [
+                    'question' => 'Can I change my plan later?',
+                    'answer' => 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we\'ll prorate the charges accordingly. There are no penalties for changing plans.'
+                ],
+                [
+                    'question' => 'What happens after the free trial?',
+                    'answer' => 'After your 14-day free trial, you can choose to continue with a paid plan or cancel at no cost. No credit card is required to start the trial, so there are no automatic charges. We\'ll remind you before the trial ends.'
+                ],
+                [
+                    'question' => 'Are there any setup fees or hidden charges?',
+                    'answer' => 'No setup fees, no hidden charges. The price you see is the price you pay. We believe in transparent pricing. All features listed in your plan are included in the monthly price.'
+                ],
+                [
+                    'question' => 'What payment methods do you accept?',
+                    'answer' => 'We accept all major credit cards (Visa, MasterCard, American Express), debit cards, UPI, net banking, and bank transfers. For Enterprise plans, we can also arrange invoicing with payment terms.'
+                ],
+                [
+                    'question' => 'Do you offer discounts for annual billing?',
+                    'answer' => 'Yes! Save up to 20% when you choose annual billing. Contact our sales team for special pricing on multi-year commitments and bulk licenses for large agencies.'
+                ],
+                [
+                    'question' => 'What if I need more users or storage?',
+                    'answer' => 'You can easily add more users or storage to your plan at any time. Additional users are charged at a prorated rate, and storage upgrades are available in 10GB increments. Contact us for custom requirements.'
+                ]
+            ]
+        ])
     </div>
 </section>
 
 <!-- Trust Indicators -->
-<section class="gradient-primary text-white py-5">
-    <div class="container">
-        <div class="row g-4 align-items-center">
-            <div class="col-md-3 text-center scroll-reveal">
-                <div class="stat-number" data-count="500">0</div>
-                <div class="h4 fw-bold mb-2">+</div>
-                <p class="mb-0 opacity-75">Active Agencies</p>
-            </div>
-            <div class="col-md-3 text-center scroll-reveal delay-100">
-                <div class="stat-number" data-count="50">0</div>
-                <div class="h4 fw-bold mb-2">K+</div>
-                <p class="mb-0 opacity-75">Policies Managed</p>
-            </div>
-            <div class="col-md-3 text-center scroll-reveal delay-200">
-                <div class="stat-number" data-count="99">0</div>
-                <div class="h4 fw-bold mb-2">.9%</div>
-                <p class="mb-0 opacity-75">Uptime SLA</p>
-            </div>
-            <div class="col-md-3 text-center scroll-reveal delay-300">
-                <div class="h2 display-3 fw-bold mb-2">4.8/5</div>
-                <p class="mb-0 opacity-75">Customer Rating</p>
-            </div>
-        </div>
-    </div>
-</section>
+@include('public.components.stats-section', [
+    'stats' => [
+        [
+            'number' => '500',
+            'suffix' => '+',
+            'label' => 'Active Agencies',
+            'hasCounter' => true
+        ],
+        [
+            'number' => '50',
+            'suffix' => 'K+',
+            'label' => 'Policies Managed',
+            'hasCounter' => true
+        ],
+        [
+            'number' => '99',
+            'suffix' => '.9%',
+            'label' => 'Uptime SLA',
+            'hasCounter' => true
+        ],
+        [
+            'number' => '4.8',
+            'suffix' => '/5',
+            'label' => 'Customer Rating',
+            'hasCounter' => false,
+            'displayClass' => 'display-3'
+        ]
+    ]
+])
 
 <!-- CTA Section -->
-<section class="cta-modern text-white position-relative">
-    <div class="container position-relative z-index-2">
-        <div class="row align-items-center">
-            <div class="col-lg-8 mx-auto text-center scroll-reveal">
-                <span class="badge bg-white text-primary mb-4 px-4 py-2 shadow">
-                    <i class="fas fa-rocket me-2"></i>Start Today
-                </span>
-                <h2 class="display-4 fw-bold mb-3">Ready to Transform Your Insurance Business?</h2>
-                <p class="lead mb-5 fs-4">Start your <strong>14-day free trial</strong> today. No credit card required. Cancel anytime.</p>
-                <div class="d-flex justify-content-center gap-3 mb-4">
-                    <a href="{{ url('/contact') }}" class="btn btn-light btn-lg px-5 py-3 shadow-lg hover-lift" data-cta="cta-start-trial">
-                        <i class="fas fa-rocket me-2"></i>Start Free Trial
-                    </a>
-                    <a href="{{ url('/contact') }}" class="btn btn-outline-light btn-lg px-5 py-3 hover-lift" data-cta="cta-talk-sales">
-                        <i class="fas fa-phone me-2"></i>Talk to Sales
-                    </a>
-                </div>
-                <div class="d-flex flex-wrap gap-4 justify-content-center small">
-                    <div><i class="fas fa-check-circle me-2"></i><strong>No credit card</strong> required</div>
-                    <div><i class="fas fa-check-circle me-2"></i><strong>Full access</strong> to all features</div>
-                    <div><i class="fas fa-check-circle me-2"></i><strong>Cancel anytime</strong> - no questions</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+@include('public.components.cta-section', [
+    'title' => 'Ready to Transform Your Insurance Business?',
+    'description' => 'Start your 14-day free trial today. No credit card required. Cancel anytime.',
+    'primaryText' => 'Start Free Trial',
+    'primaryUrl' => url('/contact'),
+    'primaryIcon' => 'fas fa-rocket',
+    'primaryDataCta' => 'cta-start-trial',
+    'secondaryText' => 'Talk to Sales',
+    'secondaryUrl' => url('/contact'),
+    'secondaryIcon' => 'fas fa-phone',
+    'secondaryDataCta' => 'cta-talk-sales',
+    'showNote' => true,
+    'note' => '<strong>No credit card</strong> required • <strong>Full access</strong> to all features • <strong>Cancel anytime</strong> - no questions'
+])
 @endsection
 
 @push('styles')

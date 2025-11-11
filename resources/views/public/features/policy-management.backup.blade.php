@@ -1,34 +1,31 @@
 @extends('public.layout')
 
-@section('title', 'Customer Management - Midas Portal')
-@section('meta_description', 'Complete 360° CRM system for insurance agencies. Manage customer data, documents, verification workflows, and family groups with our advanced customer management platform.')
-@section('meta_keywords', 'insurance CRM, customer management, policy tracking, customer portal, family groups, KYC verification')
+@section('title', 'Policy Management - Midas Portal')
+@section('meta_description', 'Comprehensive insurance policy management for all types - Motor, Health, Life, and Travel. Track renewals, calculate premiums, manage NCB, and automate policy lifecycle workflows.')
+@section('meta_keywords', 'policy management software, insurance policy tracking, renewal management, premium calculation, NCB tracking, policy lifecycle')
 
 @section('content')
 <!-- Hero Section -->
-@include('public.components.cta-section', [
-    'title' => 'Customer Management',
-    'description' => 'Complete 360° CRM system designed specifically for insurance agencies. Manage your entire customer lifecycle from onboarding to policy renewals with powerful automation and insights.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'hero-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'hero-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">Policy Management</h1>
+                <p class="lead mb-4">Manage all insurance types with complete lifecycle tracking from issuance to renewal. Automate premium calculations, track NCB, and never miss a renewal with intelligent reminder systems.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Overview Section -->
 <section class="py-5 bg-light">
     <div class="container py-4">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-5 fw-bold mb-4">What is Customer Management?</h2>
-                <p class="lead text-muted">Our Customer Management module is a comprehensive CRM system built specifically for insurance businesses. It handles everything from customer onboarding and document verification to family group management and customer portal access.</p>
+                <h2 class="display-5 fw-bold mb-4">What is Policy Management?</h2>
+                <p class="lead text-muted">Our Policy Management system handles the complete insurance policy lifecycle for all types - Motor, Health, Life, and Travel. From policy issuance to renewal tracking, premium calculations to NCB management, everything you need in one powerful platform.</p>
             </div>
         </div>
     </div>
@@ -43,10 +40,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                            <i class="fas fa-shield-alt fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Onboarding</h5>
-                        <p class="card-text text-muted">Streamlined onboarding process with automated verification workflows and WhatsApp welcome messages.</p>
+                        <h5 class="card-title fw-bold">All Insurance Types</h5>
+                        <p class="card-text text-muted">Manage Motor, Health, Life, and Travel insurance with type-specific fields and workflows.</p>
                     </div>
                 </div>
             </div>
@@ -54,10 +51,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-alt fa-2x text-white"></i>
+                            <i class="fas fa-sync-alt fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Document Management</h5>
-                        <p class="card-text text-muted">Centralized document storage for KYC, identity proofs, address proofs with secure cloud storage.</p>
+                        <h5 class="card-title fw-bold">Renewal Tracking</h5>
+                        <p class="card-text text-muted">Automated renewal reminders at 30, 15, and 7 days before expiry via WhatsApp, SMS, and email.</p>
                     </div>
                 </div>
             </div>
@@ -65,10 +62,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-users fa-2x text-white"></i>
+                            <i class="fas fa-calculator fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Family Groups</h5>
-                        <p class="card-text text-muted">Group family members together for shared policy access and consolidated family management.</p>
+                        <h5 class="card-title fw-bold">Premium Calculations</h5>
+                        <p class="card-text text-muted">Automatic premium breakdown with base amount, GST, addon covers, and discounts.</p>
                     </div>
                 </div>
             </div>
@@ -76,10 +73,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle fa-2x text-white"></i>
+                            <i class="fas fa-percentage fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Verification Workflows</h5>
-                        <p class="card-text text-muted">Multi-step verification process with status tracking and automated notifications.</p>
+                        <h5 class="card-title fw-bold">NCB Management</h5>
+                        <p class="card-text text-muted">Track No Claim Bonus (20% to 50%) with automatic progression on claim-free renewals.</p>
                     </div>
                 </div>
             </div>
@@ -87,10 +84,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-circle fa-2x text-white"></i>
+                            <i class="fas fa-file-pdf fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal access for customers to view policies, download documents, and track claims.</p>
+                        <h5 class="card-title fw-bold">Document Generation</h5>
+                        <p class="card-text text-muted">Auto-generate policy documents, renewal notices, and payment receipts with branding.</p>
                     </div>
                 </div>
             </div>
@@ -98,10 +95,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-search fa-2x text-white"></i>
+                            <i class="fas fa-link fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Advanced Search & Export</h5>
-                        <p class="card-text text-muted">Powerful search filters and bulk export capabilities for reporting and analysis.</p>
+                        <h5 class="card-title fw-bold">Renewal Linking</h5>
+                        <p class="card-text text-muted">Link renewed policies to previous policies for complete policy history and NCB tracking.</p>
                     </div>
                 </div>
             </div>
@@ -117,11 +114,33 @@
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-dollar-sign fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Save Time</h5>
-                        <p class="text-muted">Reduce customer onboarding time by 60% with automated workflows and document verification.</p>
+                        <h5 class="fw-bold">Increase Renewal Rates</h5>
+                        <p class="text-muted">Automated reminders increase renewal rates by 45%, securing your recurring revenue stream.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tasks fa-2x" style="color: var(--primary-color);"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold">Reduce Manual Work</h5>
+                        <p class="text-muted">Automated calculations and workflows reduce policy processing time by 70%.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-2x" style="color: var(--primary-color);"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold">Ensure Accuracy</h5>
+                        <p class="text-muted">Eliminate calculation errors with automated premium and NCB calculations.</p>
                     </div>
                 </div>
             </div>
@@ -131,30 +150,8 @@
                         <i class="fas fa-chart-line fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Increase Retention</h5>
-                        <p class="text-muted">Better customer experience leads to higher retention rates and more referrals.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt fa-2x" style="color: var(--primary-color);"></i>
-                    </div>
-                    <div class="ms-3">
-                        <h5 class="fw-bold">Ensure Compliance</h5>
-                        <p class="text-muted">Stay compliant with KYC regulations and maintain complete audit trails.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x" style="color: var(--primary-color);"></i>
-                    </div>
-                    <div class="ms-3">
-                        <h5 class="fw-bold">Centralize Data</h5>
-                        <p class="text-muted">All customer information in one place, accessible from anywhere, anytime.</p>
+                        <h5 class="fw-bold">Better Insights</h5>
+                        <p class="text-muted">Track policy performance, expiry trends, and revenue forecasts with powerful analytics.</p>
                     </div>
                 </div>
             </div>
@@ -172,8 +169,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">1</span>
                     </div>
-                    <h5 class="fw-bold">Add Customer</h5>
-                    <p class="text-muted">Create customer profile with basic details and contact information.</p>
+                    <h5 class="fw-bold">Issue Policy</h5>
+                    <p class="text-muted">Create new policy with customer, coverage, and premium details.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -181,8 +178,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">2</span>
                     </div>
-                    <h5 class="fw-bold">Upload Documents</h5>
-                    <p class="text-muted">Collect and store KYC documents securely in the cloud.</p>
+                    <h5 class="fw-bold">Track Lifecycle</h5>
+                    <p class="text-muted">Monitor policy status, claims, and renewal dates automatically.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -190,8 +187,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">3</span>
                     </div>
-                    <h5 class="fw-bold">Verify & Approve</h5>
-                    <p class="text-muted">Complete verification workflow with automated notifications.</p>
+                    <h5 class="fw-bold">Send Reminders</h5>
+                    <p class="text-muted">Automated renewal notifications sent to customers via multiple channels.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -199,8 +196,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">4</span>
                     </div>
-                    <h5 class="fw-bold">Grant Portal Access</h5>
-                    <p class="text-muted">Provide customer portal credentials for self-service access.</p>
+                    <h5 class="fw-bold">Process Renewal</h5>
+                    <p class="text-muted">One-click renewal with NCB progression and updated premiums.</p>
                 </div>
             </div>
         </div>
@@ -215,27 +212,27 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Family Management</h5>
-                        <p class="card-text text-muted">Group families and dependents for consolidated policy management.</p>
-                        <a href="{{ url('/features/family-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Customer Management</h5>
+                        <p class="card-text text-muted">Link policies to customers with complete relationship tracking.</p>
+                        <a href="{{ url('/features/customer-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal for policy viewing, document downloads, and claims tracking.</p>
-                        <a href="{{ url('/features/customer-portal') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Claims Management</h5>
+                        <p class="card-text text-muted">Process claims with policy validation and NCB impact tracking.</p>
+                        <a href="{{ url('/features/claims-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Policy Management</h5>
-                        <p class="card-text text-muted">Complete insurance policy lifecycle management and renewal tracking.</p>
-                        <a href="{{ url('/features/policy-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Commission Tracking</h5>
+                        <p class="card-text text-muted">Automatic commission calculations on policy issuance and renewals.</p>
+                        <a href="{{ url('/features/commission-tracking') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
@@ -244,19 +241,16 @@
 </section>
 
 <!-- CTA Section -->
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Customer Management?',
-    'description' => 'Start your 14-day free trial today. No credit card required.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'cta-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'cta-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8 mx-auto text-center'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold mb-4">Ready to Streamline Policy Management?</h2>
+                <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

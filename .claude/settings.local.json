@@ -72,7 +72,9 @@
       "Bash(then echo \"=== $file ===\")",
       "Bash(for file in resources/views/public/{features,pricing,help-center,documentation,api,security,privacy,terms}.blade.php)",
       "Bash(while read file)",
-      "Bash(do echo \"=== $file ===\")"
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(for file in customer-management family-management customer-portal lead-management policy-management claims-management whatsapp-integration quotation-system analytics-reports commission-tracking document-management staff-management master-data-management notifications-alerts)",
+      "Bash(do cp \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.blade.php\" \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.backup.blade.php\")"
     ],
     "deny": [],
     "ask": []

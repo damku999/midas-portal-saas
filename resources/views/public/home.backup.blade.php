@@ -151,11 +151,11 @@
 <!-- Features Section -->
 <section class="section-modern bg-white bg-pattern-dots">
     <div class="container">
-        @include('public.components.section-header', [
-            'badge' => 'Complete Solution',
-            'title' => 'All The Modules You Need',
-            'description' => 'Comprehensive features built specifically for insurance agencies to boost productivity and revenue'
-        ])
+        <div class="section-header scroll-reveal">
+            <span class="badge badge-gradient mb-3 px-4 py-2">Complete Solution</span>
+            <h2>All The Modules You Need</h2>
+            <p>Comprehensive features built specifically for insurance agencies to boost productivity and revenue</p>
+        </div>
 
         <div class="row g-4">
             <!-- Customer Management -->
@@ -295,45 +295,49 @@
 </section>
 
 <!-- Stats Section -->
-@include('public.components.stats-section', [
-    'stats' => [
-        [
-            'number' => '99',
-            'suffix' => '.9%',
-            'label' => 'Uptime SLA Guaranteed',
-            'hasCounter' => true
-        ],
-        [
-            'number' => '500',
-            'suffix' => '+',
-            'label' => 'Active Insurance Agencies',
-            'hasCounter' => true
-        ],
-        [
-            'number' => '50',
-            'suffix' => 'K+',
-            'label' => 'Policies Managed Daily',
-            'hasCounter' => true
-        ],
-        [
-            'number' => '24/7',
-            'suffix' => '',
-            'label' => 'Expert Support Available',
-            'hasCounter' => false,
-            'displayClass' => 'display-3'
-        ]
-    ]
-])
+<section class="section-modern gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-6 col-md-3 scroll-reveal">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="99">0</div>
+                    <div class="h4 fw-bold mb-2">.9%</div>
+                    <p class="mb-0 opacity-75">Uptime SLA Guaranteed</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal delay-100">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="500">0</div>
+                    <div class="h4 fw-bold mb-2">+</div>
+                    <p class="mb-0 opacity-75">Active Insurance Agencies</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal delay-200">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="50">0</div>
+                    <div class="h4 fw-bold mb-2">K+</div>
+                    <p class="mb-0 opacity-75">Policies Managed Daily</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal delay-300">
+                <div class="stat-card">
+                    <div class="h2 display-3 fw-bold mb-2">24/7</div>
+                    <p class="mb-0 opacity-75">Expert Support Available</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Pricing Section -->
 @if($plans->count() > 0)
 <section class="section-modern bg-light" id="pricing">
     <div class="container">
-        @include('public.components.section-header', [
-            'badge' => 'Flexible Pricing',
-            'title' => 'Choose Your Perfect Plan',
-            'description' => 'Transparent pricing with no hidden fees. <strong>Start with a 14-day free trial!</strong> No credit card required.'
-        ])
+        <div class="section-header scroll-reveal">
+            <span class="badge badge-gradient mb-3 px-4 py-2">Flexible Pricing</span>
+            <h2>Choose Your Perfect Plan</h2>
+            <p>Transparent pricing with no hidden fees. <strong>Start with a 14-day free trial!</strong> No credit card required.</p>
+        </div>
 
         <div class="row g-4 justify-content-center">
             @foreach($plans as $index => $plan)
@@ -410,11 +414,11 @@
 <!-- Testimonials Section -->
 <section class="section-modern bg-white">
     <div class="container">
-        @include('public.components.section-header', [
-            'badge' => 'Success Stories',
-            'title' => 'Loved by Insurance Professionals',
-            'description' => 'See what insurance agency owners are saying about Midas Portal'
-        ])
+        <div class="section-header scroll-reveal">
+            <span class="badge badge-gradient mb-3 px-4 py-2">Success Stories</span>
+            <h2>Loved by Insurance Professionals</h2>
+            <p>See what insurance agency owners are saying about Midas Portal</p>
+        </div>
 
         <div class="row g-4">
             <div class="col-lg-4 col-md-6 scroll-reveal">
@@ -496,21 +500,35 @@
 </section>
 
 <!-- Final CTA Section -->
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Insurance Business?',
-    'description' => 'Join 500+ insurance agencies already using Midas Portal to grow their business. Start your 14-day free trial today!',
-    'primaryText' => 'Start Your Free Trial Now',
-    'primaryUrl' => url('/pricing'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'final-cta-start-trial',
-    'secondaryText' => 'Schedule a Live Demo',
-    'secondaryUrl' => url('/contact'),
-    'secondaryIcon' => 'fas fa-calendar-alt',
-    'secondaryDataCta' => 'final-cta-schedule-demo',
-    'showNote' => true,
-    'note' => '<strong>No credit card</strong> required • <strong>Full access</strong> to all features • <strong>Cancel anytime</strong> - no questions asked • <strong>Setup support</strong> included',
-    'colClass' => 'col-lg-10'
-])
+<section class="cta-modern text-white position-relative">
+    <div class="container position-relative z-index-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center scroll-reveal">
+                <span class="badge bg-white text-primary mb-4 px-4 py-2 shadow">
+                    <i class="fas fa-rocket me-2"></i>Limited Time Offer
+                </span>
+                <h2 class="display-3 fw-bolder mb-4">Ready to Transform Your Insurance Business?</h2>
+                <p class="lead mb-5 fs-3">
+                    Join <strong>500+ insurance agencies</strong> already using Midas Portal to grow their business. Start your <strong>14-day free trial</strong> today!
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center mb-4">
+                    <a href="{{ url('/pricing') }}" class="btn btn-light btn-lg px-5 py-3 shadow-lg hover-lift" data-cta="final-cta-start-trial">
+                        <i class="fas fa-rocket me-2"></i>Start Your Free Trial Now
+                    </a>
+                    <a href="{{ url('/contact') }}" class="btn btn-outline-light btn-lg px-5 py-3 hover-lift" data-cta="final-cta-schedule-demo">
+                        <i class="fas fa-calendar-alt me-2"></i>Schedule a Live Demo
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap gap-4 justify-content-center small">
+                    <div><i class="fas fa-check-circle me-2"></i><strong>No credit card</strong> required</div>
+                    <div><i class="fas fa-check-circle me-2"></i><strong>Full access</strong> to all features</div>
+                    <div><i class="fas fa-check-circle me-2"></i><strong>Cancel anytime</strong> - no questions asked</div>
+                    <div><i class="fas fa-check-circle me-2"></i><strong>Setup support</strong> included</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
 
 @section('styles')

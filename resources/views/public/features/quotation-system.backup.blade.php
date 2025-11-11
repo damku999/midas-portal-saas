@@ -1,34 +1,31 @@
 @extends('public.layout')
 
-@section('title', 'Customer Management - Midas Portal')
-@section('meta_description', 'Complete 360° CRM system for insurance agencies. Manage customer data, documents, verification workflows, and family groups with our advanced customer management platform.')
-@section('meta_keywords', 'insurance CRM, customer management, policy tracking, customer portal, family groups, KYC verification')
+@section('title', 'Quotation System - Midas Portal')
+@section('meta_description', 'Generate professional insurance quotations instantly with multi-company comparison, IDV calculation, addon covers, and PDF export. Share quotations via WhatsApp and email with automated follow-ups.')
+@section('meta_keywords', 'insurance quotation software, quote generation, premium calculator, insurance comparison, quotation PDF, IDV calculator')
 
 @section('content')
 <!-- Hero Section -->
-@include('public.components.cta-section', [
-    'title' => 'Customer Management',
-    'description' => 'Complete 360° CRM system designed specifically for insurance agencies. Manage your entire customer lifecycle from onboarding to policy renewals with powerful automation and insights.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'hero-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'hero-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">Quotation System</h1>
+                <p class="lead mb-4">Generate professional quotations in seconds. Compare up to 10 insurance companies side-by-side, calculate IDV automatically, add addon covers, and share branded PDF quotations instantly via WhatsApp or email.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Overview Section -->
 <section class="py-5 bg-light">
     <div class="container py-4">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-5 fw-bold mb-4">What is Customer Management?</h2>
-                <p class="lead text-muted">Our Customer Management module is a comprehensive CRM system built specifically for insurance businesses. It handles everything from customer onboarding and document verification to family group management and customer portal access.</p>
+                <h2 class="display-5 fw-bold mb-4">What is Quotation System?</h2>
+                <p class="lead text-muted">Our Quotation System is a powerful multi-company comparison engine with automatic IDV calculation, 9 addon covers, and intelligent pricing recommendations. Generate professional PDF quotations with your branding and share them instantly with customers.</p>
             </div>
         </div>
     </div>
@@ -43,10 +40,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                            <i class="fas fa-file-invoice-dollar fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Onboarding</h5>
-                        <p class="card-text text-muted">Streamlined onboarding process with automated verification workflows and WhatsApp welcome messages.</p>
+                        <h5 class="card-title fw-bold">Quick Quote Generation</h5>
+                        <p class="card-text text-muted">Generate quotations in seconds with auto-numbering (QT/YY/00000001) and customer details pre-fill.</p>
                     </div>
                 </div>
             </div>
@@ -54,10 +51,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-alt fa-2x text-white"></i>
+                            <i class="fas fa-balance-scale fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Document Management</h5>
-                        <p class="card-text text-muted">Centralized document storage for KYC, identity proofs, address proofs with secure cloud storage.</p>
+                        <h5 class="card-title fw-bold">Multi-Company Comparison</h5>
+                        <p class="card-text text-muted">Compare up to 10 insurance companies side-by-side with automatic ranking by best price.</p>
                     </div>
                 </div>
             </div>
@@ -65,10 +62,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-users fa-2x text-white"></i>
+                            <i class="fas fa-calculator fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Family Groups</h5>
-                        <p class="card-text text-muted">Group family members together for shared policy access and consolidated family management.</p>
+                        <h5 class="card-title fw-bold">IDV Calculation</h5>
+                        <p class="card-text text-muted">Automatic Insured Declared Value calculation with 5 components: Base, Age, Depreciation, Condition, Market.</p>
                     </div>
                 </div>
             </div>
@@ -76,10 +73,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle fa-2x text-white"></i>
+                            <i class="fas fa-plus-circle fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Verification Workflows</h5>
-                        <p class="card-text text-muted">Multi-step verification process with status tracking and automated notifications.</p>
+                        <h5 class="card-title fw-bold">9 Addon Covers</h5>
+                        <p class="card-text text-muted">Offer Zero Depreciation, Engine Protection, RSA, NCB Protection, and 5 more addon covers with smart pricing.</p>
                     </div>
                 </div>
             </div>
@@ -87,10 +84,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-circle fa-2x text-white"></i>
+                            <i class="fas fa-file-pdf fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal access for customers to view policies, download documents, and track claims.</p>
+                        <h5 class="card-title fw-bold">Professional PDF Export</h5>
+                        <p class="card-text text-muted">Generate branded PDF quotations with your logo, contact details, and professional layout.</p>
                     </div>
                 </div>
             </div>
@@ -98,10 +95,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-search fa-2x text-white"></i>
+                            <i class="fab fa-whatsapp fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Advanced Search & Export</h5>
-                        <p class="card-text text-muted">Powerful search filters and bulk export capabilities for reporting and analysis.</p>
+                        <h5 class="card-title fw-bold">Instant Sharing</h5>
+                        <p class="card-text text-muted">Share quotations via WhatsApp, email, or download with automatic follow-up tracking.</p>
                     </div>
                 </div>
             </div>
@@ -117,11 +114,11 @@
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-stopwatch fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
                         <h5 class="fw-bold">Save Time</h5>
-                        <p class="text-muted">Reduce customer onboarding time by 60% with automated workflows and document verification.</p>
+                        <p class="text-muted">Generate quotations 10x faster than manual methods with automated calculations and templates.</p>
                     </div>
                 </div>
             </div>
@@ -131,30 +128,30 @@
                         <i class="fas fa-chart-line fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Increase Retention</h5>
-                        <p class="text-muted">Better customer experience leads to higher retention rates and more referrals.</p>
+                        <h5 class="fw-bold">Close More Sales</h5>
+                        <p class="text-muted">Professional quotations with multiple options increase conversion rates by 40%.</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-trophy fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Ensure Compliance</h5>
-                        <p class="text-muted">Stay compliant with KYC regulations and maintain complete audit trails.</p>
+                        <h5 class="fw-bold">Competitive Advantage</h5>
+                        <p class="text-muted">Show customers you've compared all options, building trust and credibility.</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-paint-brush fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Centralize Data</h5>
-                        <p class="text-muted">All customer information in one place, accessible from anywhere, anytime.</p>
+                        <h5 class="fw-bold">Professional Branding</h5>
+                        <p class="text-muted">Customized quotations with your logo and branding reinforce your agency's professionalism.</p>
                     </div>
                 </div>
             </div>
@@ -172,8 +169,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">1</span>
                     </div>
-                    <h5 class="fw-bold">Add Customer</h5>
-                    <p class="text-muted">Create customer profile with basic details and contact information.</p>
+                    <h5 class="fw-bold">Enter Vehicle Details</h5>
+                    <p class="text-muted">Input vehicle information and customer details or link to existing lead.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -181,8 +178,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">2</span>
                     </div>
-                    <h5 class="fw-bold">Upload Documents</h5>
-                    <p class="text-muted">Collect and store KYC documents securely in the cloud.</p>
+                    <h5 class="fw-bold">Select Companies</h5>
+                    <p class="text-muted">Choose insurance companies to compare and select addon covers.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -190,8 +187,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">3</span>
                     </div>
-                    <h5 class="fw-bold">Verify & Approve</h5>
-                    <p class="text-muted">Complete verification workflow with automated notifications.</p>
+                    <h5 class="fw-bold">Generate & Review</h5>
+                    <p class="text-muted">System calculates premiums and ranks companies by best value.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -199,8 +196,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">4</span>
                     </div>
-                    <h5 class="fw-bold">Grant Portal Access</h5>
-                    <p class="text-muted">Provide customer portal credentials for self-service access.</p>
+                    <h5 class="fw-bold">Share Quotation</h5>
+                    <p class="text-muted">Send PDF via WhatsApp/Email and track customer engagement.</p>
                 </div>
             </div>
         </div>
@@ -215,27 +212,27 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Family Management</h5>
-                        <p class="card-text text-muted">Group families and dependents for consolidated policy management.</p>
-                        <a href="{{ url('/features/family-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Lead Management</h5>
+                        <p class="card-text text-muted">Generate quotations directly from leads and track conversion.</p>
+                        <a href="{{ url('/features/lead-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal for policy viewing, document downloads, and claims tracking.</p>
-                        <a href="{{ url('/features/customer-portal') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">WhatsApp Integration</h5>
+                        <p class="card-text text-muted">Share quotations instantly via WhatsApp with delivery tracking.</p>
+                        <a href="{{ url('/features/whatsapp-integration') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Policy Management</h5>
-                        <p class="card-text text-muted">Complete insurance policy lifecycle management and renewal tracking.</p>
-                        <a href="{{ url('/features/policy-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Master Data Management</h5>
+                        <p class="card-text text-muted">Manage insurance companies, addons, and pricing configurations.</p>
+                        <a href="{{ url('/features/master-data-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
@@ -244,19 +241,16 @@
 </section>
 
 <!-- CTA Section -->
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Customer Management?',
-    'description' => 'Start your 14-day free trial today. No credit card required.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'cta-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'cta-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8 mx-auto text-center'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold mb-4">Ready to Generate Professional Quotations?</h2>
+                <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

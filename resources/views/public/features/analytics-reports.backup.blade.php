@@ -1,34 +1,31 @@
 @extends('public.layout')
 
-@section('title', 'Customer Management - Midas Portal')
-@section('meta_description', 'Complete 360° CRM system for insurance agencies. Manage customer data, documents, verification workflows, and family groups with our advanced customer management platform.')
-@section('meta_keywords', 'insurance CRM, customer management, policy tracking, customer portal, family groups, KYC verification')
+@section('title', 'Analytics & Reports - Midas Portal')
+@section('meta_description', 'Comprehensive business intelligence dashboards and reports for data-driven decisions. Track revenue, agent performance, policy analytics, and custom report generation with real-time insights.')
+@section('meta_keywords', 'insurance analytics, business intelligence, performance reports, revenue tracking, agent analytics, custom reports, insurance dashboard')
 
 @section('content')
 <!-- Hero Section -->
-@include('public.components.cta-section', [
-    'title' => 'Customer Management',
-    'description' => 'Complete 360° CRM system designed specifically for insurance agencies. Manage your entire customer lifecycle from onboarding to policy renewals with powerful automation and insights.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'hero-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'hero-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">Analytics & Reports</h1>
+                <p class="lead mb-4">Transform data into actionable insights with comprehensive dashboards and customizable reports. Track revenue, agent performance, policy trends, and business metrics in real-time for smarter decision-making.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Overview Section -->
 <section class="py-5 bg-light">
     <div class="container py-4">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-5 fw-bold mb-4">What is Customer Management?</h2>
-                <p class="lead text-muted">Our Customer Management module is a comprehensive CRM system built specifically for insurance businesses. It handles everything from customer onboarding and document verification to family group management and customer portal access.</p>
+                <h2 class="display-5 fw-bold mb-4">What is Analytics & Reports?</h2>
+                <p class="lead text-muted">Our Analytics & Reports module provides powerful business intelligence tools with real-time dashboards, automated reports, and custom report builder. Get insights into revenue, policy performance, agent productivity, and customer behavior to make data-driven decisions.</p>
             </div>
         </div>
     </div>
@@ -43,10 +40,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                            <i class="fas fa-chart-line fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Onboarding</h5>
-                        <p class="card-text text-muted">Streamlined onboarding process with automated verification workflows and WhatsApp welcome messages.</p>
+                        <h5 class="card-title fw-bold">Revenue Analytics</h5>
+                        <p class="card-text text-muted">Track total revenue, commission earned, policy premiums, and revenue trends with detailed breakdowns.</p>
                     </div>
                 </div>
             </div>
@@ -54,10 +51,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-alt fa-2x text-white"></i>
+                            <i class="fas fa-user-tie fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Document Management</h5>
-                        <p class="card-text text-muted">Centralized document storage for KYC, identity proofs, address proofs with secure cloud storage.</p>
+                        <h5 class="card-title fw-bold">Agent Performance</h5>
+                        <p class="card-text text-muted">Monitor individual and team performance with sales metrics, conversion rates, and leaderboards.</p>
                     </div>
                 </div>
             </div>
@@ -65,10 +62,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-users fa-2x text-white"></i>
+                            <i class="fas fa-shield-alt fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Family Groups</h5>
-                        <p class="card-text text-muted">Group family members together for shared policy access and consolidated family management.</p>
+                        <h5 class="card-title fw-bold">Policy Reports</h5>
+                        <p class="card-text text-muted">Analyze policy issuance, renewals, expirations, and cancellations with trend analysis.</p>
                     </div>
                 </div>
             </div>
@@ -76,10 +73,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle fa-2x text-white"></i>
+                            <i class="fas fa-tools fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Verification Workflows</h5>
-                        <p class="card-text text-muted">Multi-step verification process with status tracking and automated notifications.</p>
+                        <h5 class="card-title fw-bold">Custom Report Builder</h5>
+                        <p class="card-text text-muted">Create custom reports with drag-and-drop builder, filters, and scheduled delivery.</p>
                     </div>
                 </div>
             </div>
@@ -87,10 +84,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-circle fa-2x text-white"></i>
+                            <i class="fas fa-download fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal access for customers to view policies, download documents, and track claims.</p>
+                        <h5 class="card-title fw-bold">Export Options</h5>
+                        <p class="card-text text-muted">Export reports to Excel, PDF, or CSV with customizable formatting and branding.</p>
                     </div>
                 </div>
             </div>
@@ -98,10 +95,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-search fa-2x text-white"></i>
+                            <i class="fas fa-clock fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Advanced Search & Export</h5>
-                        <p class="card-text text-muted">Powerful search filters and bulk export capabilities for reporting and analysis.</p>
+                        <h5 class="card-title fw-bold">Real-time Dashboards</h5>
+                        <p class="card-text text-muted">Live dashboards with auto-refresh showing current metrics and KPIs at a glance.</p>
                     </div>
                 </div>
             </div>
@@ -117,44 +114,44 @@
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-lightbulb fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Save Time</h5>
-                        <p class="text-muted">Reduce customer onboarding time by 60% with automated workflows and document verification.</p>
+                        <h5 class="fw-bold">Data-Driven Decisions</h5>
+                        <p class="text-muted">Make informed business decisions based on real data, not guesswork or intuition.</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-search fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Increase Retention</h5>
-                        <p class="text-muted">Better customer experience leads to higher retention rates and more referrals.</p>
+                        <h5 class="fw-bold">Identify Opportunities</h5>
+                        <p class="text-muted">Discover growth opportunities, underperforming products, and untapped market segments.</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-users fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Ensure Compliance</h5>
-                        <p class="text-muted">Stay compliant with KYC regulations and maintain complete audit trails.</p>
+                        <h5 class="fw-bold">Optimize Team Performance</h5>
+                        <p class="text-muted">Identify top performers, coach struggling agents, and optimize resource allocation.</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-dollar-sign fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Centralize Data</h5>
-                        <p class="text-muted">All customer information in one place, accessible from anywhere, anytime.</p>
+                        <h5 class="fw-bold">Maximize Revenue</h5>
+                        <p class="text-muted">Track revenue trends, identify profitable products, and forecast future earnings accurately.</p>
                     </div>
                 </div>
             </div>
@@ -172,8 +169,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">1</span>
                     </div>
-                    <h5 class="fw-bold">Add Customer</h5>
-                    <p class="text-muted">Create customer profile with basic details and contact information.</p>
+                    <h5 class="fw-bold">Access Dashboards</h5>
+                    <p class="text-muted">Login to view real-time dashboards with key business metrics.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -181,8 +178,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">2</span>
                     </div>
-                    <h5 class="fw-bold">Upload Documents</h5>
-                    <p class="text-muted">Collect and store KYC documents securely in the cloud.</p>
+                    <h5 class="fw-bold">Filter & Analyze</h5>
+                    <p class="text-muted">Apply filters by date, agent, policy type, or custom criteria.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -190,8 +187,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">3</span>
                     </div>
-                    <h5 class="fw-bold">Verify & Approve</h5>
-                    <p class="text-muted">Complete verification workflow with automated notifications.</p>
+                    <h5 class="fw-bold">Generate Reports</h5>
+                    <p class="text-muted">Create standard or custom reports with visual charts and tables.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -199,8 +196,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">4</span>
                     </div>
-                    <h5 class="fw-bold">Grant Portal Access</h5>
-                    <p class="text-muted">Provide customer portal credentials for self-service access.</p>
+                    <h5 class="fw-bold">Export & Share</h5>
+                    <p class="text-muted">Download reports or schedule automated delivery to stakeholders.</p>
                 </div>
             </div>
         </div>
@@ -215,18 +212,18 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Family Management</h5>
-                        <p class="card-text text-muted">Group families and dependents for consolidated policy management.</p>
-                        <a href="{{ url('/features/family-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Commission Tracking</h5>
+                        <p class="card-text text-muted">Detailed commission reports with agent-wise breakdowns and payment tracking.</p>
+                        <a href="{{ url('/features/commission-tracking') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal for policy viewing, document downloads, and claims tracking.</p>
-                        <a href="{{ url('/features/customer-portal') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Staff Management</h5>
+                        <p class="card-text text-muted">Track staff performance metrics and activity logs for team optimization.</p>
+                        <a href="{{ url('/features/staff-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
@@ -234,7 +231,7 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <h5 class="card-title fw-bold">Policy Management</h5>
-                        <p class="card-text text-muted">Complete insurance policy lifecycle management and renewal tracking.</p>
+                        <p class="card-text text-muted">Policy analytics including renewal rates, premium trends, and expiry forecasts.</p>
                         <a href="{{ url('/features/policy-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
@@ -244,19 +241,16 @@
 </section>
 
 <!-- CTA Section -->
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Customer Management?',
-    'description' => 'Start your 14-day free trial today. No credit card required.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'cta-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'cta-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8 mx-auto text-center'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold mb-4">Ready for Data-Driven Growth?</h2>
+                <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

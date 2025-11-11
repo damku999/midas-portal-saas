@@ -1,34 +1,31 @@
 @extends('public.layout')
 
-@section('title', 'Customer Management - Midas Portal')
-@section('meta_description', 'Complete 360° CRM system for insurance agencies. Manage customer data, documents, verification workflows, and family groups with our advanced customer management platform.')
-@section('meta_keywords', 'insurance CRM, customer management, policy tracking, customer portal, family groups, KYC verification')
+@section('title', 'Family Management - Midas Portal')
+@section('meta_description', 'Group and manage family members with their insurance policies in one organized view. Manage dependents, track family policies, and share documents across family groups.')
+@section('meta_keywords', 'family management, dependent insurance, family grouping, insurance family plans, shared policies, family insurance software')
 
 @section('content')
 <!-- Hero Section -->
-@include('public.components.cta-section', [
-    'title' => 'Customer Management',
-    'description' => 'Complete 360° CRM system designed specifically for insurance agencies. Manage your entire customer lifecycle from onboarding to policy renewals with powerful automation and insights.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'hero-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'hero-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">Family Management</h1>
+                <p class="lead mb-4">Group and manage family members with their insurance policies in one organized view. Simplify family policy management, track dependents, and provide consolidated access to all family insurance needs.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Overview Section -->
 <section class="py-5 bg-light">
     <div class="container py-4">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-5 fw-bold mb-4">What is Customer Management?</h2>
-                <p class="lead text-muted">Our Customer Management module is a comprehensive CRM system built specifically for insurance businesses. It handles everything from customer onboarding and document verification to family group management and customer portal access.</p>
+                <h2 class="display-5 fw-bold mb-4">What is Family Management?</h2>
+                <p class="lead text-muted">Our Family Management module allows you to group family members together, manage their insurance policies collectively, and provide a unified view of all family insurance needs. Perfect for managing health insurance, life policies, and other family-oriented coverage plans.</p>
             </div>
         </div>
     </div>
@@ -43,10 +40,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                            <i class="fas fa-user-friends fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Onboarding</h5>
-                        <p class="card-text text-muted">Streamlined onboarding process with automated verification workflows and WhatsApp welcome messages.</p>
+                        <h5 class="card-title fw-bold">Family Grouping</h5>
+                        <p class="card-text text-muted">Create family groups with primary members and add dependents with defined relationships like spouse, children, and parents.</p>
                     </div>
                 </div>
             </div>
@@ -54,10 +51,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-alt fa-2x text-white"></i>
+                            <i class="fas fa-sitemap fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Document Management</h5>
-                        <p class="card-text text-muted">Centralized document storage for KYC, identity proofs, address proofs with secure cloud storage.</p>
+                        <h5 class="card-title fw-bold">Relationship Mapping</h5>
+                        <p class="card-text text-muted">Define relationships between family members including spouse, child, parent, sibling, and other dependents.</p>
                     </div>
                 </div>
             </div>
@@ -65,10 +62,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-users fa-2x text-white"></i>
+                            <i class="fas fa-shield-alt fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Family Groups</h5>
-                        <p class="card-text text-muted">Group family members together for shared policy access and consolidated family management.</p>
+                        <h5 class="card-title fw-bold">Family Policy Tracking</h5>
+                        <p class="card-text text-muted">Track all policies across family members in a consolidated view with renewal dates and coverage details.</p>
                     </div>
                 </div>
             </div>
@@ -76,10 +73,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle fa-2x text-white"></i>
+                            <i class="fas fa-folder-open fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Verification Workflows</h5>
-                        <p class="card-text text-muted">Multi-step verification process with status tracking and automated notifications.</p>
+                        <h5 class="card-title fw-bold">Shared Documents</h5>
+                        <p class="card-text text-muted">Share documents across family members with secure access controls and centralized document management.</p>
                     </div>
                 </div>
             </div>
@@ -87,10 +84,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-circle fa-2x text-white"></i>
+                            <i class="fas fa-chart-pie fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal access for customers to view policies, download documents, and track claims.</p>
+                        <h5 class="card-title fw-bold">Family Analytics</h5>
+                        <p class="card-text text-muted">View consolidated family insurance coverage, total premiums, and identify coverage gaps across the family.</p>
                     </div>
                 </div>
             </div>
@@ -98,10 +95,10 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <div class="mb-3" style="width: 70px; height: 70px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-search fa-2x text-white"></i>
+                            <i class="fas fa-bell fa-2x text-white"></i>
                         </div>
-                        <h5 class="card-title fw-bold">Advanced Search & Export</h5>
-                        <p class="card-text text-muted">Powerful search filters and bulk export capabilities for reporting and analysis.</p>
+                        <h5 class="card-title fw-bold">Group Notifications</h5>
+                        <p class="card-text text-muted">Send renewal reminders and important updates to entire family groups via WhatsApp, SMS, or email.</p>
                     </div>
                 </div>
             </div>
@@ -117,11 +114,11 @@
             <div class="col-lg-6">
                 <div class="d-flex mb-4">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x" style="color: var(--primary-color);"></i>
+                        <i class="fas fa-users fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Save Time</h5>
-                        <p class="text-muted">Reduce customer onboarding time by 60% with automated workflows and document verification.</p>
+                        <h5 class="fw-bold">Better Customer Experience</h5>
+                        <p class="text-muted">Families can view all their policies in one place, making it easier to manage insurance needs and renewals.</p>
                     </div>
                 </div>
             </div>
@@ -131,8 +128,19 @@
                         <i class="fas fa-chart-line fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Increase Retention</h5>
-                        <p class="text-muted">Better customer experience leads to higher retention rates and more referrals.</p>
+                        <h5 class="fw-bold">Increase Cross-Selling</h5>
+                        <p class="text-muted">Identify coverage gaps across family members and recommend appropriate insurance products to fill those gaps.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock fa-2x" style="color: var(--primary-color);"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold">Save Time</h5>
+                        <p class="text-muted">Manage multiple family members efficiently with bulk operations and consolidated reporting capabilities.</p>
                     </div>
                 </div>
             </div>
@@ -142,19 +150,8 @@
                         <i class="fas fa-shield-alt fa-2x" style="color: var(--primary-color);"></i>
                     </div>
                     <div class="ms-3">
-                        <h5 class="fw-bold">Ensure Compliance</h5>
-                        <p class="text-muted">Stay compliant with KYC regulations and maintain complete audit trails.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x" style="color: var(--primary-color);"></i>
-                    </div>
-                    <div class="ms-3">
-                        <h5 class="fw-bold">Centralize Data</h5>
-                        <p class="text-muted">All customer information in one place, accessible from anywhere, anytime.</p>
+                        <h5 class="fw-bold">Complete Coverage Visibility</h5>
+                        <p class="text-muted">Get a holistic view of family insurance needs, ensuring no one falls through the cracks in coverage.</p>
                     </div>
                 </div>
             </div>
@@ -172,8 +169,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">1</span>
                     </div>
-                    <h5 class="fw-bold">Add Customer</h5>
-                    <p class="text-muted">Create customer profile with basic details and contact information.</p>
+                    <h5 class="fw-bold">Create Family Group</h5>
+                    <p class="text-muted">Start by creating a family group and designating a primary member.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -181,8 +178,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">2</span>
                     </div>
-                    <h5 class="fw-bold">Upload Documents</h5>
-                    <p class="text-muted">Collect and store KYC documents securely in the cloud.</p>
+                    <h5 class="fw-bold">Add Family Members</h5>
+                    <p class="text-muted">Add dependents and define their relationship to the primary member.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -190,8 +187,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">3</span>
                     </div>
-                    <h5 class="fw-bold">Verify & Approve</h5>
-                    <p class="text-muted">Complete verification workflow with automated notifications.</p>
+                    <h5 class="fw-bold">Link Policies</h5>
+                    <p class="text-muted">Associate insurance policies with respective family members.</p>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -199,8 +196,8 @@
                     <div class="mx-auto mb-3" style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <span class="text-white fw-bold fs-3">4</span>
                     </div>
-                    <h5 class="fw-bold">Grant Portal Access</h5>
-                    <p class="text-muted">Provide customer portal credentials for self-service access.</p>
+                    <h5 class="fw-bold">Manage Together</h5>
+                    <p class="text-muted">View, track, and manage all family policies from a unified dashboard.</p>
                 </div>
             </div>
         </div>
@@ -215,18 +212,9 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Family Management</h5>
-                        <p class="card-text text-muted">Group families and dependents for consolidated policy management.</p>
-                        <a href="{{ url('/features/family-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Customer Portal</h5>
-                        <p class="card-text text-muted">Self-service portal for policy viewing, document downloads, and claims tracking.</p>
-                        <a href="{{ url('/features/customer-portal') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                        <h5 class="card-title fw-bold">Customer Management</h5>
+                        <p class="card-text text-muted">Complete 360° CRM system for managing customer profiles and policy history.</p>
+                        <a href="{{ url('/features/customer-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
@@ -234,8 +222,17 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
                         <h5 class="card-title fw-bold">Policy Management</h5>
-                        <p class="card-text text-muted">Complete insurance policy lifecycle management and renewal tracking.</p>
+                        <p class="card-text text-muted">Manage all insurance types with renewal tracking and premium calculations.</p>
                         <a href="{{ url('/features/policy-management') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Customer Portal</h5>
+                        <p class="card-text text-muted">Self-service portal for families to access policies and submit claims together.</p>
+                        <a href="{{ url('/features/customer-portal') }}" class="btn btn-sm btn-outline-primary">Learn More →</a>
                     </div>
                 </div>
             </div>
@@ -244,19 +241,16 @@
 </section>
 
 <!-- CTA Section -->
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Customer Management?',
-    'description' => 'Start your 14-day free trial today. No credit card required.',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/contact'),
-    'primaryIcon' => 'fas fa-rocket',
-    'primaryDataCta' => 'cta-start-trial',
-    'secondaryText' => 'View Pricing',
-    'secondaryUrl' => url('/pricing'),
-    'secondaryIcon' => 'fas fa-tag',
-    'secondaryDataCta' => 'cta-view-pricing',
-    'showNote' => false,
-    'containerClass' => 'py-5',
-    'colClass' => 'col-lg-8 mx-auto text-center'
-])
+<section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold mb-4">Ready to Simplify Family Insurance Management?</h2>
+                <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg shadow-sm">Start Free Trial</a>
+                <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg ms-2">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
