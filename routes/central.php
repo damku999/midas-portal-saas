@@ -5,6 +5,7 @@ use App\Http\Controllers\Central\ContactSubmissionController;
 use App\Http\Controllers\Central\DashboardController;
 use App\Http\Controllers\Central\PlanController;
 use App\Http\Controllers\Central\TenantController;
+use App\Http\Controllers\Central\UsageAlertController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -71,4 +72,17 @@ Route::middleware(['central.auth'])->group(function () {
         Route::post('/{contactSubmission}/status', [ContactSubmissionController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{contactSubmission}', [ContactSubmissionController::class, 'destroy'])->name('destroy');
     });
+
+    // Usage Alerts Management
+    Route::prefix('usage-alerts')->name('central.usage-alerts.')->group(function () {
+        Route::get('/', [UsageAlertController::class, 'index'])->name('index');
+        Route::get('/analytics', [UsageAlertController::class, 'analytics'])->name('analytics');
+        Route::get('/{alert}', [UsageAlertController::class, 'show'])->name('show');
+        Route::post('/{alert}/acknowledge', [UsageAlertController::class, 'acknowledge'])->name('acknowledge');
+        Route::post('/{alert}/resolve', [UsageAlertController::class, 'resolve'])->name('resolve');
+    });
+
+    // Tenant Usage Management
+    Route::get('/tenants/{tenant}/usage', [UsageAlertController::class, 'tenantUsage'])->name('central.tenants.usage');
+    Route::post('/tenants/{tenant}/thresholds', [UsageAlertController::class, 'updateThresholds'])->name('central.tenants.thresholds');
 });

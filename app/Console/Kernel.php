@@ -46,6 +46,14 @@ class Kernel extends ConsoleKernel
             ->onFailure(function () {
                 \Log::error('Trial auto-conversion failed');
             });
+
+        // Check usage thresholds for all tenants - runs every 6 hours
+        $schedule->command('usage:check-thresholds')
+            ->everySixHours()
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Usage threshold check failed');
+            });
     }
 
     /**

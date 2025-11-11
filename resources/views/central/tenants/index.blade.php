@@ -34,9 +34,9 @@
                         <tr>
                             <td><code>{{ substr($tenant->id, 0, 8) }}</code></td>
                             <td>
-                                <strong>{{ $tenant->data['company_name'] ?? 'N/A' }}</strong>
-                                @if($tenant->data['admin_name'] ?? false)
-                                    <br><small class="text-muted">{{ $tenant->data['admin_name'] }}</small>
+                                <strong>{{ $tenant->company_name ?? 'N/A' }}</strong>
+                                @if($tenant->admin_name ?? false)
+                                    <br><small class="text-muted">{{ $tenant->admin_name }}</small>
                                 @endif
                             </td>
                             <td>
@@ -113,7 +113,7 @@
                                         <form action="{{ route('central.tenants.suspend', $tenant) }}"
                                               method="POST"
                                               class="d-inline suspend-tenant-form"
-                                              data-tenant-name="{{ $tenant->data['company_name'] ?? 'this tenant' }}">
+                                              data-tenant-name="{{ $tenant->company_name ?? 'this tenant' }}">
                                             @csrf
                                             <button type="button"
                                                     class="btn btn-outline-warning suspend-tenant-btn"

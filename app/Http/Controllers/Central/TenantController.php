@@ -130,6 +130,13 @@ class TenantController extends Controller
             'admin_email' => 'required|email|max:255',
             'admin_password' => 'nullable|string|min:8',
             'send_welcome_email' => 'boolean',
+
+            // Database configuration
+            'db_name' => 'nullable|string|max:64',
+            'db_prefix' => 'nullable|string|max:32',
+            'db_create_database' => 'nullable|boolean',
+            'db_run_migrations' => 'nullable|boolean',
+            'db_run_seeders' => 'nullable|boolean',
         ]);
 
         DB::connection('central')->beginTransaction();
@@ -146,14 +153,11 @@ class TenantController extends Controller
                 'domain' => $domain,
             ]);
 
-            // Store company data in tenant data
-            $tenant->update([
-                'data' => [
-                    'company_name' => $validated['company_name'],
-                    'email' => $validated['email'],
-                    'phone' => $validated['phone'] ?? null,
-                ],
-            ]);
+            // Store company data using VirtualColumn attributes
+            $tenant->company_name = $validated['company_name'];
+            $tenant->email = $validated['email'];
+            $tenant->phone = $validated['phone'] ?? null;
+            $tenant->save();
 
             // Create subscription
             $plan = Plan::findOrFail($validated['plan_id']);
@@ -179,35 +183,47 @@ class TenantController extends Controller
                 'mrr' => $plan->price,
             ]);
 
+            // Store database configuration options
+            $tenant->db_name = $validated['db_name'] ?? null;
+            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
+            $tenant->db_create_database = $validated['db_create_database'] ?? true;
+            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
+            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
+            $tenant->save();
+
             // Run tenant migrations and seed default data
-            // NOTE: Database creation and migration happen via TenancyServiceProvider events
-            $tenant->run(function ($tenant) use ($validated) {
-                $password = $validated['admin_password'] ?? Str::random(16);
+            // NOTE: Database creation and migration happen automatically via TenancyServiceProvider events
+            // The flags above can be used to conditionally control these operations in the future
+            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            $migrationsEnabled = $validated['db_run_migrations'] ?? true;
+            $seedersEnabled = $validated['db_run_seeders'] ?? true;
 
-                // Set admin data in config for AdminSeeder to use
-                config([
-                    'tenant.admin' => [
-                        'first_name' => $validated['admin_first_name'],
-                        'last_name' => $validated['admin_last_name'],
-                        'email' => $validated['admin_email'],
-                        'mobile_number' => $validated['phone'] ?? null,
-                        'password' => $password,
-                    ],
-                ]);
+            if ($seedersEnabled) {
+                $tenant->run(function ($tenant) use ($validated) {
+                    $password = $validated['admin_password'] ?? Str::random(16);
 
-                // Seed complete tenant database (includes roles, permissions, admin user, and all master data)
-                \Artisan::call('db:seed', [
-                    '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',
-                    '--force' => true,
-                ]);
+                    // Set admin data in config for AdminSeeder to use
+                    config([
+                        'tenant.admin' => [
+                            'first_name' => $validated['admin_first_name'],
+                            'last_name' => $validated['admin_last_name'],
+                            'email' => $validated['admin_email'],
+                            'mobile_number' => $validated['phone'] ?? null,
+                            'password' => $password,
+                        ],
+                    ]);
 
-                // Store password in tenant data for welcome email
-                $tenant->update([
-                    'data' => array_merge($tenant->data ?? [], [
-                        'admin_password' => $password,
-                    ]),
-                ]);
-            });
+                    // Seed complete tenant database (includes roles, permissions, admin user, and all master data)
+                    \Artisan::call('db:seed', [
+                        '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',
+                        '--force' => true,
+                    ]);
+
+                    // Store password in tenant data for welcome email (VirtualColumn attribute)
+                    $tenant->admin_password = $password;
+                    $tenant->save();
+                });
+            }
 
             // Log action
             AuditLog::log(
@@ -323,24 +339,23 @@ class TenantController extends Controller
                 $validated['company_logo'] = $logoPath;
             }
 
-            // Update tenant data
-            $tenant->update([
-                'data' => array_merge($tenant->data ?? [], array_filter([
-                    'company_name' => $validated['company_name'],
-                    'email' => $validated['email'],
-                    'phone' => $validated['phone'] ?? null,
-                    'company_tagline' => $validated['company_tagline'] ?? null,
-                    'company_logo' => $validated['company_logo'] ?? ($tenant->data['company_logo'] ?? null),
-                    'theme_primary_color' => $validated['theme_primary_color'] ?? null,
-                    'whatsapp_sender_id' => $validated['whatsapp_sender_id'] ?? null,
-                    'whatsapp_auth_token' => $validated['whatsapp_auth_token'] ?? null,
-                    'email_from_address' => $validated['email_from_address'] ?? null,
-                    'email_from_name' => $validated['email_from_name'] ?? null,
-                    'timezone' => $validated['timezone'] ?? null,
-                    'currency' => $validated['currency'] ?? null,
-                    'currency_symbol' => $validated['currency_symbol'] ?? null,
-                ])),
-            ]);
+            // Update tenant data using VirtualColumn attributes
+            // The VirtualColumn trait automatically serializes these into the 'data' column
+            $tenant->company_name = $validated['company_name'];
+            $tenant->email = $validated['email'];
+            $tenant->phone = $validated['phone'] ?? null;
+            $tenant->company_tagline = $validated['company_tagline'] ?? null;
+            $tenant->company_logo = $validated['company_logo'] ?? $tenant->company_logo;
+            $tenant->theme_primary_color = $validated['theme_primary_color'] ?? null;
+            $tenant->whatsapp_sender_id = $validated['whatsapp_sender_id'] ?? null;
+            $tenant->whatsapp_auth_token = $validated['whatsapp_auth_token'] ?? null;
+            $tenant->email_from_address = $validated['email_from_address'] ?? null;
+            $tenant->email_from_name = $validated['email_from_name'] ?? null;
+            $tenant->timezone = $validated['timezone'] ?? null;
+            $tenant->currency = $validated['currency'] ?? null;
+            $tenant->currency_symbol = $validated['currency_symbol'] ?? null;
+
+            $tenant->save();
 
             // Update subscription if changed
             if ($tenant->subscription) {
@@ -453,7 +468,7 @@ class TenantController extends Controller
         if ($tenant->subscription) {
             $tenant->subscription->suspend();
 
-            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
+            $companyName = $tenant->company_name ?? $tenant->domains->first()->domain ?? 'Unknown';
             AuditLog::log(
                 'tenant.suspended',
                 "Suspended tenant: {$companyName}",
@@ -476,7 +491,7 @@ class TenantController extends Controller
         if ($tenant->subscription) {
             $tenant->subscription->resume();
 
-            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
+            $companyName = $tenant->company_name ?? $tenant->domains->first()->domain ?? 'Unknown';
             AuditLog::log(
                 'tenant.activated',
                 "Activated tenant: {$companyName}",
@@ -511,7 +526,7 @@ class TenantController extends Controller
                 'next_billing_date' => $this->calculateSubscriptionEndDate($tenant->subscription->plan->billing_interval),
             ]);
 
-            $companyName = $tenant->data['company_name'] ?? $tenant->domains->first()->domain ?? 'Unknown';
+            $companyName = $tenant->company_name ?? $tenant->domains->first()->domain ?? 'Unknown';
             AuditLog::log(
                 'tenant.trial_ended',
                 "Ended trial for tenant: {$companyName}",
@@ -547,7 +562,7 @@ class TenantController extends Controller
         ]);
 
         // Use same fallback logic as the view
-        $companyName = $tenant->data['company_name'] ?? ($tenant->domains->first()->domain ?? $tenant->id);
+        $companyName = $tenant->company_name ?? ($tenant->domains->first()->domain ?? $tenant->id);
         $expectedConfirmation = 'DELETE '.strtoupper($companyName);
 
         if ($validated['confirmation'] !== $expectedConfirmation) {
@@ -565,28 +580,21 @@ class TenantController extends Controller
         try {
             $deletionLog = [];
 
-            // ALWAYS delete subscription (not optional)
+            // Note: Subscription, domains, and audit logs are automatically deleted
+            // via Tenant model's deleting event. We just track them for logging.
             if ($tenant->subscription) {
-                $tenant->subscription()->delete();
                 $deletionLog[] = 'subscription';
             }
 
-            // Delete audit logs if requested (recommended for cleanup)
-            if ($deleteSubscription) { // Reuse checkbox for audit logs
-                $auditLogCount = AuditLog::where('tenant_id', $tenant->id)->delete();
-                if ($auditLogCount > 0) {
-                    $deletionLog[] = "audit_logs ({$auditLogCount} records)";
-                }
+            // Track audit logs for logging
+            $auditLogCount = AuditLog::where('tenant_id', $tenant->id)->count();
+            if ($auditLogCount > 0) {
+                $deletionLog[] = "audit_logs ({$auditLogCount} records)";
             }
 
-            // Note: Domains are automatically deleted via Tenant model's deleting event
-            // But we still track it for logging purposes
-            if ($deleteDomains) {
-                $deletionLog[] = 'domains';
-            } else {
-                // If domains should be preserved, we need to temporarily detach them
-                // before deletion and reattach after (not implemented yet)
-                $deletionLog[] = 'domains (preserved - not implemented)';
+            // Track domains for logging
+            if ($tenant->domains()->count() > 0) {
+                $deletionLog[] = 'domains (' . $tenant->domains()->count() . ' records)';
             }
 
             // Delete files if requested
@@ -625,8 +633,8 @@ class TenantController extends Controller
             // which will delete the actual database via DeleteDatabase job (if configured)
             if (!$deleteDatabase) {
                 // If database should be preserved, temporarily disable the DeleteDatabase job
-                // by setting a flag that the event listener can check
-                $tenant->data = array_merge($tenant->data ?? [], ['preserve_database' => true]);
+                // by setting a flag that the event listener can check (VirtualColumn attribute)
+                $tenant->preserve_database = true;
                 $tenant->saveQuietly();
             }
 
@@ -728,6 +736,13 @@ class TenantController extends Controller
             // Additional optional company fields
             'company_phone' => 'nullable|string|max:20',
             'company_phone_whatsapp' => 'nullable|string|max:20',
+
+            // Database configuration
+            'db_name' => 'nullable|string|max:64',
+            'db_prefix' => 'nullable|string|max:32',
+            'db_create_database' => 'nullable|boolean',
+            'db_run_migrations' => 'nullable|boolean',
+            'db_run_seeders' => 'nullable|boolean',
         ]);
 
         // Handle logo file upload if provided

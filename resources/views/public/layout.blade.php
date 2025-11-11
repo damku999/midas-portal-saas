@@ -1,13 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- 🔤 BASIC META TAGS -->
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Midas Portal - Modern Multi-Tenant Insurance Management SaaS Platform">
-    <title>@yield('title', 'Midas Portal - Insurance Management SaaS')</title>
+    <meta http-equiv="content-language" content="en">
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/logo-icon@2000x.png') }}" />
+    <!-- 📄 SEO META TAGS -->
+    <title>@yield('title', 'Midas Portal - Insurance Management SaaS Platform')</title>
+    <meta name="description" content="@yield('meta_description', 'Modern multi-tenant insurance management SaaS platform for agencies. Manage customers, policies, claims, quotations, and more with powerful automation.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'insurance management software, insurance CRM, policy management, claims management, insurance agency software, multi-tenant saas')">
+    <meta name="author" content="WebMonks Technologies">
+
+    <!-- 🧭 ROBOTS / INDEXING CONTROL -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+    <meta name="bingbot" content="index, follow">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <!-- 🌐 CANONICAL & ALTERNATE LINKS -->
+    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="en" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+
+    <!-- 🧩 ICONS & MANIFEST -->
+    <link rel="icon" href="{{ asset('images/logo-icon@2000x.png') }}" sizes="any">
+    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/logo-icon@2000x.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-icon@2000x.png') }}">
+    <meta name="theme-color" content="#17b6b6">
+
+    <!-- 📱 MOBILE & PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Midas Portal">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="google" value="notranslate">
+
+    <!-- 🎨 MICROSOFT / WINDOWS -->
+    <meta name="msapplication-TileColor" content="#17b6b6">
+    <meta name="msapplication-TileImage" content="{{ asset('images/logo-icon@2000x.png') }}">
+
+    <!-- 💬 OPEN GRAPH (FACEBOOK, LINKEDIN, WHATSAPP) -->
+    <meta property="og:title" content="@yield('title', 'Midas Portal - Insurance Management SaaS Platform')">
+    <meta property="og:description" content="@yield('meta_description', 'Modern multi-tenant insurance management SaaS platform for agencies.')">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
+    <meta property="og:site_name" content="Midas Portal">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:updated_time" content="{{ now()->toIso8601String() }}">
+
+    <!-- 🐦 TWITTER CARDS -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', 'Midas Portal - Insurance Management SaaS Platform')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Modern multi-tenant insurance management SaaS platform for agencies.')">
+    <meta name="twitter:image" content="{{ asset('images/logo.png') }}">
+    <meta name="twitter:site" content="@MidasPortal">
+
+    <!-- 🌍 GEO / LOCATION META (Ahmedabad, Gujarat, India) -->
+    <meta name="geo.region" content="IN-GJ">
+    <meta name="geo.placename" content="Ahmedabad">
+    <meta name="geo.position" content="23.0225;72.5714">
+    <meta name="ICBM" content="23.0225, 72.5714">
+
+    <!-- ⚙️ PERFORMANCE HINTS -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,16 +77,52 @@
 
     <style>
         :root {
-            --primary-color: #17a2b8;
+            /* Brand Colors - Based on WebMonks Logo */
+            --primary-color: #17b6b6;
+            --primary-dark: #13918e;
+            --primary-light: #4dd4d4;
             --secondary-color: #424242;
             --success-color: #28a745;
-            --webmonks-teal: #17a2b8;
-            --webmonks-teal-light: #5fd0e3;
-            --gradient-primary: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            --webmonks-teal: #17b6b6;
+            --webmonks-gray: #4a4a4a;
+            --gradient-primary: linear-gradient(135deg, #17b6b6 0%, #13918e 100%);
+            --gradient-primary-hover: linear-gradient(135deg, #13918e 0%, #0f706e 100%);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Override Bootstrap primary color with brand color */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .bg-primary {
+            background-color: var(--primary-color) !important;
         }
 
         .navbar-brand {
@@ -36,6 +133,11 @@
         .navbar-brand img {
             height: 45px;
             width: auto;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+            font-weight: 600;
         }
 
         .hero-section {
@@ -115,6 +217,61 @@
         }
     </style>
 
+    <!-- Schema.org Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Midas Portal",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "29.00",
+            "priceCurrency": "USD",
+            "priceValidUntil": "{{ now()->addYear()->format('Y-m-d') }}"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "150"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "WebMonks Technologies",
+            "url": "{{ url('/') }}",
+            "logo": "{{ asset('images/logo.png') }}",
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-80000-71413",
+                "contactType": "customer service",
+                "email": "Info@midastech.in",
+                "areaServed": "IN",
+                "availableLanguage": ["English"]
+            },
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "C243, Second Floor, SoBo Center, Gala Gymkhana Road, South Bopal",
+                "addressLocality": "Ahmedabad",
+                "addressRegion": "Gujarat",
+                "postalCode": "380058",
+                "addressCountry": "IN"
+            }
+        },
+        "description": "Modern multi-tenant insurance management SaaS platform for agencies. Manage customers, policies, claims, quotations, and commissions with powerful automation.",
+        "featureList": [
+            "Customer Management",
+            "Policy Management",
+            "Claims Management",
+            "Quotation System",
+            "Lead Management",
+            "WhatsApp Integration",
+            "Analytics & Reports",
+            "Commission Tracking"
+        ]
+    }
+    </script>
+
     @yield('styles')
 </head>
 <body>
@@ -130,22 +287,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}">Home</a>
+                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/features') }}">Features</a>
+                        <a class="nav-link {{ request()->is('features*') ? 'active' : '' }}" href="{{ url('/features') }}">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/pricing') }}">Pricing</a>
+                        <a class="nav-link {{ request()->is('pricing*') ? 'active' : '' }}" href="{{ url('/pricing') }}">Pricing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/about') }}">About</a>
+                        <a class="nav-link {{ request()->is('about*') ? 'active' : '' }}" href="{{ url('/about') }}">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/contact') }}">Contact</a>
+                        <a class="nav-link {{ request()->is('contact*') ? 'active' : '' }}" href="{{ url('/contact') }}">Contact</a>
                     </li>
                     <li class="nav-item ms-3">
-                        <a class="btn btn-outline-primary btn-sm" href="{{ route('central.login') }}">Admin Login</a>
+                        <a class="btn btn-outline-primary btn-sm" href="http://demo.midastech.in" target="_blank">Demo</a>
                     </li>
                 </ul>
             </div>
@@ -158,68 +315,119 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
+            <div class="row g-4">
+                <!-- Company Info -->
+                <div class="col-lg-4 col-md-6 mb-4">
                     <h5 class="text-white mb-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" style="height: 40px; filter: brightness(0) invert(1);">
+                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);">
                     </h5>
-                    <p class="small">Transform your insurance business with cutting-edge technology. Built by WebMonks Technologies.</p>
-                    <p class="small mt-3">
-                        <i class="fas fa-map-marker-alt me-2"></i> C243, Second Floor, SoBo Center, Gala Gymkhana Road, South Bopal Ahmedabad - 380058<br>
-                        <i class="fas fa-phone me-2"></i> +91 80000 71413<br>
-                        <i class="fas fa-envelope me-2"></i> Info@midastech.in
-                    </p>
+                    <p class="small mb-3">Transform your insurance business with cutting-edge technology. Modern multi-tenant insurance management SaaS platform for agencies.</p>
+
+                    <div class="small mb-3">
+                        <div class="mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i>C243, Second Floor, SoBo Center<br>
+                        <span class="ms-4">Gala Gymkhana Road, South Bopal</span><br>
+                        <span class="ms-4">Ahmedabad - 380058, Gujarat, India</span></div>
+                        <div class="mb-2"><i class="fas fa-phone me-2 text-primary"></i><a href="tel:+918000071413" class="text-light text-decoration-none">+91 80000 71413</a></div>
+                        <div class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i><a href="mailto:Info@midastech.in" class="text-light text-decoration-none">Info@midastech.in</a></div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6 class="text-white small mb-2">Follow Us</h6>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-2 mb-4">
+
+                <!-- Product -->
+                <div class="col-lg-2 col-md-6 col-6 mb-4">
                     <h6 class="text-white mb-3">Product</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="{{ url('/features') }}" class="text-decoration-none text-light">Features</a></li>
-                        <li><a href="{{ url('/pricing') }}" class="text-decoration-none text-light">Pricing</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Demo</a></li>
+                        <li class="mb-2"><a href="{{ url('/features') }}" class="text-decoration-none text-light hover-primary">Features</a></li>
+                        <li class="mb-2"><a href="{{ url('/pricing') }}" class="text-decoration-none text-light hover-primary">Pricing</a></li>
+                        <li class="mb-2"><a href="http://demo.midastech.in" target="_blank" class="text-decoration-none text-light hover-primary">Demo</a></li>
+                        <li class="mb-2"><a href="{{ url('/security') }}" class="text-decoration-none text-light hover-primary">Security</a></li>
+                        <li class="mb-2"><a href="{{ url('/api') }}" class="text-decoration-none text-light hover-primary">API</a></li>
                     </ul>
                 </div>
-                <div class="col-md-2 mb-4">
+
+                <!-- Features -->
+                <div class="col-lg-2 col-md-6 col-6 mb-4">
+                    <h6 class="text-white mb-3">Key Features</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ url('/features/customer-management') }}" class="text-decoration-none text-light hover-primary">Customers</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/policy-management') }}" class="text-decoration-none text-light hover-primary">Policies</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/claims-management') }}" class="text-decoration-none text-light hover-primary">Claims</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/quotation-system') }}" class="text-decoration-none text-light hover-primary">Quotations</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/whatsapp-integration') }}" class="text-decoration-none text-light hover-primary">WhatsApp</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div class="col-lg-2 col-md-6 col-6 mb-4">
                     <h6 class="text-white mb-3">Company</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="{{ url('/about') }}" class="text-decoration-none text-light">About</a></li>
-                        <li><a href="{{ url('/contact') }}" class="text-decoration-none text-light">Contact</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Blog</a></li>
+                        <li class="mb-2"><a href="{{ url('/about') }}" class="text-decoration-none text-light hover-primary">About Us</a></li>
+                        <li class="mb-2"><a href="{{ url('/contact') }}" class="text-decoration-none text-light hover-primary">Contact</a></li>
+                        <li class="mb-2"><a href="{{ url('/blog') }}" class="text-decoration-none text-light hover-primary">Blog</a></li>
+                        <li class="mb-2"><a href="{{ url('/about') }}#careers" class="text-decoration-none text-light hover-primary">Careers</a></li>
+                        <li class="mb-2"><a href="{{ url('/about') }}#partners" class="text-decoration-none text-light hover-primary">Partners</a></li>
                     </ul>
                 </div>
-                <div class="col-md-2 mb-4">
-                    <h6 class="text-white mb-3">Support</h6>
+
+                <!-- Resources -->
+                <div class="col-lg-2 col-md-6 col-6 mb-4">
+                    <h6 class="text-white mb-3">Resources</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="#" class="text-decoration-none text-light">Help Center</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Documentation</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">API</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h6 class="text-white mb-3">Legal</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-decoration-none text-light">Privacy</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Terms</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Security</a></li>
+                        <li class="mb-2"><a href="{{ url('/help-center') }}" class="text-decoration-none text-light hover-primary">Help Center</a></li>
+                        <li class="mb-2"><a href="{{ url('/documentation') }}" class="text-decoration-none text-light hover-primary">Documentation</a></li>
+                        <li class="mb-2"><a href="{{ url('/api') }}" class="text-decoration-none text-light hover-primary">API Reference</a></li>
+                        <li class="mb-2"><a href="{{ url('/privacy') }}" class="text-decoration-none text-light hover-primary">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="{{ url('/terms') }}" class="text-decoration-none text-light hover-primary">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="border-secondary">
-            <div class="row">
-                <div class="col-md-6 small">
-                    &copy; {{ date('Y') }} Midas Portal. All rights reserved.
+
+            <!-- Trust Badges -->
+            <div class="row mt-4 py-4 border-top border-secondary">
+                <div class="col-md-12 text-center">
+                    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 small text-light">
+                        <div><i class="fas fa-shield-alt text-success me-2"></i>SSL Secured</div>
+                        <div><i class="fas fa-lock text-success me-2"></i>AES-256 Encrypted</div>
+                        <div><i class="fas fa-check-circle text-success me-2"></i>GDPR Compliant</div>
+                        <div><i class="fas fa-server text-success me-2"></i>99.9% Uptime</div>
+                        <div><i class="fas fa-database text-success me-2"></i>Daily Backups</div>
+                        <div><i class="fas fa-users-cog text-success me-2"></i>24/7 Support</div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end small">
-                    Built with <i class="fas fa-heart text-danger"></i> by WebMonks Technologies
+            </div>
+
+            <!-- Bottom Bar -->
+            <hr class="border-secondary mt-4">
+            <div class="row py-3">
+                <div class="col-md-6 small text-center text-md-start mb-2 mb-md-0">
+                    &copy; {{ date('Y') }} Midas Portal by WebMonks Technologies. All rights reserved.
+                </div>
+                <div class="col-md-6 small text-center text-md-end">
+                    Made in India <i class="fas fa-heart text-danger"></i> | Powered by WebMonks Technologies
                 </div>
             </div>
         </div>
     </footer>
 
+    <style>
+        footer a.hover-primary:hover {
+            color: var(--primary-color) !important;
+            transition: color 0.3s ease;
+        }
+    </style>
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Cloudflare Turnstile - Temporarily disabled for testing -->
-    {{-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> --}}
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     @yield('scripts')
 </body>

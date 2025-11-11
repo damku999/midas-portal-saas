@@ -14,10 +14,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     /**
      * The attributes that should be cast.
      *
+     * Note: The 'data' column is handled by the VirtualColumn trait
+     * and should NOT be cast here. Virtual attributes like company_name,
+     * email, phone, etc. are automatically stored in the data JSON column.
+     *
      * @var array
      */
     protected $casts = [
-        'data' => 'array',
+        // 'data' => 'array', // REMOVED - conflicts with VirtualColumn trait
     ];
 
     /**

@@ -29,9 +29,41 @@ Route::get('/features', [PublicController::class, 'features'])->name('public.fea
 Route::get('/pricing', [PublicController::class, 'pricing'])->name('public.pricing');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 
+// Feature Detail Pages
+Route::get('/features/customer-management', [PublicController::class, 'customerManagement'])->name('public.features.customer-management');
+Route::get('/features/family-management', [PublicController::class, 'familyManagement'])->name('public.features.family-management');
+Route::get('/features/customer-portal', [PublicController::class, 'customerPortal'])->name('public.features.customer-portal');
+Route::get('/features/lead-management', [PublicController::class, 'leadManagement'])->name('public.features.lead-management');
+Route::get('/features/policy-management', [PublicController::class, 'policyManagement'])->name('public.features.policy-management');
+Route::get('/features/claims-management', [PublicController::class, 'claimsManagement'])->name('public.features.claims-management');
+Route::get('/features/whatsapp-integration', [PublicController::class, 'whatsappIntegration'])->name('public.features.whatsapp-integration');
+Route::get('/features/quotation-system', [PublicController::class, 'quotationSystem'])->name('public.features.quotation-system');
+Route::get('/features/analytics-reports', [PublicController::class, 'analyticsReports'])->name('public.features.analytics-reports');
+Route::get('/features/commission-tracking', [PublicController::class, 'commissionTracking'])->name('public.features.commission-tracking');
+Route::get('/features/document-management', [PublicController::class, 'documentManagement'])->name('public.features.document-management');
+Route::get('/features/staff-management', [PublicController::class, 'staffManagement'])->name('public.features.staff-management');
+Route::get('/features/master-data-management', [PublicController::class, 'masterDataManagement'])->name('public.features.master-data-management');
+Route::get('/features/notifications-alerts', [PublicController::class, 'notificationsAlerts'])->name('public.features.notifications-alerts');
+
 // Contact Form
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 Route::post('/contact', [PublicController::class, 'submitContact'])->name('public.contact.submit');
+
+// Newsletter Subscription
+Route::post('/newsletter/subscribe', [PublicController::class, 'subscribeNewsletter'])->name('public.newsletter.subscribe');
+
+// Blog Routes
+Route::get('/blog', [PublicController::class, 'blog'])->name('public.blog');
+Route::get('/blog/{post:slug}', [PublicController::class, 'blogShow'])->name('public.blog.show');
+Route::get('/help-center', [PublicController::class, 'helpCenter'])->name('public.help-center');
+Route::get('/documentation', [PublicController::class, 'documentation'])->name('public.documentation');
+Route::get('/api', [PublicController::class, 'api'])->name('public.api');
+Route::get('/privacy', [PublicController::class, 'privacy'])->name('public.privacy');
+Route::get('/terms', [PublicController::class, 'terms'])->name('public.terms');
+Route::get('/security', [PublicController::class, 'security'])->name('public.security');
+
+// Dynamic Sitemap
+Route::get('/sitemap.xml', [PublicController::class, 'sitemap'])->name('public.sitemap');
 
 /*
 |--------------------------------------------------------------------------

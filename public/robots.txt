@@ -1,2 +1,44 @@
+# Midas Portal - Robots.txt
+# https://midastech.in/robots.txt
+
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /midas-admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+Disallow: /central/
+Disallow: /subscription/
+Disallow: /webhooks/
+
+# Public pages - Allow all search engines
+Allow: /
+Allow: /features
+Allow: /features/*
+Allow: /pricing
+Allow: /about
+Allow: /contact
+
+# Sitemap location
+Sitemap: https://midastech.in/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

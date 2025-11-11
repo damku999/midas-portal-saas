@@ -1,7 +1,7 @@
 @extends('central.layout')
 
 @section('title', 'Edit Tenant')
-@section('page-title', 'Edit Tenant: ' . ($tenant->data['company_name'] ?? 'N/A'))
+@section('page-title', 'Edit Tenant: ' . ($tenant->company_name ?? 'N/A'))
 
 @section('content')
 <div class="row">
@@ -48,7 +48,7 @@
                                    class="form-control @error('company_name') is-invalid @enderror"
                                    id="company_name"
                                    name="company_name"
-                                   value="{{ old('company_name', $tenant->data['company_name'] ?? '') }}"
+                                   value="{{ old('company_name', $tenant->company_name ?? '') }}"
                                    required>
                             @error('company_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -63,7 +63,7 @@
                                    class="form-control @error('email') is-invalid @enderror"
                                    id="email"
                                    name="email"
-                                   value="{{ old('email', $tenant->data['email'] ?? '') }}"
+                                   value="{{ old('email', $tenant->email ?? '') }}"
                                    required>
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -77,7 +77,7 @@
                                class="form-control @error('phone') is-invalid @enderror"
                                id="phone"
                                name="phone"
-                               value="{{ old('phone', $tenant->data['phone'] ?? '') }}">
+                               value="{{ old('phone', $tenant->phone ?? '') }}">
                         @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -93,7 +93,7 @@
                                    class="form-control @error('company_tagline') is-invalid @enderror"
                                    id="company_tagline"
                                    name="company_tagline"
-                                   value="{{ old('company_tagline', $tenant->data['company_tagline'] ?? '') }}"
+                                   value="{{ old('company_tagline', $tenant->company_tagline ?? '') }}"
                                    placeholder="Your Trusted Insurance Partner">
                             @error('company_tagline')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -108,12 +108,12 @@
                                        class="form-control form-control-color @error('theme_primary_color') is-invalid @enderror"
                                        id="theme_primary_color"
                                        name="theme_primary_color"
-                                       value="{{ old('theme_primary_color', $tenant->data['theme_primary_color'] ?? '#17a2b8') }}"
+                                       value="{{ old('theme_primary_color', $tenant->theme_primary_color ?? '#17a2b8') }}"
                                        style="width: 60px;">
                                 <input type="text"
                                        class="form-control"
                                        id="theme_primary_color_hex"
-                                       value="{{ old('theme_primary_color', $tenant->data['theme_primary_color'] ?? '#17a2b8') }}"
+                                       value="{{ old('theme_primary_color', $tenant->theme_primary_color ?? '#17a2b8') }}"
                                        placeholder="#17a2b8"
                                        readonly>
                             </div>
@@ -126,9 +126,9 @@
 
                     <div class="mb-3">
                         <label for="company_logo" class="form-label">Company Logo</label>
-                        @if(!empty($tenant->data['company_logo']))
+                        @if(!empty($tenant->company_logo))
                             <div class="mb-2">
-                                <small class="text-muted">Current logo: {{ basename($tenant->data['company_logo']) }}</small>
+                                <small class="text-muted">Current logo: {{ basename($tenant->company_logo) }}</small>
                             </div>
                         @endif
                         <input type="file"
@@ -152,7 +152,7 @@
                                    class="form-control @error('whatsapp_sender_id') is-invalid @enderror"
                                    id="whatsapp_sender_id"
                                    name="whatsapp_sender_id"
-                                   value="{{ old('whatsapp_sender_id', $tenant->data['whatsapp_sender_id'] ?? '') }}"
+                                   value="{{ old('whatsapp_sender_id', $tenant->whatsapp_sender_id ?? '') }}"
                                    placeholder="919800071314">
                             @error('whatsapp_sender_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -166,7 +166,7 @@
                                    class="form-control @error('whatsapp_auth_token') is-invalid @enderror"
                                    id="whatsapp_auth_token"
                                    name="whatsapp_auth_token"
-                                   value="{{ old('whatsapp_auth_token', $tenant->data['whatsapp_auth_token'] ?? '') }}"
+                                   value="{{ old('whatsapp_auth_token', $tenant->whatsapp_auth_token ?? '') }}"
                                    placeholder="Enter API authentication token">
                             @error('whatsapp_auth_token')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -182,7 +182,7 @@
                                    class="form-control @error('email_from_address') is-invalid @enderror"
                                    id="email_from_address"
                                    name="email_from_address"
-                                   value="{{ old('email_from_address', $tenant->data['email_from_address'] ?? '') }}"
+                                   value="{{ old('email_from_address', $tenant->email_from_address ?? '') }}"
                                    placeholder="noreply@company.com">
                             @error('email_from_address')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -196,7 +196,7 @@
                                    class="form-control @error('email_from_name') is-invalid @enderror"
                                    id="email_from_name"
                                    name="email_from_name"
-                                   value="{{ old('email_from_name', $tenant->data['email_from_name'] ?? '') }}"
+                                   value="{{ old('email_from_name', $tenant->email_from_name ?? '') }}"
                                    placeholder="Company Name">
                             @error('email_from_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -222,10 +222,10 @@
                                                     id="timezone"
                                                     name="timezone">
                                                 <option value="">Use Default (Asia/Kolkata)</option>
-                                                <option value="Asia/Kolkata" {{ old('timezone', $tenant->data['timezone'] ?? '') == 'Asia/Kolkata' ? 'selected' : '' }}>Asia/Kolkata (IST)</option>
-                                                <option value="America/New_York" {{ old('timezone', $tenant->data['timezone'] ?? '') == 'America/New_York' ? 'selected' : '' }}>America/New_York (EST)</option>
-                                                <option value="Europe/London" {{ old('timezone', $tenant->data['timezone'] ?? '') == 'Europe/London' ? 'selected' : '' }}>Europe/London (GMT)</option>
-                                                <option value="Asia/Dubai" {{ old('timezone', $tenant->data['timezone'] ?? '') == 'Asia/Dubai' ? 'selected' : '' }}>Asia/Dubai (GST)</option>
+                                                <option value="Asia/Kolkata" {{ old('timezone', $tenant->timezone ?? '') == 'Asia/Kolkata' ? 'selected' : '' }}>Asia/Kolkata (IST)</option>
+                                                <option value="America/New_York" {{ old('timezone', $tenant->timezone ?? '') == 'America/New_York' ? 'selected' : '' }}>America/New_York (EST)</option>
+                                                <option value="Europe/London" {{ old('timezone', $tenant->timezone ?? '') == 'Europe/London' ? 'selected' : '' }}>Europe/London (GMT)</option>
+                                                <option value="Asia/Dubai" {{ old('timezone', $tenant->timezone ?? '') == 'Asia/Dubai' ? 'selected' : '' }}>Asia/Dubai (GST)</option>
                                             </select>
                                             @error('timezone')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -238,11 +238,11 @@
                                                     id="currency"
                                                     name="currency">
                                                 <option value="">Use Default (INR)</option>
-                                                <option value="INR" {{ old('currency', $tenant->data['currency'] ?? '') == 'INR' ? 'selected' : '' }}>INR - Indian Rupee</option>
-                                                <option value="USD" {{ old('currency', $tenant->data['currency'] ?? '') == 'USD' ? 'selected' : '' }}>USD - US Dollar</option>
-                                                <option value="EUR" {{ old('currency', $tenant->data['currency'] ?? '') == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
-                                                <option value="GBP" {{ old('currency', $tenant->data['currency'] ?? '') == 'GBP' ? 'selected' : '' }}>GBP - British Pound</option>
-                                                <option value="AED" {{ old('currency', $tenant->data['currency'] ?? '') == 'AED' ? 'selected' : '' }}>AED - UAE Dirham</option>
+                                                <option value="INR" {{ old('currency', $tenant->currency ?? '') == 'INR' ? 'selected' : '' }}>INR - Indian Rupee</option>
+                                                <option value="USD" {{ old('currency', $tenant->currency ?? '') == 'USD' ? 'selected' : '' }}>USD - US Dollar</option>
+                                                <option value="EUR" {{ old('currency', $tenant->currency ?? '') == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
+                                                <option value="GBP" {{ old('currency', $tenant->currency ?? '') == 'GBP' ? 'selected' : '' }}>GBP - British Pound</option>
+                                                <option value="AED" {{ old('currency', $tenant->currency ?? '') == 'AED' ? 'selected' : '' }}>AED - UAE Dirham</option>
                                             </select>
                                             @error('currency')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -255,7 +255,7 @@
                                                    class="form-control @error('currency_symbol') is-invalid @enderror"
                                                    id="currency_symbol"
                                                    name="currency_symbol"
-                                                   value="{{ old('currency_symbol', $tenant->data['currency_symbol'] ?? '') }}"
+                                                   value="{{ old('currency_symbol', $tenant->currency_symbol ?? '') }}"
                                                    placeholder="₹"
                                                    maxlength="5">
                                             @error('currency_symbol')
@@ -470,7 +470,7 @@
 </div>
 
 @php
-    $companyName = $tenant->data['company_name'] ?? ($tenant->domains->first()->domain ?? $tenant->id);
+    $companyName = $tenant->company_name ?? ($tenant->domains->first()->domain ?? $tenant->id);
 @endphp
 
 <x-central.delete-confirmation-modal

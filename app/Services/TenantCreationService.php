@@ -61,13 +61,11 @@ class TenantCreationService
 
             // Step 4: Store company data
             $this->updateProgress(4, 'Storing company information...', 'running');
-            $tenant->update([
-                'data' => [
-                    'company_name' => $validated['company_name'],
-                    'email' => $validated['email'],
-                    'phone' => $validated['phone'] ?? null,
-                ],
-            ]);
+            // Use VirtualColumn attributes
+            $tenant->company_name = $validated['company_name'];
+            $tenant->email = $validated['email'];
+            $tenant->phone = $validated['phone'] ?? null;
+            $tenant->save();
             $this->updateProgress(4, '✓ Company information saved', 'completed');
 
             // Step 5: Create subscription
@@ -98,124 +96,148 @@ class TenantCreationService
             $statusText = $isTrial ? "trial ({$trialDays} days)" : 'paid';
             $this->updateProgress(5, "✓ Subscription created ({$plan->name}, {$statusText})", 'completed');
 
-            // Step 6: Create tenant database
-            $this->updateProgress(6, 'Creating tenant database...', 'running');
-            // Database creation happens automatically via TenancyServiceProvider events
-            // We just need to give it a moment
-            sleep(1);
-            $this->updateProgress(6, '✓ Tenant database created', 'completed');
+            // Store database configuration options
+            $tenant->db_name = $validated['db_name'] ?? null;
+            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
+            $tenant->db_create_database = $validated['db_create_database'] ?? true;
+            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
+            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
+            $tenant->save();
 
-            // Step 7: Run database migrations
-            $this->updateProgress(7, 'Running database migrations...', 'running');
-            $tenant->run(function () use ($tenant) {
-                // Migrations run automatically via TenancyServiceProvider
+            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            $migrationsEnabled = $validated['db_run_migrations'] ?? true;
+            $seedersEnabled = $validated['db_run_seeders'] ?? true;
+
+            // Step 6: Create tenant database (conditional)
+            if ($dbCreateEnabled) {
+                $this->updateProgress(6, 'Creating tenant database...', 'running');
+                // Database creation happens automatically via TenancyServiceProvider events
+                // We just need to give it a moment
                 sleep(1);
-            });
-            $this->updateProgress(7, '✓ Database migrations completed', 'completed');
-
-            // Step 8: Seed database with roles, permissions, and master data
-            $this->updateProgress(8, 'Seeding database with master data...', 'running');
-            $password = $validated['admin_password'] ?? Str::random(16);
-
-            // Copy logo from central storage to tenant storage if provided
-            $tenantLogoPath = null;
-            if (!empty($validated['company_logo'])) {
-                $centralLogoPath = $validated['company_logo'];
-                $centralFullPath = storage_path('app/public/' . $centralLogoPath);
-
-                if (file_exists($centralFullPath)) {
-                    $tenant->run(function () use ($centralFullPath, &$tenantLogoPath, $centralLogoPath) {
-                        // Copy to tenant storage
-                        $tenantLogoPath = 'company_logo.' . pathinfo($centralLogoPath, PATHINFO_EXTENSION);
-                        \Illuminate\Support\Facades\Storage::disk('public')->put(
-                            $tenantLogoPath,
-                            file_get_contents($centralFullPath)
-                        );
-                    });
-                    // Update the logo path to tenant-relative path
-                    $validated['company_logo'] = $tenantLogoPath;
-                }
+                $this->updateProgress(6, '✓ Tenant database created', 'completed');
+            } else {
+                $this->updateProgress(6, '⊘ Database creation skipped (disabled)', 'skipped');
             }
 
-            $tenant->run(function ($tenant) use ($validated, $password) {
-                // Set admin data in config for AdminSeeder to use
-                config([
-                    'tenant.admin' => [
-                        'first_name' => $validated['admin_first_name'],
-                        'last_name' => $validated['admin_last_name'],
-                        'email' => $validated['admin_email'],
-                        'mobile_number' => $validated['phone'] ?? null,
-                        'password' => $password,
-                    ],
-                ]);
+            // Step 7: Run database migrations (conditional)
+            if ($migrationsEnabled) {
+                $this->updateProgress(7, 'Running database migrations...', 'running');
+                $tenant->run(function () use ($tenant) {
+                    // Migrations run automatically via TenancyServiceProvider
+                    sleep(1);
+                });
+                $this->updateProgress(7, '✓ Database migrations completed', 'completed');
+            } else {
+                $this->updateProgress(7, '⊘ Database migrations skipped (disabled)', 'skipped');
+            }
 
-                // Prepare custom settings for AppSettingsSeeder
-                $customSettings = [];
+            // Step 8: Seed database with roles, permissions, and master data (conditional)
+            $password = $validated['admin_password'] ?? Str::random(16);
 
-                // Branding & Theme
-                if (!empty($validated['company_name'])) {
-                    $customSettings['company_name'] = $validated['company_name'];
-                }
-                if (!empty($validated['company_tagline'])) {
-                    $customSettings['company_tagline'] = $validated['company_tagline'];
-                }
+            if ($seedersEnabled) {
+                $this->updateProgress(8, 'Seeding database with master data...', 'running');
+
+                // Copy logo from central storage to tenant storage if provided
+                $tenantLogoPath = null;
                 if (!empty($validated['company_logo'])) {
-                    $customSettings['company_logo'] = $validated['company_logo'];
-                }
-                if (!empty($validated['theme_primary_color'])) {
-                    $customSettings['theme_primary_color'] = $validated['theme_primary_color'];
+                    $centralLogoPath = $validated['company_logo'];
+                    $centralFullPath = storage_path('app/public/' . $centralLogoPath);
+
+                    if (file_exists($centralFullPath)) {
+                        $tenant->run(function () use ($centralFullPath, &$tenantLogoPath, $centralLogoPath) {
+                            // Copy to tenant storage
+                            $tenantLogoPath = 'company_logo.' . pathinfo($centralLogoPath, PATHINFO_EXTENSION);
+                            \Illuminate\Support\Facades\Storage::disk('public')->put(
+                                $tenantLogoPath,
+                                file_get_contents($centralFullPath)
+                            );
+                        });
+                        // Update the logo path to tenant-relative path
+                        $validated['company_logo'] = $tenantLogoPath;
+                    }
                 }
 
-                // Communication Settings
-                if (!empty($validated['whatsapp_sender_id'])) {
-                    $customSettings['whatsapp_sender_id'] = $validated['whatsapp_sender_id'];
-                }
-                if (!empty($validated['whatsapp_auth_token'])) {
-                    $customSettings['whatsapp_auth_token'] = $validated['whatsapp_auth_token'];
-                }
-                if (!empty($validated['email_from_address'])) {
-                    $customSettings['email_from_address'] = $validated['email_from_address'];
-                }
-                if (!empty($validated['email_from_name'])) {
-                    $customSettings['email_from_name'] = $validated['email_from_name'];
-                }
+                $tenant->run(function ($tenant) use ($validated, $password) {
+                    // Set admin data in config for AdminSeeder to use
+                    config([
+                        'tenant.admin' => [
+                            'first_name' => $validated['admin_first_name'],
+                            'last_name' => $validated['admin_last_name'],
+                            'email' => $validated['admin_email'],
+                            'mobile_number' => $validated['phone'] ?? null,
+                            'password' => $password,
+                        ],
+                    ]);
 
-                // Localization
-                if (!empty($validated['timezone'])) {
-                    $customSettings['timezone'] = $validated['timezone'];
-                }
-                if (!empty($validated['currency'])) {
-                    $customSettings['currency'] = $validated['currency'];
-                }
-                if (!empty($validated['currency_symbol'])) {
-                    $customSettings['currency_symbol'] = $validated['currency_symbol'];
-                }
+                    // Prepare custom settings for AppSettingsSeeder
+                    $customSettings = [];
 
-                // Additional Company Info
-                if (!empty($validated['company_phone'])) {
-                    $customSettings['company_phone'] = $validated['company_phone'];
-                }
-                if (!empty($validated['company_phone_whatsapp'])) {
-                    $customSettings['company_phone_whatsapp'] = $validated['company_phone_whatsapp'];
-                }
+                    // Branding & Theme
+                    if (!empty($validated['company_name'])) {
+                        $customSettings['company_name'] = $validated['company_name'];
+                    }
+                    if (!empty($validated['company_tagline'])) {
+                        $customSettings['company_tagline'] = $validated['company_tagline'];
+                    }
+                    if (!empty($validated['company_logo'])) {
+                        $customSettings['company_logo'] = $validated['company_logo'];
+                    }
+                    if (!empty($validated['theme_primary_color'])) {
+                        $customSettings['theme_primary_color'] = $validated['theme_primary_color'];
+                    }
 
-                // Set custom settings in config for AppSettingsSeeder to use
-                config(['tenant.settings' => $customSettings]);
+                    // Communication Settings
+                    if (!empty($validated['whatsapp_sender_id'])) {
+                        $customSettings['whatsapp_sender_id'] = $validated['whatsapp_sender_id'];
+                    }
+                    if (!empty($validated['whatsapp_auth_token'])) {
+                        $customSettings['whatsapp_auth_token'] = $validated['whatsapp_auth_token'];
+                    }
+                    if (!empty($validated['email_from_address'])) {
+                        $customSettings['email_from_address'] = $validated['email_from_address'];
+                    }
+                    if (!empty($validated['email_from_name'])) {
+                        $customSettings['email_from_name'] = $validated['email_from_name'];
+                    }
 
-                // Seed complete tenant database
-                Artisan::call('db:seed', [
-                    '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',
-                    '--force' => true,
-                ]);
+                    // Localization
+                    if (!empty($validated['timezone'])) {
+                        $customSettings['timezone'] = $validated['timezone'];
+                    }
+                    if (!empty($validated['currency'])) {
+                        $customSettings['currency'] = $validated['currency'];
+                    }
+                    if (!empty($validated['currency_symbol'])) {
+                        $customSettings['currency_symbol'] = $validated['currency_symbol'];
+                    }
 
-                // Store password in tenant data for welcome email
-                $tenant->update([
-                    'data' => array_merge($tenant->data ?? [], [
-                        'admin_password' => $password,
-                    ]),
-                ]);
-            });
-            $this->updateProgress(8, '✓ Database seeded with roles, permissions, and master data', 'completed');
+                    // Additional Company Info
+                    if (!empty($validated['company_phone'])) {
+                        $customSettings['company_phone'] = $validated['company_phone'];
+                    }
+                    if (!empty($validated['company_phone_whatsapp'])) {
+                        $customSettings['company_phone_whatsapp'] = $validated['company_phone_whatsapp'];
+                    }
+
+                    // Set custom settings in config for AppSettingsSeeder to use
+                    config(['tenant.settings' => $customSettings]);
+
+                    // Seed complete tenant database
+                    Artisan::call('db:seed', [
+                        '--class' => 'Database\\Seeders\\Tenant\\DatabaseSeeder',
+                        '--force' => true,
+                    ]);
+
+                    // Store password in tenant data for welcome email (VirtualColumn attribute)
+                    $tenant->admin_password = $password;
+                    $tenant->save();
+                });
+                $this->updateProgress(8, '✓ Database seeded with roles, permissions, and master data', 'completed');
+            } else {
+                // Even if seeding is disabled, store the password
+                $tenant->admin_password = $password;
+                $tenant->save();
+            }
 
             // Step 9: Create admin user
             $this->updateProgress(9, 'Creating admin user...', 'running');

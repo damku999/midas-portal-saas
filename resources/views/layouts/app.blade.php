@@ -26,6 +26,10 @@
                 @include('common.header')
                 <!-- End of Topbar -->
 
+                <!-- Usage Warning Banner -->
+                @include('staff.partials.usage-warning-banner')
+                <!-- End of Usage Warning Banner -->
+
                 <!-- Begin Page Content -->
                 @yield('content')
                 <!-- /.container-fluid -->

@@ -484,6 +484,104 @@
                         </div>
                     </div>
 
+                    <!-- Database Configuration -->
+                    <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">Database Configuration</h6>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Configure how the tenant database should be set up. Default values are prefilled.</small>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_name" class="form-label">
+                                Database Name
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('db_name') is-invalid @enderror"
+                                   id="db_name"
+                                   name="db_name"
+                                   value="{{ old('db_name') }}"
+                                   placeholder="tenant_" readonly>
+                            @error('db_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Auto-generated: tenant_{subdomain}</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_prefix" class="form-label">
+                                Database Prefix
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('db_prefix') is-invalid @enderror"
+                                   id="db_prefix"
+                                   name="db_prefix"
+                                   value="{{ old('db_prefix', 'tenant_') }}"
+                                   placeholder="tenant_">
+                            @error('db_prefix')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Prefix for database name</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Database Setup Options</label>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="db_create_database"
+                                       name="db_create_database"
+                                       value="1"
+                                       {{ old('db_create_database', true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="db_create_database">
+                                    <strong>Create Database</strong>
+                                    <br>
+                                    <small class="text-muted">Create a new database for this tenant (recommended)</small>
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="db_run_migrations"
+                                       name="db_run_migrations"
+                                       value="1"
+                                       {{ old('db_run_migrations', true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="db_run_migrations">
+                                    <strong>Run Migrations</strong>
+                                    <br>
+                                    <small class="text-muted">Run database migrations to create all tables</small>
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="db_run_seeders"
+                                       name="db_run_seeders"
+                                       value="1"
+                                       {{ old('db_run_seeders', true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="db_run_seeders">
+                                    <strong>Run Seeders</strong>
+                                    <br>
+                                    <small class="text-muted">Seed database with master data and default records</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <small>
+                            <strong>Note:</strong> If you uncheck "Create Database", make sure the database already exists.
+                            If you uncheck "Run Migrations" or "Run Seeders", you'll need to set up the database manually.
+                        </small>
+                    </div>
+
                     <!-- Additional Settings -->
                     <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">Additional Settings</h6>
 
@@ -610,8 +708,31 @@
                 .replace(/-+/g, '-')
                 .replace(/^-|-$/g, '');
             subdomainField.value = subdomain;
+            updateDatabaseName();
         }
     });
+
+    // Auto-generate database name from subdomain and prefix
+    function updateDatabaseName() {
+        const subdomainField = document.getElementById('subdomain');
+        const dbPrefixField = document.getElementById('db_prefix');
+        const dbNameField = document.getElementById('db_name');
+
+        if (subdomainField && dbPrefixField && dbNameField) {
+            const prefix = dbPrefixField.value || 'tenant_';
+            const subdomain = subdomainField.value || '';
+            dbNameField.value = prefix + subdomain;
+        }
+    }
+
+    // Update database name when subdomain changes
+    document.getElementById('subdomain').addEventListener('input', updateDatabaseName);
+
+    // Update database name when prefix changes
+    document.getElementById('db_prefix').addEventListener('input', updateDatabaseName);
+
+    // Initialize database name on page load
+    updateDatabaseName();
 
     // Sync color picker with hex input
     const colorPicker = document.getElementById('theme_primary_color');

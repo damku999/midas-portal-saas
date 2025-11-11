@@ -62,7 +62,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
 Auth::routes(['register' => false]);
 
 // Tenant Staff Dashboard
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(['auth', 'usage.alerts']);
 
 /*
 |--------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 @extends('central.layout')
 
 @section('title', 'Tenant Details')
-@section('page-title', 'Tenant: ' . ($tenant->data['company_name'] ?? 'N/A'))
+@section('page-title', 'Tenant: ' . ($tenant->company_name ?? 'N/A'))
 
 @section('content')
 <div class="row g-4">
@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="text-muted small">Company Name</label>
-                        <p class="mb-0 fw-bold">{{ $tenant->data['company_name'] ?? 'N/A' }}</p>
+                        <p class="mb-0 fw-bold">{{ $tenant->company_name ?? 'N/A' }}</p>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="text-muted small">Tenant ID</label>
@@ -45,9 +45,9 @@
                     <div class="col-md-6 mb-3">
                         <label class="text-muted small">Admin User</label>
                         <p class="mb-0">
-                            {{ $tenant->data['admin_name'] ?? 'N/A' }}
-                            @if($tenant->data['admin_email'] ?? false)
-                                <br><small class="text-muted">{{ $tenant->data['admin_email'] }}</small>
+                            {{ $tenant->admin_name ?? 'N/A' }}
+                            @if($tenant->admin_email ?? false)
+                                <br><small class="text-muted">{{ $tenant->admin_email }}</small>
                             @endif
                         </p>
                     </div>
@@ -304,7 +304,7 @@
 @endpush
 
 @php
-    $companyName = $tenant->data['company_name'] ?? ($tenant->domains->first()->domain ?? $tenant->id);
+    $companyName = $tenant->company_name ?? ($tenant->domains->first()->domain ?? $tenant->id);
 @endphp
 
 <x-central.delete-confirmation-modal
