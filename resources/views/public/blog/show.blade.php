@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Breadcrumb -->
-<nav aria-label="breadcrumb" class="bg-light py-3">
+<nav aria-label="breadcrumb" class="bg-light py-3 animate-fade-in">
     <div class="container">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
@@ -24,7 +24,7 @@
             <!-- Main Content -->
             <div class="col-lg-8">
                 <!-- Article Header -->
-                <header class="mb-4">
+                <header class="mb-4 scroll-reveal">
                     <span class="badge bg-{{ $post->category_badge }} mb-3">{{ $post->category_name }}</span>
                     <h1 class="display-5 fw-bold mb-3">{{ $post->title }}</h1>
 
@@ -40,7 +40,7 @@
                 <hr class="my-4">
 
                 <!-- Article Body -->
-                <div class="article-content">
+                <div class="article-content scroll-reveal delay-200">
                     {!! $post->content !!}
                 </div>
 
@@ -59,19 +59,19 @@
                 @endif
 
                 <!-- Share Buttons -->
-                <div class="mt-4 pt-4 border-top">
+                <div class="mt-4 pt-4 border-top scroll-reveal">
                     <h6 class="mb-3">Share this article:</h6>
                     <div class="d-flex gap-2">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-facebook">
                             <i class="fab fa-facebook-f"></i> Facebook
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/blog/' . $post->slug)) }}&text={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-info btn-sm">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/blog/' . $post->slug)) }}&text={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-info btn-sm hover-scale" data-cta="blog-share-twitter">
                             <i class="fab fa-twitter"></i> Twitter
                         </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url('/blog/' . $post->slug)) }}&title={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url('/blog/' . $post->slug)) }}&title={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-linkedin">
                             <i class="fab fa-linkedin-in"></i> LinkedIn
                         </a>
-                        <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-success btn-sm">
+                        <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-success btn-sm hover-scale" data-cta="blog-share-whatsapp">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
                     </div>
@@ -80,23 +80,21 @@
                 <!-- Related Posts -->
                 @if($relatedPosts->count() > 0)
                 <div class="mt-5 pt-4 border-top">
-                    <h4 class="mb-4">Related Articles</h4>
+                    <h4 class="mb-4 scroll-reveal">Related Articles</h4>
                     <div class="row g-3">
                         @foreach($relatedPosts as $related)
                         <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                    <span class="badge bg-{{ $related->category_badge }} mb-2 small">{{ $related->category_name }}</span>
-                                    <h6 class="card-title">
-                                        <a href="{{ url('/blog/' . $related->slug) }}" class="text-decoration-none text-dark">
-                                            {{ Str::limit($related->title, 60) }}
-                                        </a>
-                                    </h6>
-                                    <p class="card-text small text-muted">{{ Str::limit($related->excerpt, 80) }}</p>
-                                    <a href="{{ url('/blog/' . $related->slug) }}" class="btn btn-sm btn-outline-primary mt-2">
-                                        Read More →
+                            <div class="modern-card modern-card-gradient h-100 scroll-reveal hover-lift" style="animation-delay: {{ $loop->index * 0.1 }}s;">
+                                <span class="badge bg-{{ $related->category_badge }} mb-2 small">{{ $related->category_name }}</span>
+                                <h6 class="fw-bold">
+                                    <a href="{{ url('/blog/' . $related->slug) }}" class="text-decoration-none text-dark">
+                                        {{ Str::limit($related->title, 60) }}
                                     </a>
-                                </div>
+                                </h6>
+                                <p class="small text-muted">{{ Str::limit($related->excerpt, 80) }}</p>
+                                <a href="{{ url('/blog/' . $related->slug) }}" class="btn btn-sm btn-outline-primary mt-2 hover-scale" data-cta="blog-related-{{ $related->slug }}">
+                                    Read More →
+                                </a>
                             </div>
                         </div>
                         @endforeach
@@ -106,76 +104,70 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="col-lg-4">
+            <div class="col-lg-4 scroll-reveal delay-400">
                 <div class="sticky-top" style="top: 20px;">
                     <!-- Categories Widget -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">Categories</h5>
-                            <div class="d-grid gap-2">
-                                <a href="{{ url('/blog?category=product-updates') }}" class="btn btn-outline-primary btn-sm text-start">
-                                    Product Updates
-                                </a>
-                                <a href="{{ url('/blog?category=insurance-tips') }}" class="btn btn-outline-success btn-sm text-start">
-                                    Insurance Tips
-                                </a>
-                                <a href="{{ url('/blog?category=claims') }}" class="btn btn-outline-warning btn-sm text-start">
-                                    Claims Guide
-                                </a>
-                                <a href="{{ url('/blog?category=insurance-types') }}" class="btn btn-outline-info btn-sm text-start">
-                                    Insurance Types
-                                </a>
-                                <a href="{{ url('/blog?category=addons') }}" class="btn btn-outline-danger btn-sm text-start">
-                                    Add-ons & Riders
-                                </a>
-                            </div>
+                    <div class="modern-card modern-card-gradient mb-4 hover-lift">
+                        <h5 class="fw-bold mb-3">Categories</h5>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url('/blog?category=product-updates') }}" class="btn btn-outline-primary btn-sm text-start hover-scale">
+                                Product Updates
+                            </a>
+                            <a href="{{ url('/blog?category=insurance-tips') }}" class="btn btn-outline-success btn-sm text-start hover-scale">
+                                Insurance Tips
+                            </a>
+                            <a href="{{ url('/blog?category=claims') }}" class="btn btn-outline-warning btn-sm text-start hover-scale">
+                                Claims Guide
+                            </a>
+                            <a href="{{ url('/blog?category=insurance-types') }}" class="btn btn-outline-info btn-sm text-start hover-scale">
+                                Insurance Types
+                            </a>
+                            <a href="{{ url('/blog?category=addons') }}" class="btn btn-outline-danger btn-sm text-start hover-scale">
+                                Add-ons & Riders
+                            </a>
                         </div>
                     </div>
 
                     <!-- Popular Posts Widget -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">Popular Articles</h5>
-                            @php
-                                $popularPosts = \App\Models\Central\BlogPost::published()
-                                    ->orderBy('views_count', 'desc')
-                                    ->limit(5)
-                                    ->get();
-                            @endphp
-                            <div class="list-group list-group-flush">
-                                @foreach($popularPosts as $popular)
-                                <a href="{{ url('/blog/' . $popular->slug) }}" class="list-group-item list-group-item-action border-0 px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 small">{{ Str::limit($popular->title, 50) }}</h6>
-                                            <small class="text-muted"><i class="far fa-eye"></i> {{ number_format($popular->views_count) }} views</small>
-                                        </div>
+                    <div class="modern-card modern-card-gradient mb-4 hover-lift">
+                        <h5 class="fw-bold mb-3">Popular Articles</h5>
+                        @php
+                            $popularPosts = \App\Models\Central\BlogPost::published()
+                                ->orderBy('views_count', 'desc')
+                                ->limit(5)
+                                ->get();
+                        @endphp
+                        <div class="list-group list-group-flush">
+                            @foreach($popularPosts as $popular)
+                            <a href="{{ url('/blog/' . $popular->slug) }}" class="list-group-item list-group-item-action border-0 px-0 hover-scale">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 small">{{ Str::limit($popular->title, 50) }}</h6>
+                                        <small class="text-muted"><i class="far fa-eye"></i> {{ number_format($popular->views_count) }} views</small>
                                     </div>
-                                </a>
-                                @endforeach
-                            </div>
+                                </div>
+                            </a>
+                            @endforeach
                         </div>
                     </div>
 
                     <!-- Newsletter Widget -->
-                    <div class="card border-0 shadow-sm bg-primary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Stay Updated</h5>
-                            <p class="small">Subscribe to get the latest insurance insights and tips</p>
-                            <form action="{{ url('/newsletter/subscribe') }}" method="POST">
-                                @csrf
-                                <div class="mb-2">
-                                    <input type="text" name="name" class="form-control" placeholder="Your Name (Optional)">
-                                </div>
-                                <div class="mb-2">
-                                    <input type="email" name="email" class="form-control" placeholder="Your email" required>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="light"></div>
-                                </div>
-                                <button type="submit" class="btn btn-light w-100">Subscribe</button>
-                            </form>
-                        </div>
+                    <div class="modern-card gradient-primary text-white hover-lift">
+                        <h5 class="fw-bold">Stay Updated</h5>
+                        <p class="small">Subscribe to get the latest insurance insights and tips</p>
+                        <form action="{{ url('/newsletter/subscribe') }}" method="POST">
+                            @csrf
+                            <div class="mb-2">
+                                <input type="text" name="name" class="form-control" placeholder="Your Name (Optional)">
+                            </div>
+                            <div class="mb-2">
+                                <input type="email" name="email" class="form-control" placeholder="Your email" required>
+                            </div>
+                            <div class="mb-2">
+                                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="light"></div>
+                            </div>
+                            <button type="submit" class="btn btn-light w-100 hover-glow" data-cta="blog-detail-newsletter">Subscribe</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -184,13 +176,19 @@
 </article>
 
 <!-- Call to Action -->
-<section class="py-5 bg-light">
-    <div class="container text-center">
-        <h2 class="mb-3">Need Help with Insurance?</h2>
-        <p class="text-muted mb-4">Our team is here to assist you with all your insurance needs</p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{{ url('/contact') }}" class="btn btn-primary btn-lg">Contact Us</a>
-            <a href="{{ url('/pricing') }}" class="btn btn-outline-primary btn-lg">View Plans</a>
+<section class="gradient-primary position-relative overflow-hidden py-5">
+    <!-- Animated Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 300px; height: 300px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 250px; height: 250px; background: white; border-radius: 50%;"></div>
+    </div>
+
+    <div class="container text-center position-relative z-index-2">
+        <h2 class="mb-3 text-white scroll-reveal">Need Help with Insurance?</h2>
+        <p class="text-white opacity-75 mb-4 scroll-reveal delay-100">Our team is here to assist you with all your insurance needs</p>
+        <div class="d-flex justify-content-center gap-3 scroll-reveal delay-200">
+            <a href="{{ url('/contact') }}" class="btn btn-light btn-lg hover-lift" data-cta="blog-cta-contact">Contact Us</a>
+            <a href="{{ url('/pricing') }}" class="btn btn-outline-light btn-lg hover-lift" data-cta="blog-cta-pricing">View Plans</a>
         </div>
     </div>
 </section>
@@ -238,6 +236,11 @@
 
 .article-content a:hover {
     color: var(--primary-dark);
+}
+
+/* Z-index utilities */
+.z-index-2 {
+    z-index: 2;
 }
 </style>
 @endsection

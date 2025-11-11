@@ -74,6 +74,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Modern Animations CSS -->
+    <link rel="stylesheet" href="{{ asset('css/modern-animations.css') }}">
 
     <style>
         :root {
@@ -299,6 +301,9 @@
                         <a class="nav-link {{ request()->is('about*') ? 'active' : '' }}" href="{{ url('/about') }}">About</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->is('blog*') ? 'active' : '' }}" href="{{ url('/blog') }}">Blog</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->is('contact*') ? 'active' : '' }}" href="{{ url('/contact') }}">Contact</a>
                     </li>
                     <li class="nav-item ms-3">
@@ -313,13 +318,13 @@
     @yield('content')
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row g-4">
+    <footer class="position-relative overflow-hidden">
+        <div class="container position-relative z-index-2">
+            <div class="row g-4 scroll-reveal">
                 <!-- Company Info -->
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4 animate-fade-in-up">
                     <h5 class="text-white mb-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);">
+                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3">
                     </h5>
                     <p class="small mb-3">Transform your insurance business with cutting-edge technology. Modern multi-tenant insurance management SaaS platform for agencies.</p>
 
@@ -332,29 +337,29 @@
                     </div>
 
                     <div class="mt-3">
-                        <h6 class="text-white small mb-2">Follow Us</h6>
-                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="btn btn-sm btn-outline-light me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="btn btn-sm btn-outline-light" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <h6 class="text-white small mb-2 fw-bold">Follow Us</h6>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2 hover-lift" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2 hover-lift" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light me-2 hover-lift" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light hover-lift" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
 
                 <!-- Product -->
-                <div class="col-lg-2 col-md-6 col-6 mb-4">
-                    <h6 class="text-white mb-3">Product</h6>
+                <div class="col-lg-2 col-md-6 col-6 mb-4 animate-fade-in-up delay-100">
+                    <h6 class="text-white mb-3 fw-bold">Product</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="{{ url('/features') }}" class="text-decoration-none text-light hover-primary">Features</a></li>
                         <li class="mb-2"><a href="{{ url('/pricing') }}" class="text-decoration-none text-light hover-primary">Pricing</a></li>
-                        <li class="mb-2"><a href="http://demo.midastech.in" target="_blank" class="text-decoration-none text-light hover-primary">Demo</a></li>
-                        <li class="mb-2"><a href="{{ url('/security') }}" class="text-decoration-none text-light hover-primary">Security</a></li>
-                        <li class="mb-2"><a href="{{ url('/api') }}" class="text-decoration-none text-light hover-primary">API</a></li>
+                        <li class="mb-2"><a href="http://demo.midastech.in" target="_blank" class="text-decoration-none text-light hover-primary">Live Demo</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/analytics-reports') }}" class="text-decoration-none text-light hover-primary">Analytics</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/whatsapp-integration') }}" class="text-decoration-none text-light hover-primary">Integrations</a></li>
                     </ul>
                 </div>
 
                 <!-- Features -->
-                <div class="col-lg-2 col-md-6 col-6 mb-4">
-                    <h6 class="text-white mb-3">Key Features</h6>
+                <div class="col-lg-2 col-md-6 col-6 mb-4 animate-fade-in-up delay-200">
+                    <h6 class="text-white mb-3 fw-bold">Key Features</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="{{ url('/features/customer-management') }}" class="text-decoration-none text-light hover-primary">Customers</a></li>
                         <li class="mb-2"><a href="{{ url('/features/policy-management') }}" class="text-decoration-none text-light hover-primary">Policies</a></li>
@@ -365,24 +370,24 @@
                 </div>
 
                 <!-- Company -->
-                <div class="col-lg-2 col-md-6 col-6 mb-4">
-                    <h6 class="text-white mb-3">Company</h6>
+                <div class="col-lg-2 col-md-6 col-6 mb-4 animate-fade-in-up delay-300">
+                    <h6 class="text-white mb-3 fw-bold">Company</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="{{ url('/about') }}" class="text-decoration-none text-light hover-primary">About Us</a></li>
-                        <li class="mb-2"><a href="{{ url('/contact') }}" class="text-decoration-none text-light hover-primary">Contact</a></li>
-                        <li class="mb-2"><a href="{{ url('/blog') }}" class="text-decoration-none text-light hover-primary">Blog</a></li>
-                        <li class="mb-2"><a href="{{ url('/about') }}#careers" class="text-decoration-none text-light hover-primary">Careers</a></li>
-                        <li class="mb-2"><a href="{{ url('/about') }}#partners" class="text-decoration-none text-light hover-primary">Partners</a></li>
+                        <li class="mb-2"><a href="{{ url('/contact') }}" class="text-decoration-none text-light hover-primary">Contact Us</a></li>
+                        <li class="mb-2"><a href="{{ url('/blog') }}" class="text-decoration-none text-light hover-primary">Blog & News</a></li>
+                        <li class="mb-2"><a href="{{ url('/features/customer-portal') }}" class="text-decoration-none text-light hover-primary">Customer Portal</a></li>
+                        <li class="mb-2"><a href="{{ url('/contact') }}#support" class="text-decoration-none text-light hover-primary">Support Center</a></li>
                     </ul>
                 </div>
 
                 <!-- Resources -->
-                <div class="col-lg-2 col-md-6 col-6 mb-4">
-                    <h6 class="text-white mb-3">Resources</h6>
+                <div class="col-lg-2 col-md-6 col-6 mb-4 animate-fade-in-up delay-400">
+                    <h6 class="text-white mb-3 fw-bold">Resources</h6>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="{{ url('/help-center') }}" class="text-decoration-none text-light hover-primary">Help Center</a></li>
-                        <li class="mb-2"><a href="{{ url('/documentation') }}" class="text-decoration-none text-light hover-primary">Documentation</a></li>
-                        <li class="mb-2"><a href="{{ url('/api') }}" class="text-decoration-none text-light hover-primary">API Reference</a></li>
+                        <li class="mb-2"><a href="{{ url('/blog') }}" class="text-decoration-none text-light hover-primary">Knowledge Base</a></li>
+                        <li class="mb-2"><a href="{{ url('/features') }}" class="text-decoration-none text-light hover-primary">User Guide</a></li>
+                        <li class="mb-2"><a href="{{ url('/pricing') }}#faq" class="text-decoration-none text-light hover-primary">FAQ</a></li>
                         <li class="mb-2"><a href="{{ url('/privacy') }}" class="text-decoration-none text-light hover-primary">Privacy Policy</a></li>
                         <li class="mb-2"><a href="{{ url('/terms') }}" class="text-decoration-none text-light hover-primary">Terms of Service</a></li>
                     </ul>
@@ -390,15 +395,15 @@
             </div>
 
             <!-- Trust Badges -->
-            <div class="row mt-4 py-4 border-top border-secondary">
+            <div class="row mt-4 py-4 border-top border-secondary animate-fade-in-up delay-500">
                 <div class="col-md-12 text-center">
                     <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 small text-light">
-                        <div><i class="fas fa-shield-alt text-success me-2"></i>SSL Secured</div>
-                        <div><i class="fas fa-lock text-success me-2"></i>AES-256 Encrypted</div>
-                        <div><i class="fas fa-check-circle text-success me-2"></i>GDPR Compliant</div>
-                        <div><i class="fas fa-server text-success me-2"></i>99.9% Uptime</div>
-                        <div><i class="fas fa-database text-success me-2"></i>Daily Backups</div>
-                        <div><i class="fas fa-users-cog text-success me-2"></i>24/7 Support</div>
+                        <div class="hover-scale"><i class="fas fa-shield-alt text-success me-2"></i>SSL Secured</div>
+                        <div class="hover-scale"><i class="fas fa-lock text-success me-2"></i>AES-256 Encrypted</div>
+                        <div class="hover-scale"><i class="fas fa-check-circle text-success me-2"></i>GDPR Compliant</div>
+                        <div class="hover-scale"><i class="fas fa-server text-success me-2"></i>99.9% Uptime</div>
+                        <div class="hover-scale"><i class="fas fa-database text-success me-2"></i>Daily Backups</div>
+                        <div class="hover-scale"><i class="fas fa-users-cog text-success me-2"></i>24/7 Support</div>
                     </div>
                 </div>
             </div>
@@ -414,12 +419,37 @@
                 </div>
             </div>
         </div>
+        <!-- Animated Background Elements for Footer -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-5">
+            <div class="position-absolute animate-float" style="top: 10%; left: 5%; width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            <div class="position-absolute animate-float delay-300" style="top: 60%; right: 10%; width: 40px; height: 40px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+            <div class="position-absolute animate-float delay-500" style="bottom: 20%; left: 15%; width: 45px; height: 45px; background: rgba(255,255,255,0.06); border-radius: 50%;"></div>
+        </div>
     </footer>
 
     <style>
+        footer {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+
         footer a.hover-primary:hover {
             color: var(--primary-color) !important;
             transition: color 0.3s ease;
+            transform: translateX(3px);
+        }
+
+        footer .z-index-2 {
+            z-index: 2;
+        }
+
+        footer .btn-outline-light {
+            transition: all 0.3s ease;
+        }
+
+        footer .btn-outline-light:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
         }
     </style>
 
@@ -428,6 +458,9 @@
 
     <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <!-- Modern Animations JS -->
+    <script src="{{ asset('js/modern-animations.js') }}"></script>
 
     @yield('scripts')
 </body>

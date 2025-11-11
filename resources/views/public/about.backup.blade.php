@@ -7,19 +7,30 @@
 @section('meta_keywords', 'about midas portal, insurance software company, webmonks technologies, insurance saas platform india, insurance management company, insurance technology provider, indian insurance software')
 
 @section('content')
-{{-- Hero Section using component --}}
-@include('public.components.hero', [
-    'badge' => 'About Midas Portal',
-    'badgeIcon' => 'fas fa-building',
-    'title' => 'Transforming Insurance Management',
-    'description' => 'We\'re on a mission to empower insurance agencies across India with cutting-edge technology that drives growth, efficiency, and customer satisfaction.',
-    'showCta' => true,
-    'ctaPrimary' => 'Get in Touch',
-    'ctaPrimaryUrl' => url('/contact'),
-    'ctaPrimaryIcon' => 'fas fa-phone',
-    'ctaPrimaryDataCta' => 'about-hero-contact',
-    'colClass' => 'col-lg-10'
-])
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+        <div class="position-absolute animate-float" style="top: 10%; left: 5%; width: 60px; height: 60px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="top: 70%; right: 10%; width: 50px; height: 50px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-500" style="bottom: 20%; left: 15%; width: 55px; height: 55px; background: white; border-radius: 50%;"></div>
+    </div>
+
+    <div class="container position-relative z-index-2">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-10 text-white text-center">
+                <span class="badge bg-white text-primary mb-3 px-4 py-2 animate-fade-in-down shadow-sm">
+                    <i class="fas fa-building me-2"></i>About Midas Portal
+                </span>
+                <h1 class="display-3 fw-bold mb-4 animate-fade-in-up delay-100">Transforming Insurance Management</h1>
+                <p class="lead mb-4 animate-fade-in-up delay-200">We're on a mission to empower insurance agencies across India with cutting-edge technology that drives growth, efficiency, and customer satisfaction.</p>
+                <a href="{{ url('/contact') }}" class="btn btn-light btn-lg px-4 animate-fade-in-up delay-300 hover-lift" data-cta="about-hero-contact">
+                    <i class="fas fa-phone me-2"></i>Get in Touch
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Our Story Section -->
 <section class="py-5 bg-white">
@@ -315,19 +326,32 @@
     </div>
 </section>
 
-{{-- CTA Section using component --}}
-@include('public.components.cta-section', [
-    'title' => 'Ready to Transform Your Insurance Agency?',
-    'description' => 'Join hundreds of successful agencies already using Midas Portal. Start your free 14-day trial today!',
-    'primaryText' => 'Start Free Trial',
-    'primaryUrl' => url('/pricing'),
-    'primaryDataCta' => 'about-cta-trial',
-    'secondaryText' => 'Contact Sales',
-    'secondaryUrl' => url('/contact'),
-    'secondaryDataCta' => 'about-cta-contact',
-    'showNote' => true,
-    'note' => 'No credit card required • 14-day free trial • Cancel anytime'
-])
+<!-- CTA Section -->
+<section class="gradient-primary position-relative overflow-hidden py-5">
+    <!-- Animated Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 300px; height: 300px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 250px; height: 250px; background: white; border-radius: 50%;"></div>
+    </div>
+
+    <div class="container py-5 position-relative z-index-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center text-white">
+                <h2 class="display-5 fw-bold mb-4 scroll-reveal">Ready to Transform Your Insurance Agency?</h2>
+                <p class="lead mb-4 scroll-reveal delay-100">Join hundreds of successful agencies already using Midas Portal. Start your free 14-day trial today!</p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center scroll-reveal delay-200">
+                    <a href="{{ url('/pricing') }}" class="btn btn-light btn-lg px-5 hover-lift" data-cta="about-cta-trial">
+                        <i class="fas fa-rocket me-2"></i>Start Free Trial
+                    </a>
+                    <a href="{{ url('/contact') }}" class="btn btn-outline-light btn-lg px-5 hover-lift" data-cta="about-cta-contact">
+                        <i class="fas fa-phone me-2"></i>Contact Sales
+                    </a>
+                </div>
+                <p class="mt-3 small opacity-75 scroll-reveal delay-300">No credit card required • 14-day free trial • Cancel anytime</p>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
 
 @push('styles')

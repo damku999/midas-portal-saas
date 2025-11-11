@@ -8,37 +8,40 @@
 
 @section('content')
 <!-- Hero Section -->
-@include('public.components.hero', [
-    'badge' => 'Transparent Pricing',
-    'badgeIcon' => 'fas fa-tag',
-    'title' => 'Simple, Transparent Pricing',
-    'description' => 'Choose the perfect plan for your insurance agency. No hidden fees, no surprises. All plans include a 14-day free trial.',
-    'showCta' => false,
-    'colClass' => 'col-lg-8',
-    'containerClass' => 'py-5'
-])
-
-<!-- Pricing Features Banner -->
-<section class="py-3 bg-light border-bottom">
-    <div class="container">
-        <div class="d-flex justify-content-center gap-4 flex-wrap text-center">
-            <div class="hover-scale">
-                <i class="fas fa-shield-alt fa-2x mb-2 text-primary"></i>
-                <div class="small fw-semibold">14-Day Free Trial</div>
-            </div>
-            <div class="hover-scale">
-                <i class="fas fa-credit-card fa-2x mb-2 text-primary"></i>
-                <div class="small fw-semibold">No Credit Card Required</div>
-            </div>
-            <div class="hover-scale">
-                <i class="fas fa-times-circle fa-2x mb-2 text-primary"></i>
-                <div class="small fw-semibold">Cancel Anytime</div>
-            </div>
-            <div class="hover-scale">
-                <i class="fas fa-sync-alt fa-2x mb-2 text-primary"></i>
-                <div class="small fw-semibold">Switch Plans Anytime</div>
+<section class="hero-section position-relative overflow-hidden">
+    <div class="container py-5 position-relative z-index-2">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary mb-3 px-4 py-2 animate-fade-in-down shadow-sm">
+                    <i class="fas fa-tag me-2"></i>Transparent Pricing
+                </span>
+                <h1 class="display-3 fw-bold mb-4 animate-fade-in-up delay-100">Simple, Transparent Pricing</h1>
+                <p class="lead mb-4 animate-fade-in-up delay-200">Choose the perfect plan for your insurance agency. No hidden fees, no surprises. All plans include a 14-day free trial.</p>
+                <div class="d-flex justify-content-center gap-4 flex-wrap animate-fade-in-up delay-300">
+                    <div class="text-center hover-scale">
+                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                        <div class="small">14-Day Free Trial</div>
+                    </div>
+                    <div class="text-center hover-scale">
+                        <i class="fas fa-credit-card fa-2x mb-2"></i>
+                        <div class="small">No Credit Card Required</div>
+                    </div>
+                    <div class="text-center hover-scale">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <div class="small">Cancel Anytime</div>
+                    </div>
+                    <div class="text-center hover-scale">
+                        <i class="fas fa-sync-alt fa-2x mb-2"></i>
+                        <div class="small">Switch Plans Anytime</div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+    <!-- Animated Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+        <div class="position-absolute animate-float" style="top: 10%; left: 5%; width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="top: 50%; right: 10%; width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
     </div>
 </section>
 

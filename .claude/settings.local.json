@@ -67,7 +67,12 @@
       "Bash(if [ -f \"app/Models/Central/NewsletterSubscriber.php\" ])",
       "Bash(then echo \"Model exists\")",
       "Bash(else echo \"Creating model\")",
-      "Bash(then grep -i \"TURNSTILE\" .env)"
+      "Bash(then grep -i \"TURNSTILE\" .env)",
+      "Bash(for file in resources/views/public/home.blade.php resources/views/public/features.blade.php resources/views/public/pricing.blade.php)",
+      "Bash(then echo \"=== $file ===\")",
+      "Bash(for file in resources/views/public/{features,pricing,help-center,documentation,api,security,privacy,terms}.blade.php)",
+      "Bash(while read file)",
+      "Bash(do echo \"=== $file ===\")"
     ],
     "deny": [],
     "ask": []
