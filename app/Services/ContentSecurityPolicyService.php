@@ -155,8 +155,10 @@ class ContentSecurityPolicyService
         // Add Microsoft Clarity domain
         $sources[] = 'https://www.clarity.ms';
 
-        // Add Razorpay Checkout script domain
+        // Add Razorpay Checkout script domains - all subdomains
         $sources[] = 'https://checkout.razorpay.com';
+        $sources[] = 'https://api.razorpay.com';
+        $sources[] = 'https://*.razorpay.com';
 
         return implode(' ', $sources);
     }
@@ -178,8 +180,13 @@ class ContentSecurityPolicyService
 
         $sources = array_merge($sources, $styleCdns);
 
-        // Add Razorpay Checkout styles
+        // Add Razorpay Checkout styles - all subdomains
         $sources[] = 'https://checkout.razorpay.com';
+        $sources[] = 'https://api.razorpay.com';
+        $sources[] = 'https://*.razorpay.com';
+
+        // Allow unsafe-inline for Razorpay dynamic styles (temporary)
+        $sources[] = "'unsafe-inline'";
 
         return implode(' ', $sources);
     }
@@ -230,10 +237,11 @@ class ContentSecurityPolicyService
         $sources[] = 'https://www.clarity.ms';
         $sources[] = 'https://*.clarity.ms';
 
-        // Add Razorpay API domains for payment processing
+        // Add Razorpay API domains for payment processing - all subdomains
         $sources[] = 'https://api.razorpay.com';
         $sources[] = 'https://checkout.razorpay.com';
         $sources[] = 'https://lumberjack.razorpay.com';
+        $sources[] = 'https://*.razorpay.com';
 
         return implode(' ', $sources);
     }
@@ -248,9 +256,10 @@ class ContentSecurityPolicyService
         // Add Google Maps iframe domain
         $sources[] = 'https://www.google.com';
 
-        // Add Razorpay Checkout iframe domain
+        // Add Razorpay Checkout iframe domains - all subdomains
         $sources[] = 'https://api.razorpay.com';
         $sources[] = 'https://checkout.razorpay.com';
+        $sources[] = 'https://*.razorpay.com';
 
         return implode(' ', $sources);
     }
@@ -259,9 +268,10 @@ class ContentSecurityPolicyService
     {
         $sources = ["'self'"];
 
-        // Add Razorpay for popup windows
+        // Add Razorpay for popup windows - all subdomains
         $sources[] = 'https://api.razorpay.com';
         $sources[] = 'https://checkout.razorpay.com';
+        $sources[] = 'https://*.razorpay.com';
 
         return implode(' ', $sources);
     }
