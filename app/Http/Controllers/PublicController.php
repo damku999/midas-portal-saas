@@ -248,33 +248,44 @@ class PublicController extends Controller
      */
     public function sitemap()
     {
-        $sitemap = \Spatie\Sitemap\Sitemap::create();
+        // Build URLs array manually for better control over XML output
+        $urls = [];
 
         // Add static pages
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(1.0));
+        $urls[] = [
+            'loc' => url('/'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'daily',
+            'priority' => '1.0'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/features'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-            ->setPriority(0.9));
+        $urls[] = [
+            'loc' => url('/features'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.9'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/pricing'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-            ->setPriority(0.9));
+        $urls[] = [
+            'loc' => url('/pricing'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.9'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/about'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(0.7));
+        $urls[] = [
+            'loc' => url('/about'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.7'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/contact'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(0.8));
+        $urls[] = [
+            'loc' => url('/contact'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.8'
+        ];
 
         // Add feature detail pages
         $featurePages = [
@@ -285,47 +296,63 @@ class PublicController extends Controller
         ];
 
         foreach ($featurePages as $feature) {
-            $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/features/' . $feature))
-                ->setLastModificationDate(now())
-                ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-                ->setPriority(0.7));
+            $urls[] = [
+                'loc' => url('/features/' . $feature),
+                'lastmod' => now()->toAtomString(),
+                'changefreq' => 'monthly',
+                'priority' => '0.7'
+            ];
         }
 
         // Add resource pages
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/blog'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(0.9));
+        $urls[] = [
+            'loc' => url('/blog'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'daily',
+            'priority' => '0.9'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/help-center'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-            ->setPriority(0.7));
+        $urls[] = [
+            'loc' => url('/help-center'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.7'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/documentation'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-            ->setPriority(0.7));
+        $urls[] = [
+            'loc' => url('/documentation'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.7'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/api'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-            ->setPriority(0.6));
+        $urls[] = [
+            'loc' => url('/api'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.6'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/privacy'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(0.5));
+        $urls[] = [
+            'loc' => url('/privacy'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.5'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/terms'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(0.5));
+        $urls[] = [
+            'loc' => url('/terms'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.5'
+        ];
 
-        $sitemap->add(\Spatie\Sitemap\Tags\Url::create(url('/security'))
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(0.6));
+        $urls[] = [
+            'loc' => url('/security'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.6'
+        ];
 
         // Add all blog posts dynamically
         $blogPosts = \App\Models\Central\BlogPost::published()
@@ -333,15 +360,32 @@ class PublicController extends Controller
             ->get();
 
         foreach ($blogPosts as $post) {
-            $sitemap->add(\Spatie\Sitemap\Tags\Url::create(route('public.blog.show', $post->slug))
-                ->setLastModificationDate($post->updated_at)
-                ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-                ->setPriority(0.8));
+            $urls[] = [
+                'loc' => url('/blog/' . $post->slug),
+                'lastmod' => $post->updated_at->toAtomString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.8'
+            ];
         }
 
+        // Build XML manually
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+        foreach ($urls as $url) {
+            $xml .= '  <url>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars($url['loc']) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
+            $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
+            $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
+            $xml .= '  </url>' . "\n";
+        }
+
+        $xml .= '</urlset>';
+
         // Return XML response
-        return response($sitemap->render(), 200, [
-            'Content-Type' => 'application/xml'
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8'
         ]);
     }
 

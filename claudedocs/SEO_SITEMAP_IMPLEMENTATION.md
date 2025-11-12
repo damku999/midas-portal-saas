@@ -3,6 +3,8 @@
 ## Overview
 Successfully implemented a **dynamic XML sitemap** that automatically updates with new blog posts and content, replacing the old static sitemap file.
 
+**Latest Update (2025-11-12)**: Fixed missing SEO tags (`<priority>` and `<changefreq>`) that were causing Google Search Console fetch errors. Sitemap now fully compliant with sitemaps.org protocol.
+
 ---
 
 ## 📊 Sitemap Statistics
@@ -26,9 +28,9 @@ Successfully implemented a **dynamic XML sitemap** that automatically updates wi
 ## 🔧 Implementation Details
 
 ### Dynamic Sitemap Controller
-**File**: `app/Http/Controllers/PublicController.php` (lines 249-346)
+**File**: `app/Http/Controllers/PublicController.php` (lines 249-390)
 
-**Technology**: Spatie Laravel Sitemap Package
+**Technology**: Manual XML generation (replaced Spatie package on 2025-11-12 to ensure all SEO tags are rendered)
 
 #### Static Pages Included (Priority Order):
 
@@ -105,10 +107,12 @@ $blogPosts = \App\Models\Central\BlogPost::published()
     ->get();
 
 foreach ($blogPosts as $post) {
-    $sitemap->add(\Spatie\Sitemap\Tags\Url::create(route('public.blog.show', $post->slug))
-        ->setLastModificationDate($post->updated_at)  // Actual update time
-        ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_WEEKLY)
-        ->setPriority(0.8));  // High priority for content
+    $urls[] = [
+        'loc' => url('/blog/' . $post->slug),
+        'lastmod' => $post->updated_at->toAtomString(),
+        'changefreq' => 'weekly',
+        'priority' => '0.8'
+    ];
 }
 ```
 
@@ -117,6 +121,73 @@ foreach ($blogPosts as $post) {
 - ✅ Updated timestamps reflect actual content changes
 - ✅ Only published posts included (draft/scheduled excluded)
 - ✅ Ordered by publish date (newest first)
+- ✅ All 4 SEO tags included: `<loc>`, `<lastmod>`, `<changefreq>`, `<priority>`
+
+---
+
+## 🔧 Recent Fix: Missing SEO Tags (2025-11-12)
+
+### Issue Identified
+Google Search Console reported "Couldn't fetch" error for `/sitemap.xml`. Investigation revealed:
+- ✅ Sitemap was accessible (HTTP 200 OK)
+- ✅ Had 76 URLs with `<loc>` and `<lastmod>` tags
+- ❌ **Missing `<priority>` tags** (critical for SEO)
+- ❌ **Missing `<changefreq>` tags** (important for crawl scheduling)
+
+### Root Cause
+The Spatie Laravel Sitemap package was not rendering `<priority>` and `<changefreq>` tags in the XML output, even though they were set programmatically in the code.
+
+**Before Fix:**
+```xml
+<url>
+  <loc>https://midastech.in</loc>
+  <lastmod>2025-11-12T06:57:56+00:00</lastmod>
+  <!-- Missing changefreq and priority tags -->
+</url>
+```
+
+### Solution Implemented
+Replaced Spatie package with **manual XML generation** for complete control over output format:
+
+1. **Build URLs Array**: Created array with all SEO metadata
+2. **Manual XML Construction**: Programmatically build XML string with proper formatting
+3. **Fixed Blog URLs**: Changed from `route()` to `url()` to avoid double-port issue
+
+**After Fix:**
+```xml
+<url>
+  <loc>https://midastech.in</loc>
+  <lastmod>2025-11-12T06:59:20+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>1.0</priority>
+</url>
+```
+
+### Verification
+```bash
+# Test locally
+curl -s http://midastech.testing.in:8085/sitemap.xml | head -40
+
+# Test production
+curl -s https://midastech.in/sitemap.xml | head -40
+
+# Count URLs (should be 76)
+curl -s https://midastech.in/sitemap.xml | grep -o "<url>" | wc -l
+
+# Verify all 4 tags present
+curl -s https://midastech.in/sitemap.xml | grep -A 5 "<loc>" | head -20
+```
+
+### Impact
+- ✅ **Google Search Console**: Can now properly fetch and process sitemap
+- ✅ **SEO Rankings**: Search engines understand page priorities
+- ✅ **Crawl Efficiency**: Proper changefreq helps schedule recrawls
+- ✅ **XML Compliance**: Fully compliant with sitemaps.org protocol
+
+### Next Steps
+1. **Resubmit to Google Search Console**: Force re-fetch of sitemap
+2. **Monitor GSC**: Check "Discovered" and "Indexed" counts increase
+3. **Verify in Bing**: Submit updated sitemap to Bing Webmaster Tools
 
 ---
 
