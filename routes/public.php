@@ -65,6 +65,15 @@ Route::get('/security', [PublicController::class, 'security'])->name('public.sec
 // Dynamic Sitemap
 Route::get('/sitemap.xml', [PublicController::class, 'sitemap'])->name('public.sitemap');
 
+// Razorpay Test Page
+Route::prefix('razorpay-test')->name('razorpay-test.')->group(function () {
+    Route::get('/', [App\Http\Controllers\RazorpayTestController::class, 'index'])->name('index');
+    Route::post('/create-order', [App\Http\Controllers\RazorpayTestController::class, 'createOrder'])->name('create-order');
+    Route::post('/verify-payment', [App\Http\Controllers\RazorpayTestController::class, 'verifyPayment'])->name('verify-payment');
+    Route::get('/payment-status/{paymentId}', [App\Http\Controllers\RazorpayTestController::class, 'paymentStatus'])->name('payment-status');
+    Route::get('/recent-payments', [App\Http\Controllers\RazorpayTestController::class, 'recentPayments'])->name('recent-payments');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Public Domain Redirect Handler
