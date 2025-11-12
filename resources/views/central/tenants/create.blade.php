@@ -502,11 +502,11 @@
                                    id="db_name"
                                    name="db_name"
                                    value="{{ old('db_name') }}"
-                                   placeholder="tenant_" readonly>
+                                   placeholder="tenant_">
                             @error('db_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Auto-generated: tenant_{subdomain}</small>
+                            <small class="text-muted">Auto-generated: tenant_{subdomain}. You can edit this.</small>
                         </div>
 
                         <div class="col-md-6">
@@ -522,7 +522,77 @@
                             @error('db_prefix')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Prefix for database name</small>
+                            <small class="text-muted">Prefix for database name (stored for future use)</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_username" class="form-label">
+                                Database Username
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('db_username') is-invalid @enderror"
+                                   id="db_username"
+                                   name="db_username"
+                                   value="{{ old('db_username', env('DB_USERNAME', 'root')) }}"
+                                   placeholder="root">
+                            @error('db_username')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">MySQL username for this tenant database</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_password" class="form-label">
+                                Database Password
+                            </label>
+                            <input type="password"
+                                   class="form-control @error('db_password') is-invalid @enderror"
+                                   id="db_password"
+                                   name="db_password"
+                                   value="{{ old('db_password') }}"
+                                   placeholder="••••••••">
+                            @error('db_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">MySQL password (leave blank to use default)</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_host" class="form-label">
+                                Database Host
+                            </label>
+                            <input type="text"
+                                   class="form-control @error('db_host') is-invalid @enderror"
+                                   id="db_host"
+                                   name="db_host"
+                                   value="{{ old('db_host', env('DB_HOST', 'localhost')) }}"
+                                   placeholder="localhost">
+                            @error('db_host')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Database server hostname or IP</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_port" class="form-label">
+                                Database Port
+                            </label>
+                            <input type="number"
+                                   class="form-control @error('db_port') is-invalid @enderror"
+                                   id="db_port"
+                                   name="db_port"
+                                   value="{{ old('db_port', env('DB_PORT', '3306')) }}"
+                                   placeholder="3306"
+                                   min="1"
+                                   max="65535">
+                            @error('db_port')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Database server port (default: 3306)</small>
                         </div>
                     </div>
 
@@ -701,6 +771,9 @@
     // Auto-generate subdomain from company name
     document.getElementById('company_name').addEventListener('input', function(e) {
         const subdomainField = document.getElementById('subdomain');
+        const dbNameField = document.getElementById('db_name');
+
+        // Only auto-fill if subdomain is empty
         if (!subdomainField.value) {
             const subdomain = e.target.value
                 .toLowerCase()
@@ -708,6 +781,10 @@
                 .replace(/-+/g, '-')
                 .replace(/^-|-$/g, '');
             subdomainField.value = subdomain;
+        }
+
+        // Only auto-fill database name if it's empty
+        if (!dbNameField.value || dbNameField.value === 'tenant_') {
             updateDatabaseName();
         }
     });

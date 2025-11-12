@@ -96,8 +96,25 @@ class TenantCreationService
             $statusText = $isTrial ? "trial ({$trialDays} days)" : 'paid';
             $this->updateProgress(5, "✓ Subscription created ({$plan->name}, {$statusText})", 'completed');
 
-            // Store database configuration options
-            $tenant->db_name = $validated['db_name'] ?? null;
+            // Store database configuration options using setInternal() for tenancy package compatibility
+            // The package looks for 'tenancy_db_*' keys via getInternal() method
+            if (!empty($validated['db_name'])) {
+                $tenant->setInternal('db_name', $validated['db_name']);
+            }
+            if (!empty($validated['db_username'])) {
+                $tenant->setInternal('db_username', $validated['db_username']);
+            }
+            if (!empty($validated['db_password'])) {
+                $tenant->setInternal('db_password', $validated['db_password']);
+            }
+            if (!empty($validated['db_host'])) {
+                $tenant->setInternal('db_host', $validated['db_host']);
+            }
+            if (!empty($validated['db_port'])) {
+                $tenant->setInternal('db_port', $validated['db_port']);
+            }
+
+            // Store configuration flags in data column (not internal keys)
             $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
             $tenant->db_create_database = $validated['db_create_database'] ?? true;
             $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;

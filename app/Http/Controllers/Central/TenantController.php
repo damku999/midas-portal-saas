@@ -183,8 +183,24 @@ class TenantController extends Controller
                 'mrr' => $plan->price,
             ]);
 
-            // Store database configuration options
-            $tenant->db_name = $validated['db_name'] ?? null;
+            // Store database configuration options using setInternal() for tenancy package compatibility
+            if (!empty($validated['db_name'])) {
+                $tenant->setInternal('db_name', $validated['db_name']);
+            }
+            if (!empty($validated['db_username'])) {
+                $tenant->setInternal('db_username', $validated['db_username']);
+            }
+            if (!empty($validated['db_password'])) {
+                $tenant->setInternal('db_password', $validated['db_password']);
+            }
+            if (!empty($validated['db_host'])) {
+                $tenant->setInternal('db_host', $validated['db_host']);
+            }
+            if (!empty($validated['db_port'])) {
+                $tenant->setInternal('db_port', $validated['db_port']);
+            }
+
+            // Store configuration flags in data column
             $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
             $tenant->db_create_database = $validated['db_create_database'] ?? true;
             $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
@@ -315,6 +331,14 @@ class TenantController extends Controller
             'timezone' => 'nullable|string|timezone',
             'currency' => 'nullable|string|size:3',
             'currency_symbol' => 'nullable|string|max:5',
+
+            // Database configuration
+            'db_name' => 'nullable|string|max:64',
+            'db_prefix' => 'nullable|string|max:32',
+            'db_username' => 'nullable|string|max:64',
+            'db_password' => 'nullable|string|max:255',
+            'db_host' => 'nullable|string|max:255',
+            'db_port' => 'nullable|integer|min:1|max:65535',
         ]);
 
         DB::connection('central')->beginTransaction();
@@ -354,6 +378,26 @@ class TenantController extends Controller
             $tenant->timezone = $validated['timezone'] ?? null;
             $tenant->currency = $validated['currency'] ?? null;
             $tenant->currency_symbol = $validated['currency_symbol'] ?? null;
+
+            // Update database configuration using setInternal() for tenancy package compatibility
+            if (!empty($validated['db_name'])) {
+                $tenant->setInternal('db_name', $validated['db_name']);
+            }
+            if (!empty($validated['db_username'])) {
+                $tenant->setInternal('db_username', $validated['db_username']);
+            }
+            if (!empty($validated['db_password'])) {
+                $tenant->setInternal('db_password', $validated['db_password']);
+            }
+            if (!empty($validated['db_host'])) {
+                $tenant->setInternal('db_host', $validated['db_host']);
+            }
+            if (!empty($validated['db_port'])) {
+                $tenant->setInternal('db_port', $validated['db_port']);
+            }
+            if (isset($validated['db_prefix'])) {
+                $tenant->db_prefix = $validated['db_prefix'];
+            }
 
             $tenant->save();
 

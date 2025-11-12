@@ -268,6 +268,105 @@
                         </div>
                     </div>
 
+                    <!-- Database Configuration -->
+                    <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">Database Configuration</h6>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Database Settings:</strong> Update database credentials if needed. Leave fields empty to keep current settings.
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_name" class="form-label">Database Name</label>
+                            <input type="text"
+                                   class="form-control @error('db_name') is-invalid @enderror"
+                                   id="db_name"
+                                   name="db_name"
+                                   value="{{ old('db_name', $tenant->getInternal('db_name') ?? '') }}"
+                                   placeholder="tenant_database">
+                            @error('db_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">MySQL database name for this tenant</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_prefix" class="form-label">Database Prefix</label>
+                            <input type="text"
+                                   class="form-control @error('db_prefix') is-invalid @enderror"
+                                   id="db_prefix"
+                                   name="db_prefix"
+                                   value="{{ old('db_prefix', $tenant->db_prefix ?? 'tenant_') }}"
+                                   placeholder="tenant_">
+                            @error('db_prefix')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Prefix for database name</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_username" class="form-label">Database Username</label>
+                            <input type="text"
+                                   class="form-control @error('db_username') is-invalid @enderror"
+                                   id="db_username"
+                                   name="db_username"
+                                   value="{{ old('db_username', $tenant->getInternal('db_username') ?? '') }}"
+                                   placeholder="root">
+                            @error('db_username')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">MySQL username for this tenant database</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_password" class="form-label">Database Password</label>
+                            <input type="password"
+                                   class="form-control @error('db_password') is-invalid @enderror"
+                                   id="db_password"
+                                   name="db_password"
+                                   value=""
+                                   placeholder="••••••••">
+                            @error('db_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">MySQL password (leave blank to keep current)</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="db_host" class="form-label">Database Host</label>
+                            <input type="text"
+                                   class="form-control @error('db_host') is-invalid @enderror"
+                                   id="db_host"
+                                   name="db_host"
+                                   value="{{ old('db_host', $tenant->getInternal('db_host') ?? '') }}"
+                                   placeholder="localhost">
+                            @error('db_host')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Database server hostname or IP</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="db_port" class="form-label">Database Port</label>
+                            <input type="number"
+                                   class="form-control @error('db_port') is-invalid @enderror"
+                                   id="db_port"
+                                   name="db_port"
+                                   value="{{ old('db_port', $tenant->getInternal('db_port') ?? '') }}"
+                                   placeholder="3306"
+                                   min="1"
+                                   max="65535">
+                            @error('db_port')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Database server port (default: 3306)</small>
+                        </div>
+                    </div>
+
                     <!-- Subscription Plan -->
                     <h6 class="text-muted mb-3 pb-2 border-bottom mt-4">
                         Subscription Management
