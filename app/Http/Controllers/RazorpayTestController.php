@@ -31,6 +31,12 @@ class RazorpayTestController extends Controller
     public function createOrder(Request $request)
     {
         try {
+            // Log incoming request
+            Log::info('Test payment order request', [
+                'data' => $request->all(),
+                'content' => $request->getContent(),
+            ]);
+
             $validated = $request->validate([
                 'amount' => 'required|numeric|min:1',
                 'description' => 'nullable|string|max:255',
@@ -44,7 +50,7 @@ class RazorpayTestController extends Controller
                 'amount' => $validated['amount'],
                 'currency' => 'INR',
                 'status' => 'pending',
-                'type' => 'subscription', // Test type
+                'type' => 'subscription',
                 'description' => $validated['description'] ?? 'Test Payment - Razorpay Integration',
                 'metadata' => [
                     'test_mode' => true,

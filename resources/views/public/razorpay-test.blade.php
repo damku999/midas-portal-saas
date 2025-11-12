@@ -255,27 +255,46 @@
                 return;
             }
 
+            console.log('Initiating payment:', { amount, description });
+
             // Create test payment order
             $.ajax({
                 url: '{{ url("/razorpay-test/create-order") }}',
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                data: {
+                data: JSON.stringify({
                     amount: amount,
                     description: description
-                },
+                }),
                 success: function(response) {
+                    console.log('Order created:', response);
                     if (response.success) {
                         currentPaymentId = response.payment_id;
                         openRazorpayCheckout(response.order_data);
                     } else {
-                        showResult('error', 'Failed to create order: ' + response.error);
+                        showResult('error', 'Failed to create order: ' + (response.error || 'Unknown error'));
                     }
                 },
                 error: function(xhr) {
-                    showResult('error', 'Error: ' + xhr.responseJSON?.message || 'Unknown error');
+                    console.error('Order creation failed:', xhr);
+                    let errorMsg = 'Unknown error';
+
+                    if (xhr.responseJSON) {
+                        errorMsg = xhr.responseJSON.message || xhr.responseJSON.error || errorMsg;
+                    } else if (xhr.responseText) {
+                        try {
+                            const parsed = JSON.parse(xhr.responseText);
+                            errorMsg = parsed.message || parsed.error || errorMsg;
+                        } catch(e) {
+                            errorMsg = xhr.statusText || errorMsg;
+                        }
+                    }
+
+                    showResult('error', 'Error: ' + errorMsg);
                 }
             });
         }
