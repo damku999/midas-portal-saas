@@ -147,6 +147,13 @@ class ContentSecurityPolicyService
         $sources[] = 'https://challenges.cloudflare.com';
         $sources[] = 'https://static.cloudflare.com';
 
+        // Add Google Analytics and Tag Manager domains
+        $sources[] = 'https://www.googletagmanager.com';
+        $sources[] = 'https://www.google-analytics.com';
+
+        // Add Microsoft Clarity domain
+        $sources[] = 'https://www.clarity.ms';
+
         return implode(' ', $sources);
     }
 
@@ -172,7 +179,15 @@ class ContentSecurityPolicyService
 
     private function getImageSrc(): string
     {
-        return "'self' data: https: blob:";
+        $sources = ["'self'", 'data:', 'https:', 'blob:'];
+
+        // Explicitly allow analytics tracking pixels
+        $sources[] = 'https://www.google-analytics.com';
+        $sources[] = 'https://www.googletagmanager.com';
+        $sources[] = 'https://stats.g.doubleclick.net';
+        $sources[] = 'https://www.clarity.ms';
+
+        return implode(' ', $sources);
     }
 
     private function getFontSrc(): string
@@ -193,6 +208,16 @@ class ContentSecurityPolicyService
         if ($whatsappDomain = config('whatsapp.api_domain')) {
             $sources[] = $whatsappDomain;
         }
+
+        // Add analytics tracking domains
+        $sources[] = 'https://www.google-analytics.com';
+        $sources[] = 'https://www.googletagmanager.com';
+        $sources[] = 'https://analytics.google.com';
+        $sources[] = 'https://stats.g.doubleclick.net';
+
+        // Add Microsoft Clarity tracking domain
+        $sources[] = 'https://www.clarity.ms';
+        $sources[] = 'https://*.clarity.ms';
 
         return implode(' ', $sources);
     }
