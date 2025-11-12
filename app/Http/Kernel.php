@@ -23,6 +23,9 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\SecurityHeadersMiddleware::class,
 
+        // SEO: Redirect www to non-www for URL canonicalization
+        \App\Http\Middleware\RedirectWww::class,
+
         // Tenancy initialization - MUST run before session to set correct DB connection
         // Only initializes for tenant domains, skips central domains
         \App\Http\Middleware\InitializeTenancyByDomainEarly::class,

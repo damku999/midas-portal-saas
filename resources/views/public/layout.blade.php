@@ -56,8 +56,8 @@
 
     <!-- 🌐 CANONICAL & ALTERNATE LINKS -->
     <link rel="canonical" href="{{ url()->current() }}">
-    <link rel="alternate" hreflang="en" href="{{ url()->current() }}">
-    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+    <link rel="alternate" hreflang="en-IN" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
 
     <!-- 🧩 ICONS & MANIFEST -->
     <link rel="icon" href="{{ asset('images/logo-icon@2000x.png') }}" sizes="any">
@@ -105,12 +105,14 @@
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 CSS (Critical) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Modern Animations CSS -->
-    <link rel="stylesheet" href="{{ asset('css/modern-animations.css') }}">
+    <!-- Font Awesome (Non-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- Modern Animations CSS (Non-blocking, Minified) -->
+    <link rel="stylesheet" href="{{ asset('css/modern-animations.min.css') }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ asset('css/modern-animations.min.css') }}"></noscript>
 
     <style>
         :root {
@@ -323,7 +325,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" class="d-inline-block align-text-top">
+                <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" class="d-inline-block align-text-top" width="180" height="45">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -349,7 +351,7 @@
                         <a class="nav-link {{ request()->is('contact*') ? 'active' : '' }}" href="{{ url('/contact') }}">Contact</a>
                     </li>
                     <li class="nav-item ms-3">
-                        <a class="btn btn-outline-primary btn-sm" href="http://demo.midastech.in" target="_blank">Demo</a>
+                        <a class="btn btn-outline-primary btn-sm" href="http://demo.midastech.in" target="_blank" rel="noopener noreferrer">Demo</a>
                     </li>
                 </ul>
             </div>
@@ -366,7 +368,7 @@
                 <!-- Company Info -->
                 <div class="col-lg-4 col-md-6 mb-4 animate-fade-in-up">
                     <h5 class="text-white mb-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3">
+                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3" width="160" height="40">
                     </h5>
                     <p class="small mb-3">Transform your insurance business with cutting-edge technology. Modern multi-tenant insurance management SaaS platform for agencies.</p>
 
@@ -393,7 +395,7 @@
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="{{ url('/features') }}" class="text-decoration-none text-light hover-primary">Features</a></li>
                         <li class="mb-2"><a href="{{ url('/pricing') }}" class="text-decoration-none text-light hover-primary">Pricing</a></li>
-                        <li class="mb-2"><a href="http://demo.midastech.in" target="_blank" class="text-decoration-none text-light hover-primary">Live Demo</a></li>
+                        <li class="mb-2"><a href="http://demo.midastech.in" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-light hover-primary">Live Demo</a></li>
                         <li class="mb-2"><a href="{{ url('/features/analytics-reports') }}" class="text-decoration-none text-light hover-primary">Analytics</a></li>
                         <li class="mb-2"><a href="{{ url('/features/whatsapp-integration') }}" class="text-decoration-none text-light hover-primary">Integrations</a></li>
                     </ul>
@@ -495,14 +497,14 @@
         }
     </style>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 JS (Deferred) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 
-    <!-- Cloudflare Turnstile -->
+    <!-- Cloudflare Turnstile (Async) -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <!-- Modern Animations JS -->
-    <script src="{{ asset('js/modern-animations.js') }}"></script>
+    <!-- Modern Animations JS (Deferred, Minified) -->
+    <script src="{{ asset('js/modern-animations.min.js') }}" defer></script>
 
     @yield('scripts')
 </body>

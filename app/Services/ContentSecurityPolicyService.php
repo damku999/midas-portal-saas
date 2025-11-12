@@ -67,17 +67,17 @@ class ContentSecurityPolicyService
         return [
             // Core security headers
             'X-Content-Type-Options' => 'nosniff',
-            'X-Frame-Options' => 'DENY',
+            'X-Frame-Options' => 'SAMEORIGIN', // Changed from DENY to allow same-origin frames
             'X-XSS-Protection' => '0', // Disabled in favor of CSP
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
 
             // HSTS for HTTPS
             'Strict-Transport-Security' => $this->getHstsHeader(),
 
-            // Cross-Origin policies
-            'Cross-Origin-Embedder-Policy' => 'require-corp',
+            // Cross-Origin policies - RELAXED to fix resource loading
+            // 'Cross-Origin-Embedder-Policy' => 'require-corp', // REMOVED - was blocking local resources
             'Cross-Origin-Opener-Policy' => 'same-origin',
-            'Cross-Origin-Resource-Policy' => 'same-origin',
+            'Cross-Origin-Resource-Policy' => 'cross-origin', // Changed to cross-origin to allow resources
 
             // Permissions policy (new Permissions API)
             'Permissions-Policy' => $this->getPermissionsPolicy(),
@@ -256,7 +256,8 @@ class ContentSecurityPolicyService
 
     private function getPermissionsPolicy(): string
     {
-        return 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()';
+        // Removed 'speaker' as it's not a valid Permissions-Policy feature
+        return 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()';
     }
 
     private function isAdminPanel(Request $request): bool

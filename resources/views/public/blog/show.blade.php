@@ -62,16 +62,16 @@
                 <div class="mt-4 pt-4 border-top scroll-reveal">
                     <h6 class="mb-3">Share this article:</h6>
                     <div class="d-flex gap-2">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-facebook">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/blog/' . $post->slug)) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-facebook">
                             <i class="fab fa-facebook-f"></i> Facebook
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/blog/' . $post->slug)) }}&text={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-info btn-sm hover-scale" data-cta="blog-share-twitter">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/blog/' . $post->slug)) }}&text={{ urlencode($post->title) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-info btn-sm hover-scale" data-cta="blog-share-twitter">
                             <i class="fab fa-twitter"></i> Twitter
                         </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url('/blog/' . $post->slug)) }}&title={{ urlencode($post->title) }}" target="_blank" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-linkedin">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url('/blog/' . $post->slug)) }}&title={{ urlencode($post->title) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm hover-scale" data-cta="blog-share-linkedin">
                             <i class="fab fa-linkedin-in"></i> LinkedIn
                         </a>
-                        <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . url('/blog/' . $post->slug)) }}" target="_blank" class="btn btn-outline-success btn-sm hover-scale" data-cta="blog-share-whatsapp">
+                        <a href="https://wa.me/?text={{ urlencode($post->title . ' - ' . url('/blog/' . $post->slug)) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm hover-scale" data-cta="blog-share-whatsapp">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
                     </div>
