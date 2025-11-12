@@ -75,9 +75,9 @@ class ContentSecurityPolicyService
             // HSTS for HTTPS
             'Strict-Transport-Security' => $this->getHstsHeader(),
 
-            // Cross-Origin policies - RELAXED to fix resource loading
+            // Cross-Origin policies - RELAXED to fix resource loading and allow Razorpay popup
             // 'Cross-Origin-Embedder-Policy' => 'require-corp', // REMOVED - was blocking local resources
-            'Cross-Origin-Opener-Policy' => 'same-origin',
+            'Cross-Origin-Opener-Policy' => 'same-origin-allow-popups', // Allow Razorpay popup
             'Cross-Origin-Resource-Policy' => 'cross-origin', // Changed to cross-origin to allow resources
 
             // Permissions policy (new Permissions API)
@@ -250,6 +250,18 @@ class ContentSecurityPolicyService
 
         // Add Razorpay Checkout iframe domain
         $sources[] = 'https://api.razorpay.com';
+        $sources[] = 'https://checkout.razorpay.com';
+
+        return implode(' ', $sources);
+    }
+
+    private function getChildSrc(): string
+    {
+        $sources = ["'self'"];
+
+        // Add Razorpay for popup windows
+        $sources[] = 'https://api.razorpay.com';
+        $sources[] = 'https://checkout.razorpay.com';
 
         return implode(' ', $sources);
     }

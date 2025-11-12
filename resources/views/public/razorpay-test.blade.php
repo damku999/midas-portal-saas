@@ -344,6 +344,8 @@
         }
 
         function openRazorpayCheckout(orderData) {
+            console.log('Opening Razorpay checkout with order:', orderData);
+
             const options = {
                 key: orderData.key,
                 amount: orderData.amount,
@@ -353,25 +355,35 @@
                 description: $('#testDescription').val(),
                 image: '{{ asset("images/logo.png") }}',
                 handler: function(response) {
+                    console.log('Payment successful:', response);
                     verifyPayment(response);
                 },
                 prefill: {
                     name: 'Test User',
                     email: 'test@example.com',
-                    contact: '9999999999'
+                    contact: '919800071314'
                 },
                 theme: {
                     color: '#667eea'
                 },
                 modal: {
                     ondismiss: function() {
+                        console.log('Payment modal dismissed');
                         showResult('warning', 'Payment cancelled by user');
-                    }
+                    },
+                    escape: true,
+                    backdropclose: false
                 }
             };
 
-            const rzp = new Razorpay(options);
-            rzp.open();
+            try {
+                const rzp = new Razorpay(options);
+                console.log('Razorpay instance created, opening checkout...');
+                rzp.open();
+            } catch (error) {
+                console.error('Error opening Razorpay:', error);
+                showResult('error', 'Failed to open Razorpay checkout: ' + error.message);
+            }
         }
 
         function verifyPayment(response) {
