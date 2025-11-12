@@ -1,0 +1,129 @@
+# ===================================================================
+# Root .htaccess - rewrites to public/ + tight security hardening
+# Place this in the project root (one level above public/)
+# ===================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    #################################################################
+    # 1) Serve existing files/dirs directly (if they exist in root)
+    #    This keeps assets you may intentionally place in root accessible.
+    #################################################################
+    RewriteCond %{REQUEST_URI} !^/public/                 # skip if already targeting public/
+    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -d
+    RewriteRule ^ - [L]
+
+    #################################################################
+    # 2) All other requests -> internal rewrite to public/
+    #    URL stays the same in browser.
+    #################################################################
+    RewriteCond %{REQUEST_URI} !^/\.git/                  # don't rewrite git internals if present
+    RewriteRule ^(.*)$ public/$1 [L,NC,QSA]
+</IfModule>
+
+# ===================================================================
+# Deny access to sensitive single files anywhere in the tree
+# (defence-in-depth: blocks .env, composer files, backups, git, phpunit)
+# ===================================================================
+<FilesMatch "(^\.env$|composer\.(json|lock)|artisan|README|CHANGELOG|phpunit\.xml|^\.git|\.gitignore)$">
+    Require all denied
+</FilesMatch>
+
+# Deny common backup/archive file downloads
+<FilesMatch ".*\.(sql|sql\.gz|tgz|tar|zip|rar|bak|old)$">
+    Require all denied
+</FilesMatch>
+
+# ===================================================================
+# Block HTTP access to sensitive directories by pattern (403)
+# Adjust names if your project uses different folders
+# ===================================================================
+RedirectMatch 403 ^/(storage|vendor|resources|tests|node_modules|private|.github)(/.*)?$
+
+# ===================================================================
+# Prevent direct access to dotfiles (like .env, .htpasswd)
+# ===================================================================
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# ===================================================================
+# Block PHP execution in storage and uploads (defence-in-depth)
+# Put these rules here to affect requests rewritten into public/.
+# ===================================================================
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "/(storage|uploads|public\/storage|tmp|temp)/?">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+
+# For hosts that do not support <DirectoryMatch>, deny via FilesMatch for those paths:
+<FilesMatch "(^storage/.*\.(php|php5|phtml|phar)$|^public/uploads/.*\.(php|php5|phtml|phar)$)">
+    Require all denied
+</FilesMatch>
+
+# ===================================================================
+# Security headers (if mod_headers available)
+# ===================================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+    # HSTS: enable only if HTTPS is already working for your site
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+</IfModule>
+
+# ===================================================================
+# Deny HTTP methods we don't need
+# ===================================================================
+<LimitExcept GET POST HEAD OPTIONS>
+    Require all denied
+</LimitExcept>
+
+# ===================================================================
+# Performance / caching for static assets (optional)
+# ===================================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>
+
+# ===================================================================
+# Force HTTPS (optional) - uncomment to enable
+# Note: enable only after SSL is configured correctly
+# ===================================================================
+# <IfModule mod_rewrite.c>
+#     RewriteCond %{HTTPS} !=on
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ===================================================================
+# Disable directory listings
+# ===================================================================
+Options -Indexes
+
+# ===================================================================
+# Fallback: if AllowOverride is limited on host, include legacy deny syntax
+# for older Apache versions (optional but harmless on modern servers)
+# ===================================================================
+<IfModule !mod_authz_core.c>
+    <FilesMatch "(\.env|composer\.(json|lock)|artisan|README|CHANGELOG|phpunit\.xml)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch ".*\.(sql|sql\.gz|tgz|tar|zip|rar|bak|old)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

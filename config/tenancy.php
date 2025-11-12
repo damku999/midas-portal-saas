@@ -17,14 +17,9 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => [
-        '127.0.0.1',
-        'localhost',
         'midastech.in',              // Production central domain
         'www.midastech.in',          // Production www subdomain
-        'midastech.in.local',        // Local development
-        'localhost:8000',            // Local development with port
-        'midastech.testing.in',      // Local testing domain
-        'midastech.testing.in:8085', // Local testing with port
+        
     ],
 
     /**
@@ -46,7 +41,7 @@ return [
      * Database tenancy config. Used by DatabaseTenancyBootstrapper.
      */
     'database' => [
-        'central_connection' => env('DB_CONNECTION', 'central'),
+        'central_connection' => env('DB_CONNECTION', 'u430606517_nI7yh'),
 
         /**
          * Connection used as a "template" for the dynamically created tenant database connection.
