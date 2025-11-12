@@ -19,7 +19,8 @@ return [
     'central_domains' => [
         'midastech.in',              // Production central domain
         'www.midastech.in',          // Production www subdomain
-        
+        'midastech.testing.in',      // Testing central domain (without port)
+        'midastech.testing.in:8085', // Testing central domain (with port)
     ],
 
     /**

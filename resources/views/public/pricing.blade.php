@@ -59,16 +59,29 @@
                     <p class="text-muted">{{ $plan->description }}</p>
 
                     <div class="my-4">
-                        <h2 class="display-4 fw-bold">₹{{ number_format($plan->price, 0) }}</h2>
-                        <p class="text-muted">/month</p>
+                        <h2 class="display-4 fw-bold">{{ $plan->formatted_price }}</h2>
+                        <p class="text-muted">/{{ $plan->billing_interval_label }}</p>
                     </div>
 
-                    @php
-                        $features = json_decode($plan->features, true) ?? [];
-                    @endphp
+                    <!-- Plan Limits -->
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div class="small text-muted mb-1">
+                            <i class="fas fa-users me-1"></i> {{ $plan->max_users_label }}
+                        </div>
+                        <div class="small text-muted mb-1">
+                            <i class="fas fa-user-friends me-1"></i> {{ $plan->max_customers_label }}
+                        </div>
+                        <div class="small text-muted mb-1">
+                            <i class="fas fa-chart-line me-1"></i> {{ $plan->max_leads_label }}
+                        </div>
+                        <div class="small text-muted">
+                            <i class="fas fa-hdd me-1"></i> {{ $plan->storage_limit_label }}
+                        </div>
+                    </div>
 
+                    <!-- Features List -->
                     <ul class="list-unstyled mb-4">
-                        @foreach($features as $feature)
+                        @foreach($plan->features as $feature)
                         <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ $feature }}</li>
                         @endforeach
                     </ul>

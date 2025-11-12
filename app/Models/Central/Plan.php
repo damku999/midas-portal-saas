@@ -92,7 +92,7 @@ class Plan extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return '$'.number_format($this->price, 2);
+        return '₹'.number_format($this->price, 2);
     }
 
     /**
@@ -109,6 +109,38 @@ class Plan extends Model
             'year' => 'Yearly',
             default => ucfirst($this->billing_interval),
         };
+    }
+
+    /**
+     * Get human-readable max users.
+     */
+    public function getMaxUsersLabelAttribute(): string
+    {
+        return $this->max_users === -1 ? 'Unlimited' : number_format($this->max_users) . ' users';
+    }
+
+    /**
+     * Get human-readable max customers.
+     */
+    public function getMaxCustomersLabelAttribute(): string
+    {
+        return $this->max_customers === -1 ? 'Unlimited' : number_format($this->max_customers) . ' customers';
+    }
+
+    /**
+     * Get human-readable max leads per month.
+     */
+    public function getMaxLeadsLabelAttribute(): string
+    {
+        return $this->max_leads_per_month === -1 ? 'Unlimited' : number_format($this->max_leads_per_month) . ' leads/month';
+    }
+
+    /**
+     * Get human-readable storage limit.
+     */
+    public function getStorageLimitLabelAttribute(): string
+    {
+        return number_format($this->storage_limit_gb) . ' GB storage';
     }
 
     /**

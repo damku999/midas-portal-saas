@@ -61,14 +61,14 @@
                         <div class="col-md-6">
                             <label class="text-muted small">Price</label>
                             <p class="mb-0">
-                                <strong class="h4">${{ number_format($plan->price, 2) }}</strong>
-                                <span class="text-muted">/ {{ $plan->billing_interval }}</span>
+                                <strong class="h4">{{ $plan->formatted_price }}</strong>
+                                <span class="text-muted">/ {{ $plan->billing_interval_label }}</span>
                             </p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small">Billing Interval</label>
                             <p class="mb-0">
-                                <span class="badge bg-secondary">{{ ucfirst($plan->billing_interval) }}</span>
+                                <span class="badge bg-secondary">{{ $plan->billing_interval_label }}</span>
                             </p>
                         </div>
                     </div>
@@ -80,25 +80,25 @@
                         <div class="col-md-3">
                             <label class="text-muted small">Max Users</label>
                             <p class="mb-0">
-                                <strong>{{ $plan->max_users === -1 ? 'Unlimited' : number_format($plan->max_users) }}</strong>
+                                <strong>{{ $plan->max_users_label }}</strong>
                             </p>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Max Customers</label>
                             <p class="mb-0">
-                                <strong>{{ $plan->max_customers === -1 ? 'Unlimited' : number_format($plan->max_customers) }}</strong>
+                                <strong>{{ $plan->max_customers_label }}</strong>
                             </p>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Max Leads/Month</label>
                             <p class="mb-0">
-                                <strong>{{ $plan->max_leads_per_month === -1 ? 'Unlimited' : number_format($plan->max_leads_per_month) }}</strong>
+                                <strong>{{ $plan->max_leads_label }}</strong>
                             </p>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Storage Limit</label>
                             <p class="mb-0">
-                                <strong>{{ $plan->storage_limit_gb }}GB</strong>
+                                <strong>{{ $plan->storage_limit_label }}</strong>
                             </p>
                         </div>
                     </div>

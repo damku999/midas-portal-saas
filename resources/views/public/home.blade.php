@@ -350,29 +350,32 @@
 
                         <div class="mb-4">
                             <h2 class="display-3 fw-bolder mb-0">
-                                ₹{{ number_format($plan->price, 0) }}
-                                <small class="fs-5 text-muted fw-normal">/{{ $plan->billing_interval }}</small>
+                                {{ $plan->formatted_price }}
+                                <small class="fs-5 text-muted fw-normal">/{{ $plan->billing_interval_label }}</small>
                             </h2>
+                            @if($plan->billing_interval === 'year')
                             <small class="text-success"><i class="fas fa-check-circle me-1"></i>Save with annual billing</small>
+                            @endif
                         </div>
 
+                        <!-- Plan Limits -->
+                        <div class="mb-3 p-3 bg-light rounded">
+                            <div class="small text-muted mb-2">
+                                <i class="fas fa-users me-1"></i> <strong>{{ $plan->max_users_label }}</strong>
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <i class="fas fa-user-friends me-1"></i> <strong>{{ $plan->max_customers_label }}</strong>
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <i class="fas fa-chart-line me-1"></i> <strong>{{ $plan->max_leads_label }}</strong>
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-hdd me-1"></i> <strong>{{ $plan->storage_limit_label }}</strong>
+                            </div>
+                        </div>
+
+                        <!-- Features List -->
                         <ul class="list-unstyled mb-4">
-                            <li class="mb-3 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
-                                <span><strong>{{ $plan->max_users == -1 ? 'Unlimited' : $plan->max_users }}</strong> Team Members</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
-                                <span><strong>{{ $plan->max_customers == -1 ? 'Unlimited' : number_format($plan->max_customers) }}</strong> Customer Records</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
-                                <span><strong>{{ $plan->max_leads_per_month == -1 ? 'Unlimited' : number_format($plan->max_leads_per_month) }}</strong> Leads per Month</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
-                                <span><strong>{{ $plan->storage_limit_gb }} GB</strong> Secure Cloud Storage</span>
-                            </li>
                             @foreach(array_slice($plan->features ?? [], 0, 4) as $feature)
                                 <li class="mb-3 d-flex align-items-start">
                                     <i class="fas fa-check-circle text-success me-3 mt-1"></i>

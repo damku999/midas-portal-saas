@@ -91,16 +91,16 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <strong>${{ number_format($plan->price, 2) }}</strong>
+                                        <strong>{{ $plan->formatted_price }}</strong>
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary">{{ ucfirst($plan->billing_interval) }}</span>
+                                        <span class="badge bg-secondary">{{ $plan->billing_interval_label }}</span>
                                     </td>
                                     <td>
                                         <small>
-                                            Users: <strong>{{ $plan->max_users === -1 ? 'Unlimited' : $plan->max_users }}</strong><br>
-                                            Customers: <strong>{{ $plan->max_customers === -1 ? 'Unlimited' : $plan->max_customers }}</strong><br>
-                                            Storage: <strong>{{ $plan->storage_limit_gb }}GB</strong>
+                                            <strong>{{ $plan->max_users_label }}</strong><br>
+                                            <strong>{{ $plan->max_customers_label }}</strong><br>
+                                            <strong>{{ $plan->storage_limit_label }}</strong>
                                         </small>
                                     </td>
                                     <td>

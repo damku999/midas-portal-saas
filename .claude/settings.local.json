@@ -74,7 +74,13 @@
       "Bash(while read file)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(for file in customer-management family-management customer-portal lead-management policy-management claims-management whatsapp-integration quotation-system analytics-reports commission-tracking document-management staff-management master-data-management notifications-alerts)",
-      "Bash(do cp \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.blade.php\" \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.backup.blade.php\")"
+      "Bash(do cp \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.blade.php\" \"C:\\xampp\\htdocs\\webmonks\\midas-portal\\resources\\views\\public\\features$file.backup.blade.php\")",
+      "Bash(if [ -f \"storage/logs/laravel.log\" ])",
+      "Bash(else echo \"No log file found\")",
+      "Bash(then grep -E \"APP_DEBUG|APP_ENV\" .env)",
+      "Bash(then grep -E \"DB_|CENTRAL_DB\" .env)",
+      "Bash(awk:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

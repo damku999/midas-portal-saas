@@ -118,9 +118,7 @@ class PublicController extends Controller
     {
         // Get plans from central database
         try {
-            $plans = \DB::connection('central')
-                ->table('plans')
-                ->where('is_active', true)
+            $plans = Plan::where('is_active', true)
                 ->orderBy('price')
                 ->get();
         } catch (\Exception $e) {

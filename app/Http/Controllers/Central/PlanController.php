@@ -149,7 +149,7 @@ class PlanController extends Controller
                 Rule::unique('plans', 'slug')->ignore($plan->id),
             ];
             $rules['price'] = 'required|numeric|min:0';
-            $rules['billing_interval'] = ['required', Rule::in(['monthly', 'yearly'])];
+            $rules['billing_interval'] = ['required', Rule::in(['week', 'month', 'two_month', 'quarter', 'six_month', 'year'])];
             $rules['max_users'] = 'required|integer|min:-1';
             $rules['max_customers'] = 'required|integer|min:-1';
             $rules['max_leads_per_month'] = 'required|integer|min:-1';
