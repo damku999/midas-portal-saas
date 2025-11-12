@@ -40,9 +40,10 @@ class ContentSecurityPolicyService
             'font-src' => $this->getFontSrc(),
             'connect-src' => $this->getConnectSrc(),
             'frame-src' => $this->getFrameSrc(),
+            'child-src' => $this->getChildSrc(), // For popup windows
             'object-src' => "'none'",
             'media-src' => "'self'",
-            'form-action' => "'self'",
+            'form-action' => "'self' https://api.razorpay.com", // Allow form submissions to Razorpay
             'frame-ancestors' => "'none'",
             'base-uri' => "'self'",
             'manifest-src' => "'self'",
@@ -154,6 +155,9 @@ class ContentSecurityPolicyService
         // Add Microsoft Clarity domain
         $sources[] = 'https://www.clarity.ms';
 
+        // Add Razorpay Checkout script domain
+        $sources[] = 'https://checkout.razorpay.com';
+
         return implode(' ', $sources);
     }
 
@@ -174,6 +178,9 @@ class ContentSecurityPolicyService
 
         $sources = array_merge($sources, $styleCdns);
 
+        // Add Razorpay Checkout styles
+        $sources[] = 'https://checkout.razorpay.com';
+
         return implode(' ', $sources);
     }
 
@@ -187,12 +194,16 @@ class ContentSecurityPolicyService
         $sources[] = 'https://stats.g.doubleclick.net';
         $sources[] = 'https://www.clarity.ms';
 
+        // Add Razorpay images and icons
+        $sources[] = 'https://cdn.razorpay.com';
+        $sources[] = 'https://checkout.razorpay.com';
+
         return implode(' ', $sources);
     }
 
     private function getFontSrc(): string
     {
-        return "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://kit.fontawesome.com";
+        return "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://kit.fontawesome.com https://checkout.razorpay.com";
     }
 
     private function getConnectSrc(): string
@@ -219,6 +230,11 @@ class ContentSecurityPolicyService
         $sources[] = 'https://www.clarity.ms';
         $sources[] = 'https://*.clarity.ms';
 
+        // Add Razorpay API domains for payment processing
+        $sources[] = 'https://api.razorpay.com';
+        $sources[] = 'https://checkout.razorpay.com';
+        $sources[] = 'https://lumberjack.razorpay.com';
+
         return implode(' ', $sources);
     }
 
@@ -231,6 +247,9 @@ class ContentSecurityPolicyService
 
         // Add Google Maps iframe domain
         $sources[] = 'https://www.google.com';
+
+        // Add Razorpay Checkout iframe domain
+        $sources[] = 'https://api.razorpay.com';
 
         return implode(' ', $sources);
     }
