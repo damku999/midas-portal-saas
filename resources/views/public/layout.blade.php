@@ -60,9 +60,10 @@
     <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
 
     <!-- 🧩 ICONS & MANIFEST -->
-    <link rel="icon" href="{{ asset('images/logo-icon@2000x.png') }}" sizes="any">
-    <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/logo-icon@2000x.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-icon@2000x.png') }}">
+    <link rel="icon" href="{{ asset('images/logo-icon.webp') }}" type="image/webp" sizes="180x180">
+    <link rel="icon" href="{{ asset('images/logo-icon-192.webp') }}" type="image/webp" sizes="192x192">
+    <link rel="icon" href="{{ asset('images/logo-icon-512.webp') }}" type="image/webp" sizes="512x512">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-icon@2x.webp') }}" sizes="360x360">
     <meta name="theme-color" content="#17b6b6">
 
     <!-- 📱 MOBILE & PWA -->
@@ -74,7 +75,7 @@
 
     <!-- 🎨 MICROSOFT / WINDOWS -->
     <meta name="msapplication-TileColor" content="#17b6b6">
-    <meta name="msapplication-TileImage" content="{{ asset('images/logo-icon@2000x.png') }}">
+    <meta name="msapplication-TileImage" content="{{ asset('images/logo-icon-512.webp') }}">
 
     <!-- 💬 OPEN GRAPH (FACEBOOK, LINKEDIN, WHATSAPP) -->
     <meta property="og:title" content="@yield('title', 'Midas Portal - Insurance Management SaaS Platform')">
@@ -99,22 +100,42 @@
     <meta name="geo.position" content="23.0225;72.5714">
     <meta name="ICBM" content="23.0225, 72.5714">
 
-    <!-- ⚙️ PERFORMANCE HINTS -->
+    <!-- ⚙️ ADVANCED PERFORMANCE HINTS -->
+    <!-- Preconnect to critical third-party origins (establishes early connections) -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- DNS Prefetch for additional third-party domains -->
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//www.google-analytics.com">
 
-    <!-- Bootstrap 5 CSS (Critical) -->
+    <!-- Preload Critical Assets (above-the-fold resources) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="{{ asset('images/logo.webp') }}" as="image" type="image/webp">
+    <link rel="preload" href="{{ asset('css/modern-animations.min.css') }}" as="style">
+
+    <!-- Bootstrap 5 CSS (Critical, Preloaded) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome (Non-blocking) -->
+
+    <!-- Font Awesome (Non-blocking with font-display: swap) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
     <!-- Modern Animations CSS (Non-blocking, Minified) -->
     <link rel="stylesheet" href="{{ asset('css/modern-animations.min.css') }}" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="{{ asset('css/modern-animations.min.css') }}"></noscript>
 
     <style>
+        /* Font Performance Optimization - font-display: swap */
+        @font-face {
+            font-family: 'FontAwesome';
+            font-display: swap;
+        }
+
         :root {
             /* Brand Colors - Based on WebMonks Logo */
             --primary-color: #17b6b6;
@@ -130,6 +151,11 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Lazy Loading Optimization for Below-the-fold Images */
+        img[loading="lazy"] {
+            min-height: 1px;
         }
 
         /* Override Bootstrap primary color with brand color */
@@ -256,7 +282,7 @@
         }
     </style>
 
-    <!-- Schema.org Structured Data (JSON-LD) -->
+    <!-- Schema.org Structured Data (JSON-LD) - SoftwareApplication -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -311,6 +337,42 @@
     }
     </script>
 
+    <!-- Schema.org Structured Data (JSON-LD) - BreadcrumbList -->
+    @php
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => url('/')],
+        ];
+
+        $path = request()->path();
+        if ($path !== '/') {
+            $segments = explode('/', trim($path, '/'));
+            $currentUrl = url('/');
+
+            foreach ($segments as $index => $segment) {
+                $currentUrl .= '/' . $segment;
+                $name = ucfirst(str_replace(['-', '_'], ' ', $segment));
+                $breadcrumbs[] = ['name' => $name, 'url' => $currentUrl];
+            }
+        }
+    @endphp
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            @foreach($breadcrumbs as $index => $breadcrumb)
+            {
+                "@type": "ListItem",
+                "position": {{ $index + 1 }},
+                "name": "{{ $breadcrumb['name'] }}",
+                "item": "{{ $breadcrumb['url'] }}"
+            }@if(!$loop->last),@endif
+            @endforeach
+        ]
+    }
+    </script>
+
     @yield('styles')
 </head>
 <body>
@@ -325,7 +387,11 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="WebMonks Technologies" class="d-inline-block align-text-top" width="180" height="45">
+                <picture>
+                    <source srcset="{{ asset('images/logo.webp') }} 1x, {{ asset('images/logo@2x.webp') }} 2x" type="image/webp">
+                    <source srcset="{{ asset('images/logo-optimized.png') }} 1x, {{ asset('images/logo-optimized@2x.png') }} 2x" type="image/png">
+                    <img src="{{ asset('images/logo-optimized.png') }}" alt="WebMonks Technologies" class="d-inline-block align-text-top" width="180" height="45" fetchpriority="high">
+                </picture>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -368,7 +434,11 @@
                 <!-- Company Info -->
                 <div class="col-lg-4 col-md-6 mb-4 animate-fade-in-up">
                     <h5 class="text-white mb-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3" width="160" height="40">
+                        <picture>
+                            <source srcset="{{ asset('images/logo.webp') }} 1x, {{ asset('images/logo@2x.webp') }} 2x" type="image/webp">
+                            <source srcset="{{ asset('images/logo-optimized.png') }} 1x, {{ asset('images/logo-optimized@2x.png') }} 2x" type="image/png">
+                            <img src="{{ asset('images/logo-optimized.png') }}" alt="Midas Portal by WebMonks" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3" width="160" height="40" loading="lazy">
+                        </picture>
                     </h5>
                     <p class="small mb-3">Transform your insurance business with cutting-edge technology. Modern multi-tenant insurance management SaaS platform for agencies.</p>
 
