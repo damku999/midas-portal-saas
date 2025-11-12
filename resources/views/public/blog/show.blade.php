@@ -179,8 +179,8 @@
 <section class="gradient-primary position-relative overflow-hidden py-5">
     <!-- Animated Background Elements -->
     <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
-        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 300px; height: 300px; background: white; border-radius: 50%;"></div>
-        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 250px; height: 250px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 120px; height: 120px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 100px; height: 100px; background: white; border-radius: 50%;"></div>
     </div>
 
     <div class="container text-center position-relative z-index-2">
@@ -194,53 +194,301 @@
 </section>
 
 <style>
+/* Article Content - Quill Editor Compatibility */
 .article-content {
     font-size: 1.1rem;
     line-height: 1.8;
+    color: #2d3748;
+}
+
+/* Headings */
+.article-content h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+    color: #1a202c;
 }
 
 .article-content h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
-    font-weight: 600;
+    line-height: 1.3;
+    color: #1a202c;
 }
 
 .article-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.875rem;
+    line-height: 1.3;
+    color: #1a202c;
+}
+
+.article-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
-    font-weight: 600;
+    color: #1a202c;
 }
 
+.article-content h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.625rem;
+    color: #1a202c;
+}
+
+.article-content h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+/* Paragraphs */
 .article-content p {
     margin-bottom: 1.25rem;
+    text-align: justify;
 }
 
-.article-content ul, .article-content ol {
-    margin-bottom: 1.25rem;
+/* Lists */
+.article-content ul,
+.article-content ol {
+    margin-bottom: 1.5rem;
     padding-left: 2rem;
 }
 
+.article-content ul {
+    list-style-type: disc;
+}
+
+.article-content ol {
+    list-style-type: decimal;
+}
+
 .article-content li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.625rem;
+    line-height: 1.7;
 }
 
+.article-content ul ul,
+.article-content ol ul {
+    list-style-type: circle;
+    margin-top: 0.5rem;
+}
+
+.article-content ul ol,
+.article-content ol ol {
+    list-style-type: lower-alpha;
+    margin-top: 0.5rem;
+}
+
+/* Text Formatting */
 .article-content strong {
-    font-weight: 600;
-    color: var(--primary-color);
+    font-weight: 700;
+    color: #17a2b8;
 }
 
-.article-content a {
-    color: var(--primary-color);
+.article-content em {
+    font-style: italic;
+}
+
+.article-content u {
     text-decoration: underline;
 }
 
+.article-content s {
+    text-decoration: line-through;
+}
+
+/* Links */
+.article-content a {
+    color: #17a2b8;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
 .article-content a:hover {
-    color: var(--primary-dark);
+    color: #138496;
+    text-decoration: none;
+}
+
+/* Blockquotes */
+.article-content blockquote {
+    border-left: 4px solid #17a2b8;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    background: #f8f9fa;
+    font-style: italic;
+    color: #6c757d;
+    border-radius: 0.25rem;
+}
+
+.article-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Code Blocks */
+.article-content pre {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.article-content code {
+    background: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #e83e8c;
+}
+
+.article-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* Images */
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Videos */
+.article-content iframe {
+    max-width: 100%;
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+}
+
+/* Text Alignment */
+.article-content .ql-align-center {
+    text-align: center;
+}
+
+.article-content .ql-align-right {
+    text-align: right;
+}
+
+.article-content .ql-align-justify {
+    text-align: justify;
+}
+
+/* Font Sizes */
+.article-content .ql-size-small {
+    font-size: 0.875rem;
+}
+
+.article-content .ql-size-large {
+    font-size: 1.25rem;
+}
+
+.article-content .ql-size-huge {
+    font-size: 1.5rem;
+}
+
+/* Indentation */
+.article-content .ql-indent-1 {
+    padding-left: 3rem;
+}
+
+.article-content .ql-indent-2 {
+    padding-left: 6rem;
+}
+
+.article-content .ql-indent-3 {
+    padding-left: 9rem;
+}
+
+/* Subscript & Superscript */
+.article-content sub {
+    font-size: 0.75em;
+    vertical-align: sub;
+}
+
+.article-content sup {
+    font-size: 0.75em;
+    vertical-align: super;
+}
+
+/* Horizontal Rules */
+.article-content hr {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 2px solid #dee2e6;
+}
+
+/* Tables (if needed in future) */
+.article-content table {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+}
+
+.article-content table th,
+.article-content table td {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+
+.article-content table th {
+    background: #f8f9fa;
+    font-weight: 600;
 }
 
 /* Z-index utilities */
 .z-index-2 {
     z-index: 2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .article-content {
+        font-size: 1rem;
+    }
+
+    .article-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .article-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .article-content h3 {
+        font-size: 1.25rem;
+    }
+
+    .article-content .ql-indent-1 {
+        padding-left: 1.5rem;
+    }
+
+    .article-content .ql-indent-2 {
+        padding-left: 3rem;
+    }
+
+    .article-content .ql-indent-3 {
+        padding-left: 4.5rem;
+    }
 }
 </style>
 @endsection

@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @if(config('services.google_tag_manager.enabled'))
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','{{ config('services.google_tag_manager.container_id') }}');</script>
+    <!-- End Google Tag Manager -->
+    @endif
+
+    @if(config('services.google_analytics.enabled'))
+    <!-- Google tag (gtag.js) - Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.measurement_id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config('services.google_analytics.measurement_id') }}', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure',
+            'user_id': '{{ auth("central")->check() ? "admin_" . auth("central")->id() : "" }}'
+        });
+    </script>
+    @endif
+
+    @if(config('services.microsoft_clarity.enabled'))
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "{{ config('services.microsoft_clarity.project_id') }}");
+    </script>
+    @endif
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -73,8 +109,10 @@
 
         .sidebar-menu li a:hover,
         .sidebar-menu li a.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             color: white;
+            border-left: 3px solid white;
+            padding-left: 17px;
         }
 
         .sidebar-menu li a i {
@@ -146,6 +184,13 @@
     @stack('styles')
 </head>
 <body>
+    @if(config('services.google_tag_manager.enabled'))
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ config('services.google_tag_manager.container_id') }}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    @endif
+
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">
@@ -181,6 +226,30 @@
                     @if($newCount > 0)
                         <span class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</span>
                     @endif
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('central.newsletter-subscribers.index') }}" class="{{ request()->routeIs('central.newsletter-subscribers.*') ? 'active' : '' }}">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Newsletter Subscribers</span>
+                    @php
+                        $subscriberCount = \App\Models\Central\NewsletterSubscriber::where('status', 'active')->count();
+                    @endphp
+                    @if($subscriberCount > 0)
+                        <span class="badge bg-success rounded-pill ms-auto">{{ $subscriberCount }}</span>
+                    @endif
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('central.testimonials.index') }}" class="{{ request()->routeIs('central.testimonials.*') ? 'active' : '' }}">
+                    <i class="fas fa-quote-right"></i>
+                    <span>Testimonials</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('central.blog-posts.index') }}" class="{{ request()->routeIs('central.blog-posts.*') ? 'active' : '' }}">
+                    <i class="fas fa-blog"></i>
+                    <span>Blog Posts</span>
                 </a>
             </li>
             <li>

@@ -417,80 +417,46 @@
         ])
 
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6 scroll-reveal">
-                <div class="testimonial-card">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning me-2">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+            @forelse($testimonials as $index => $testimonial)
+                <div class="col-lg-4 col-md-6 scroll-reveal {{ $index > 0 ? 'delay-' . ($index * 100) : '' }}">
+                    <div class="testimonial-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="text-warning me-2">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= $testimonial->rating ? '' : 'text-muted' }}"></i>
+                                @endfor
+                            </div>
+                            <small class="text-muted">{{ $testimonial->rating }}.0</small>
                         </div>
-                        <small class="text-muted">5.0</small>
-                    </div>
-                    <p class="mb-4">Midas Portal transformed our agency operations. The WhatsApp integration alone saves us 10+ hours weekly. ROI was immediate!</p>
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-primary bg-opacity-10 me-3" style="width: 50px; height: 50px; font-size: 1.25rem;">
-                            <i class="fas fa-user text-primary"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold">Rajesh Kumar</div>
-                            <small class="text-muted">Director, Shield Insurance</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 scroll-reveal delay-100">
-                <div class="testimonial-card">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning me-2">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <small class="text-muted">5.0</small>
-                    </div>
-                    <p class="mb-4">Best insurance software in India! The customer portal reduced support calls by 60%. Our clients love the self-service features.</p>
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-success bg-opacity-10 me-3" style="width: 50px; height: 50px; font-size: 1.25rem;">
-                            <i class="fas fa-user text-success"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold">Priya Sharma</div>
-                            <small class="text-muted">CEO, SecureLife Agency</small>
+                        <p class="mb-4">{{ $testimonial->testimonial }}</p>
+                        <div class="d-flex align-items-center">
+                            @if($testimonial->photo)
+                                <img src="{{ Storage::url($testimonial->photo) }}" alt="{{ $testimonial->name }}"
+                                     class="rounded-circle me-3"
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                            @else
+                                @php
+                                    $colors = ['primary', 'success', 'info', 'warning', 'danger'];
+                                    $color = $colors[$index % count($colors)];
+                                @endphp
+                                <div class="icon-box bg-{{ $color }} bg-opacity-10 me-3" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                                    <i class="fas fa-user text-{{ $color }}"></i>
+                                </div>
+                            @endif
+                            <div>
+                                <div class="fw-bold">{{ $testimonial->name }}</div>
+                                <small class="text-muted">{{ $testimonial->role }}, {{ $testimonial->company }}</small>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 scroll-reveal delay-200">
-                <div class="testimonial-card">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning me-2">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <small class="text-muted">5.0</small>
-                    </div>
-                    <p class="mb-4">The automated reminders and analytics helped us increase renewal rates by 35%. Excellent platform with outstanding support!</p>
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-info bg-opacity-10 me-3" style="width: 50px; height: 50px; font-size: 1.25rem;">
-                            <i class="fas fa-user text-info"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold">Amit Patel</div>
-                            <small class="text-muted">Owner, Prime Insurance</small>
-                        </div>
-                    </div>
+            @empty
+                <!-- Fallback if no testimonials in database -->
+                <div class="col-12 text-center text-muted py-5">
+                    <i class="fas fa-quote-right fa-3x mb-3 opacity-25"></i>
+                    <p>Customer testimonials coming soon!</p>
                 </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>

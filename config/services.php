@@ -47,4 +47,20 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'google_analytics' => [
+        'measurement_id' => env('GOOGLE_ANALYTICS_MEASUREMENT_ID', 'G-21PCW1WJXT'),
+        'stream_id' => env('GOOGLE_ANALYTICS_STREAM_ID', '9845847756'),
+        'enabled' => env('GOOGLE_ANALYTICS_ENABLED', true),
+    ],
+
+    'microsoft_clarity' => [
+        'project_id' => env('MICROSOFT_CLARITY_PROJECT_ID', 'u4tcfro0dt'),
+        'enabled' => env('MICROSOFT_CLARITY_ENABLED', true),
+    ],
+
+    'google_tag_manager' => [
+        'container_id' => env('GOOGLE_TAG_MANAGER_ID', 'GTM-MKQWQXQV'),
+        'enabled' => env('GOOGLE_TAG_MANAGER_ENABLED', true),
+    ],
+
 ];

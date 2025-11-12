@@ -9,9 +9,9 @@
 <section class="hero-section position-relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
-        <div class="position-absolute animate-float" style="top: 10%; left: 5%; width: 60px; height: 60px; background: white; border-radius: 50%;"></div>
-        <div class="position-absolute animate-float delay-300" style="top: 70%; right: 10%; width: 50px; height: 50px; background: white; border-radius: 50%;"></div>
-        <div class="position-absolute animate-float delay-500" style="bottom: 20%; left: 15%; width: 55px; height: 55px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float" style="top: 10%; left: 5%; width: 40px; height: 40px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="top: 70%; right: 10%; width: 35px; height: 35px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-500" style="bottom: 20%; left: 15%; width: 38px; height: 38px; background: white; border-radius: 50%;"></div>
     </div>
 
     <div class="container py-5 position-relative z-index-2">
@@ -71,9 +71,14 @@
         <div class="modern-card modern-card-gradient shadow-lg scroll-reveal delay-200 hover-lift">
             <div class="row g-0">
                 <div class="col-md-5">
-                    <div class="gradient-primary" style="height: 100%; min-height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 20px 0 0 20px;">
-                        <i class="fas fa-newspaper text-white animate-pulse" style="font-size: 5rem; opacity: 0.3;"></i>
-                    </div>
+                    @if($featuredPost->featured_image)
+                        <img src="{{ Storage::url($featuredPost->featured_image) }}" alt="{{ $featuredPost->title }}"
+                             class="img-fluid" style="height: 100%; min-height: 300px; object-fit: cover; border-radius: 20px 0 0 20px;">
+                    @else
+                        <div class="gradient-primary" style="height: 100%; min-height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 20px 0 0 20px;">
+                            <i class="fas fa-newspaper text-white animate-pulse" style="font-size: 5rem; opacity: 0.3;"></i>
+                        </div>
+                    @endif
                 </div>
                 <div class="col-md-7">
                     <div class="p-4 p-md-5">
@@ -124,6 +129,13 @@
             @foreach($posts as $post)
             <div class="col-md-6 col-lg-4">
                 <div class="modern-card modern-card-gradient h-100 scroll-reveal hover-lift" style="animation-delay: {{ $loop->index * 0.1 }}s;">
+                    @if($post->featured_image_thumb)
+                        <img src="{{ Storage::url($post->featured_image_thumb) }}" alt="{{ $post->title }}"
+                             class="img-fluid rounded mb-3" style="width: 100%; height: 200px; object-fit: cover;">
+                    @elseif($post->featured_image)
+                        <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}"
+                             class="img-fluid rounded mb-3" style="width: 100%; height: 200px; object-fit: cover;">
+                    @endif
                     <div class="mb-3">
                         <span class="badge bg-{{ $post->category_badge }}">{{ $post->category_name }}</span>
                         <span class="text-muted ms-2 small">{{ $post->published_date }}</span>
@@ -176,8 +188,8 @@
 <section class="gradient-primary position-relative overflow-hidden py-5">
     <!-- Animated Background Elements -->
     <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
-        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 300px; height: 300px; background: white; border-radius: 50%;"></div>
-        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 250px; height: 250px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float" style="top: -10%; right: 10%; width: 120px; height: 120px; background: white; border-radius: 50%;"></div>
+        <div class="position-absolute animate-float delay-300" style="bottom: -10%; left: 5%; width: 100px; height: 100px; background: white; border-radius: 50%;"></div>
     </div>
 
     <div class="container text-center position-relative z-index-2">

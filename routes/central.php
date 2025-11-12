@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Central\AuthController;
+use App\Http\Controllers\Central\BlogPostController;
 use App\Http\Controllers\Central\ContactSubmissionController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\NewsletterSubscriberController;
 use App\Http\Controllers\Central\PlanController;
 use App\Http\Controllers\Central\TenantController;
+use App\Http\Controllers\Central\TestimonialController;
 use App\Http\Controllers\Central\UsageAlertController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +74,37 @@ Route::middleware(['central.auth'])->group(function () {
         Route::get('/{contactSubmission}', [ContactSubmissionController::class, 'show'])->name('show');
         Route::post('/{contactSubmission}/status', [ContactSubmissionController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{contactSubmission}', [ContactSubmissionController::class, 'destroy'])->name('destroy');
+    });
+
+    // Newsletter Subscribers
+    Route::prefix('newsletter-subscribers')->name('central.newsletter-subscribers.')->group(function () {
+        Route::get('/', [NewsletterSubscriberController::class, 'index'])->name('index');
+        Route::get('/export', [NewsletterSubscriberController::class, 'export'])->name('export');
+        Route::get('/{subscriber}', [NewsletterSubscriberController::class, 'show'])->name('show');
+        Route::post('/{subscriber}/status', [NewsletterSubscriberController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{subscriber}', [NewsletterSubscriberController::class, 'destroy'])->name('destroy');
+    });
+
+    // Testimonials
+    Route::prefix('testimonials')->name('central.testimonials.')->group(function () {
+        Route::get('/', [TestimonialController::class, 'index'])->name('index');
+        Route::get('/create', [TestimonialController::class, 'create'])->name('create');
+        Route::post('/', [TestimonialController::class, 'store'])->name('store');
+        Route::get('/{testimonial}/edit', [TestimonialController::class, 'edit'])->name('edit');
+        Route::put('/{testimonial}', [TestimonialController::class, 'update'])->name('update');
+        Route::delete('/{testimonial}', [TestimonialController::class, 'destroy'])->name('destroy');
+        Route::post('/{testimonial}/toggle-status', [TestimonialController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Blog Posts
+    Route::prefix('blog-posts')->name('central.blog-posts.')->group(function () {
+        Route::get('/', [BlogPostController::class, 'index'])->name('index');
+        Route::get('/create', [BlogPostController::class, 'create'])->name('create');
+        Route::post('/', [BlogPostController::class, 'store'])->name('store');
+        Route::get('/{blogPost}/edit', [BlogPostController::class, 'edit'])->name('edit');
+        Route::put('/{blogPost}', [BlogPostController::class, 'update'])->name('update');
+        Route::delete('/{blogPost}', [BlogPostController::class, 'destroy'])->name('destroy');
+        Route::post('/{blogPost}/toggle-status', [BlogPostController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Usage Alerts Management

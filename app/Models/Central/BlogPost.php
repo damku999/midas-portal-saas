@@ -19,6 +19,7 @@ class BlogPost extends Model
         'excerpt',
         'content',
         'featured_image',
+        'featured_image_thumb',
         'category',
         'tags',
         'meta_title',

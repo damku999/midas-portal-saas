@@ -22,7 +22,7 @@
     <h2 class="display-5 fw-bold {{ isset($badge) ? 'mt-2' : '' }} mb-3">{{ $title }}</h2>
 
     @if(isset($description))
-    <p class="lead text-muted {{ $descClass ?? '' }}">{{ $description }}</p>
+    <p class="lead text-muted {{ $descClass ?? '' }}">{!! $description !!}</p>
     @endif
 
     {{ $slot ?? '' }}

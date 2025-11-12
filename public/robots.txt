@@ -19,8 +19,16 @@ Allow: /features/*
 Allow: /pricing
 Allow: /about
 Allow: /contact
+Allow: /blog
+Allow: /blog/*
+Allow: /help-center
+Allow: /documentation
+Allow: /api
+Allow: /privacy
+Allow: /terms
+Allow: /security
 
-# Sitemap location
+# Sitemap location (dynamic, auto-updates with blog posts)
 Sitemap: https://midastech.in/sitemap.xml
 
 # Crawl-delay for specific bots (optional)

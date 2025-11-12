@@ -40,7 +40,7 @@
                 </div>
 
                 @if($showNote ?? false)
-                <p class="mt-3 small opacity-75 scroll-reveal delay-300">{{ $note ?? 'No credit card required • 14-day free trial • Cancel anytime' }}</p>
+                <p class="mt-3 small opacity-75 scroll-reveal delay-300">{!! $note ?? 'No credit card required • 14-day free trial • Cancel anytime' !!}</p>
                 @endif
 
                 {{ $slot ?? '' }}

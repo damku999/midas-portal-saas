@@ -21,7 +21,13 @@ class PublicController extends Controller
             ->orderBy('price')
             ->get();
 
-        return view('public.home', compact('plans'));
+        // Load active testimonials for testimonials section
+        $testimonials = \App\Models\Central\Testimonial::active()
+            ->ordered()
+            ->limit(3)
+            ->get();
+
+        return view('public.home', compact('plans', 'testimonials'));
     }
 
     /**
