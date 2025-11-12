@@ -155,20 +155,64 @@
                            value="Test Payment - Razorpay Integration" placeholder="Enter description">
                 </div>
 
+                <!-- Testing Guide -->
+                <div class="alert alert-primary mb-3">
+                    <h6 class="mb-2"><i class="bi bi-lightbulb"></i> <strong>How to Test:</strong></h6>
+                    <ol class="mb-0 small">
+                        <li>Select test amount and click <strong>"Start Test Payment"</strong></li>
+                        <li>Razorpay checkout will open</li>
+                        <li><strong>For Card Payment:</strong> Use Indian domestic test cards below (green box)</li>
+                        <li><strong>For UPI Payment:</strong> Select UPI method and use test UPI IDs below (blue box)</li>
+                        <li>Complete payment to see success/failure result</li>
+                    </ol>
+                </div>
+
                 <!-- Test Cards Reference -->
-                <div class="alert alert-warning">
-                    <h6><strong><i class="bi bi-info-circle"></i> Razorpay Test Cards:</strong></h6>
-                    <div class="row">
+                <div class="alert alert-success">
+                    <h6><strong><i class="bi bi-credit-card"></i> Indian Domestic Test Cards (Recommended):</strong></h6>
+                    <div class="row mb-2">
                         <div class="col-md-6">
-                            <strong>Success:</strong> <code>4111 1111 1111 1111</code><br>
-                            <strong>Decline:</strong> <code>4000 0000 0000 0002</code>
+                            <strong>Visa (Domestic):</strong> <code>4012 8888 8888 1881</code>
                         </div>
                         <div class="col-md-6">
-                            <strong>UPI Success:</strong> <code>success@razorpay</code><br>
-                            <strong>UPI Failure:</strong> <code>failure@razorpay</code>
+                            <strong>Mastercard (Domestic):</strong> <code>5104 0600 0000 0008</code>
                         </div>
                     </div>
-                    <small class="text-muted">CVV: Any 3 digits | Expiry: Any future date</small>
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>Rupay:</strong> <code>6521 5900 0000 0000</code>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Amex:</strong> <code>3782 822463 10005</code>
+                        </div>
+                    </div>
+                    <small class="text-muted"><strong>CVV:</strong> Any 3 digits (e.g., 123) | <strong>Expiry:</strong> Any future date (e.g., 12/25) | <strong>Name:</strong> Any name</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <h6><strong><i class="bi bi-phone"></i> UPI Test Payment:</strong></h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Success Payment:</strong> <code>success@razorpay</code>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Failed Payment:</strong> <code>failure@razorpay</code>
+                        </div>
+                    </div>
+                    <small class="text-muted">Select <strong>UPI</strong> payment method in checkout and enter one of these test UPI IDs</small>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h6><strong><i class="bi bi-globe"></i> International Test Cards:</strong></h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Visa (International):</strong> <code>4111 1111 1111 1111</code>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Declined Card:</strong> <code>4000 0000 0000 0002</code>
+                        </div>
+                    </div>
+                    <small class="text-muted"><i class="bi bi-exclamation-triangle"></i> <strong>Note:</strong> International cards may require enabling in Razorpay Dashboard (Settings → Payment Methods)</small>
                 </div>
 
                 <!-- Action Buttons -->
