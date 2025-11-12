@@ -204,6 +204,9 @@ class ContentSecurityPolicyService
         // Add Cloudflare Turnstile iframe domains
         $sources[] = 'https://challenges.cloudflare.com';
 
+        // Add Google Maps iframe domain
+        $sources[] = 'https://www.google.com';
+
         return implode(' ', $sources);
     }
 
