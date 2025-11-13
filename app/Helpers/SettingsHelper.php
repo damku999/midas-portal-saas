@@ -298,12 +298,15 @@ if (! function_exists('company_logo_asset')) {
     {
         $logoPath = company_logo();
 
-        // For tenant context, use Storage::url() to get proper tenant-scoped URL
-        if (tenancy()->initialized && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)) {
-            return \Illuminate\Support\Facades\Storage::disk('public')->url($logoPath);
+        // For tenant context, use tenant-assets route
+        if (tenancy()->initialized) {
+            // Check if file exists in tenant storage
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)) {
+                return url('/tenant-assets/' . $logoPath);
+            }
         }
 
-        // Fallback to asset() for central/non-tenant context
+        // Fallback to asset() for central/non-tenant context or if file doesn't exist
         return asset($logoPath);
     }
 }
@@ -327,12 +330,15 @@ if (! function_exists('company_favicon_asset')) {
     {
         $faviconPath = company_favicon();
 
-        // For tenant context, use Storage::url() to get proper tenant-scoped URL
-        if (tenancy()->initialized && \Illuminate\Support\Facades\Storage::disk('public')->exists($faviconPath)) {
-            return \Illuminate\Support\Facades\Storage::disk('public')->url($faviconPath);
+        // For tenant context, use tenant-assets route
+        if (tenancy()->initialized) {
+            // Check if file exists in tenant storage
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($faviconPath)) {
+                return url('/tenant-assets/' . $faviconPath);
+            }
         }
 
-        // Fallback to asset() for central/non-tenant context
+        // Fallback to asset() for central/non-tenant context or if file doesn't exist
         return asset($faviconPath);
     }
 }

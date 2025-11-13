@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Storage;
 */
 
 // Serve tenant-specific public storage files
-Route::get('/storage/{path}', function ($path) {
+// Using /tenant-assets instead of /storage to avoid conflict with public/storage symlink
+Route::get('/tenant-assets/{path}', function ($path) {
     $tenant = tenant();
 
     if (!$tenant) {
@@ -31,5 +32,7 @@ Route::get('/storage/{path}', function ($path) {
     $file = Storage::disk('public')->get($path);
     $mimeType = Storage::disk('public')->mimeType($path);
 
-    return response($file, 200)->header('Content-Type', $mimeType);
+    return response($file, 200)
+        ->header('Content-Type', $mimeType)
+        ->header('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
 })->where('path', '.*')->name('tenant.storage');
