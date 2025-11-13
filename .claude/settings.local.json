@@ -80,7 +80,13 @@
       "Bash(then grep -E \"APP_DEBUG|APP_ENV\" .env)",
       "Bash(then grep -E \"DB_|CENTRAL_DB\" .env)",
       "Bash(awk:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(then grep -E \"RAZORPAY_KEY|RAZORPAY_SECRET\" .env)",
+      "Bash(then echo \"=== Razorpay Configuration ===\")",
+      "Bash(php:*)",
+      "Bash(mysql:*)",
+      "Bash(then grep -i \"CACHE_DRIVER\" .env)",
+      "mcp__laravel-boost__search-docs"
     ],
     "deny": [],
     "ask": []

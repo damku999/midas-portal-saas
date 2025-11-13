@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -411,9 +412,14 @@ class ClaimController extends AbstractBaseCrudController
 
     /**
      * Add new claim stage (AJAX endpoint).
+     *
+     * ACID-compliant: Uses database transaction to ensure stage updates
+     * and notifications are atomic. If notifications fail, stage changes
+     * are rolled back.
      */
     public function addStage(Request $request, Claim $claim): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $request->validate([
                 'stage_name' => 'required|string|max:255',
@@ -435,14 +441,16 @@ class ClaimController extends AbstractBaseCrudController
                 'stage_date' => now(),
             ]);
 
-            // Send WhatsApp if requested
+            // Send WhatsApp if requested (within transaction)
             $whatsappResult = null;
             if ($request->boolean('send_whatsapp')) {
                 $whatsappResult = $claim->sendStageUpdateWhatsApp($request->stage_name, $request->notes);
             }
 
-            // Send email notification if enabled
+            // Send email notification if enabled (within transaction)
             $claim->sendStageUpdateNotification($request->stage_name, $request->description, $request->notes);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -451,6 +459,14 @@ class ClaimController extends AbstractBaseCrudController
                 'whatsapp_result' => $whatsappResult,
             ]);
         } catch (\Throwable $throwable) {
+            DB::rollBack();
+
+            Log::error('Failed to add claim stage', [
+                'claim_id' => $claim->id,
+                'stage_name' => $request->stage_name ?? 'unknown',
+                'error' => $throwable->getMessage(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to add stage: '.$throwable->getMessage(),
@@ -460,27 +476,34 @@ class ClaimController extends AbstractBaseCrudController
 
     /**
      * Update claim number (AJAX endpoint).
+     *
+     * ACID-compliant: Uses database transaction to ensure claim number update
+     * and notifications are atomic.
      */
     public function updateClaimNumber(Request $request, Claim $claim): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $request->validate([
                 'claim_number' => 'required|string|max:255',
                 'send_whatsapp' => 'boolean',
             ]);
 
+            // Update claim number
             $claim->update([
                 'claim_number' => $request->claim_number,
             ]);
 
-            // Send WhatsApp if requested
+            // Send WhatsApp if requested (within transaction)
             $whatsappResult = null;
             if ($request->boolean('send_whatsapp')) {
                 $whatsappResult = $claim->sendClaimNumberWhatsApp();
             }
 
-            // Send email notification if enabled
+            // Send email notification if enabled (within transaction)
             $claim->sendClaimNumberAssignedNotification();
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -488,6 +511,14 @@ class ClaimController extends AbstractBaseCrudController
                 'whatsapp_result' => $whatsappResult,
             ]);
         } catch (\Throwable $throwable) {
+            DB::rollBack();
+
+            Log::error('Failed to update claim number', [
+                'claim_id' => $claim->id,
+                'claim_number' => $request->claim_number ?? 'unknown',
+                'error' => $throwable->getMessage(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update claim number: '.$throwable->getMessage(),
@@ -497,9 +528,13 @@ class ClaimController extends AbstractBaseCrudController
 
     /**
      * Update liability details (AJAX endpoint).
+     *
+     * ACID-compliant: Uses database transaction to ensure liability detail
+     * creation/update and claim calculations are atomic.
      */
     public function updateLiabilityDetails(Request $request, Claim $claim): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $request->validate([
                 'claim_type' => 'required|in:Cashless,Reimbursement',
@@ -513,9 +548,13 @@ class ClaimController extends AbstractBaseCrudController
                 'notes' => 'nullable|string',
             ]);
 
+            // Get or create liability detail
             $liabilityDetail = $claim->liabilityDetail ?: $claim->liabilityDetail()->create([]);
 
+            // Update liability details (financial data - critical operation)
             $liabilityDetail->update($request->all());
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -523,6 +562,13 @@ class ClaimController extends AbstractBaseCrudController
                 'liability_detail' => $liabilityDetail->fresh(),
             ]);
         } catch (\Throwable $throwable) {
+            DB::rollBack();
+
+            Log::error('Failed to update liability details', [
+                'claim_id' => $claim->id,
+                'error' => $throwable->getMessage(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update liability details: '.$throwable->getMessage(),

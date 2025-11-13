@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Central\Payment;
 use App\Models\Central\Subscription;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Razorpay\Api\Api as RazorpayApi;
 
@@ -11,48 +12,62 @@ class PaymentService
 {
     /**
      * Create a payment order.
+     *
+     * ACID-compliant: Uses database transaction to ensure payment record
+     * and gateway order creation are atomic. If gateway fails, payment
+     * record is rolled back.
      */
     public function createOrder(Subscription $subscription, float $amount, string $gateway, string $type = 'subscription'): array
     {
         try {
-            // Create payment record
-            $payment = Payment::create([
-                'tenant_id' => $subscription->tenant_id,
-                'subscription_id' => $subscription->id,
-                'payment_gateway' => $gateway,
-                'amount' => $amount,
-                'currency' => 'INR',
-                'status' => 'pending',
-                'type' => $type,
-                'description' => $this->getPaymentDescription($subscription, $type),
-            ]);
+            return DB::connection('central')->transaction(function () use ($subscription, $amount, $gateway, $type) {
+                // Create payment record
+                $payment = Payment::create([
+                    'tenant_id' => $subscription->tenant_id,
+                    'subscription_id' => $subscription->id,
+                    'payment_gateway' => $gateway,
+                    'amount' => $amount,
+                    'currency' => 'INR',
+                    'status' => 'pending',
+                    'type' => $type,
+                    'description' => $this->getPaymentDescription($subscription, $type),
+                ]);
 
-            // Create order with payment gateway
-            $orderData = match ($gateway) {
-                'razorpay' => $this->createRazorpayOrder($payment),
-                'stripe' => $this->createStripeOrder($payment),
-                'bank_transfer' => $this->createBankTransferOrder($payment),
-                default => throw new \Exception("Unsupported payment gateway: {$gateway}"),
-            };
+                // Create order with payment gateway
+                // If this fails, the transaction will rollback the payment record
+                $orderData = match ($gateway) {
+                    'razorpay' => $this->createRazorpayOrder($payment),
+                    'stripe' => $this->createStripeOrder($payment),
+                    'bank_transfer' => $this->createBankTransferOrder($payment),
+                    default => throw new \Exception("Unsupported payment gateway: {$gateway}"),
+                };
 
-            // Update payment with gateway order ID
-            $payment->update([
-                'gateway_order_id' => $orderData['order_id'],
-                'metadata' => $orderData,
-            ]);
+                // Update payment with gateway order ID
+                $payment->update([
+                    'gateway_order_id' => $orderData['order_id'],
+                    'metadata' => $orderData,
+                ]);
 
-            return [
-                'success' => true,
-                'payment_id' => $payment->id,
-                'order_data' => $orderData,
-                'payment' => $payment,
-            ];
+                Log::info("Payment order created successfully", [
+                    'payment_id' => $payment->id,
+                    'gateway' => $gateway,
+                    'amount' => $amount,
+                ]);
+
+                return [
+                    'success' => true,
+                    'payment_id' => $payment->id,
+                    'order_data' => $orderData,
+                    'payment' => $payment,
+                ];
+            });
 
         } catch (\Exception $e) {
             Log::error("Payment order creation failed", [
                 'subscription_id' => $subscription->id,
                 'gateway' => $gateway,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [
@@ -132,44 +147,76 @@ class PaymentService
 
     /**
      * Verify payment.
+     *
+     * ACID-compliant: Uses pessimistic locking and transactions to ensure
+     * payment verification and subscription updates are atomic and prevent
+     * double-processing from concurrent requests.
      */
     public function verifyPayment(int $paymentId, array $paymentData): array
     {
         try {
-            $payment = Payment::findOrFail($paymentId);
+            return DB::connection('central')->transaction(function () use ($paymentId, $paymentData) {
+                // Use pessimistic locking to prevent concurrent payment verification
+                $payment = Payment::lockForUpdate()->findOrFail($paymentId);
 
-            $result = match ($payment->payment_gateway) {
-                'razorpay' => $this->verifyRazorpayPayment($payment, $paymentData),
-                'stripe' => $this->verifyStripePayment($payment, $paymentData),
-                'bank_transfer' => $this->verifyBankTransferPayment($payment, $paymentData),
-                default => throw new \Exception("Unsupported payment gateway"),
-            };
+                // Check if payment is already processed
+                if ($payment->status !== 'pending') {
+                    Log::warning("Payment already processed", [
+                        'payment_id' => $paymentId,
+                        'current_status' => $payment->status,
+                    ]);
 
-            if ($result['success']) {
-                $payment->markAsCompleted($result['payment_id'], $result['response']);
+                    return [
+                        'success' => false,
+                        'error' => 'Payment has already been processed',
+                        'current_status' => $payment->status,
+                    ];
+                }
 
-                // Update subscription
-                $subscription = $payment->subscription;
-                $subscription->update([
-                    'payment_gateway' => $payment->payment_gateway,
-                    'gateway_subscription_id' => $result['payment_id'],
-                    'payment_method' => $result['payment_method'] ?? ['type' => $payment->payment_gateway],
-                ]);
+                // Verify with payment gateway
+                $result = match ($payment->payment_gateway) {
+                    'razorpay' => $this->verifyRazorpayPayment($payment, $paymentData),
+                    'stripe' => $this->verifyStripePayment($payment, $paymentData),
+                    'bank_transfer' => $this->verifyBankTransferPayment($payment, $paymentData),
+                    default => throw new \Exception("Unsupported payment gateway"),
+                };
 
-                Log::info("Payment verified successfully", [
-                    'payment_id' => $payment->id,
-                    'gateway' => $payment->payment_gateway,
-                ]);
-            } else {
-                $payment->markAsFailed($result['error'], $result['response'] ?? []);
-            }
+                if ($result['success']) {
+                    // Mark payment as completed
+                    $payment->markAsCompleted($result['payment_id'], $result['response']);
 
-            return $result;
+                    // Update subscription (atomic with payment update)
+                    $subscription = $payment->subscription;
+                    $subscription->update([
+                        'payment_gateway' => $payment->payment_gateway,
+                        'gateway_subscription_id' => $result['payment_id'],
+                        'payment_method' => $result['payment_method'] ?? ['type' => $payment->payment_gateway],
+                    ]);
+
+                    Log::info("Payment verified successfully", [
+                        'payment_id' => $payment->id,
+                        'gateway' => $payment->payment_gateway,
+                        'amount' => $payment->amount,
+                        'subscription_id' => $subscription->id,
+                    ]);
+                } else {
+                    // Mark payment as failed
+                    $payment->markAsFailed($result['error'], $result['response'] ?? []);
+
+                    Log::warning("Payment verification failed", [
+                        'payment_id' => $payment->id,
+                        'error' => $result['error'],
+                    ]);
+                }
+
+                return $result;
+            });
 
         } catch (\Exception $e) {
-            Log::error("Payment verification failed", [
+            Log::error("Payment verification exception", [
                 'payment_id' => $paymentId,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [

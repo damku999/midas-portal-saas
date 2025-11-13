@@ -23,6 +23,9 @@ class DynamicConfigBootstrapper implements TenancyBootstrapper
     public function bootstrap(Tenant $tenant): void
     {
         try {
+            // Set tenant-specific URL (critical for route generation)
+            $this->setTenantUrl($tenant);
+
             // Load Application Settings
             $this->loadApplicationSettings();
 
@@ -43,6 +46,27 @@ class DynamicConfigBootstrapper implements TenancyBootstrapper
         } catch (\Exception $e) {
             // Silently fail during migration/installation
             \Log::debug('DynamicConfigBootstrapper failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Set tenant-specific URL for proper route generation
+     */
+    protected function setTenantUrl(Tenant $tenant): void
+    {
+        // Get the primary domain for this tenant
+        $domain = $tenant->domains()->first();
+
+        if ($domain) {
+            // Construct the full URL with proper scheme
+            $scheme = request()->isSecure() ? 'https' : 'http';
+            $tenantUrl = "{$scheme}://{$domain->domain}";
+
+            // Set app.url config for this request
+            config(['app.url' => $tenantUrl]);
+
+            // Force URL generator to use tenant URL
+            $this->app['url']->forceRootUrl($tenantUrl);
         }
     }
 

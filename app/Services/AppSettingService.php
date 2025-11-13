@@ -150,7 +150,16 @@ class AppSettingService
      */
     public static function clearCache(): void
     {
-        Cache::flush();
+        // Support both tagging (redis/memcached/database) and non-tagging (file/array) drivers
+        if (Cache::supportsTags()) {
+            Cache::tags(['settings'])->flush();
+        } else {
+            // For file driver: manually clear all setting-related cache keys
+            $pattern = self::CACHE_PREFIX.'*';
+            // Since file driver doesn't support pattern deletion, we use flush
+            // This is acceptable for settings cache as it's infrequent
+            Cache::flush();
+        }
     }
 
     /**
