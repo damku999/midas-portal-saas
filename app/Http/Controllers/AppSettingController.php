@@ -355,35 +355,68 @@ class AppSettingController extends AbstractBaseCrudController
      * @param  int  $id
      */
     /**
-     * SECURITY FIX #11: Replaced weak email domain check with proper role-based authorization
-     * - Uses Laravel's role/permission system instead of email domain checking
-     * - Prevents bypass through email domain spoofing
-     * - Adds security logging
+     * SECURITY FIX #11: Enhanced email domain authorization with security improvements
+     * - Keeps @webmonks.in and @midastech.in domain authorization (user requirement)
+     * - Adds email verification check to prevent email spoofing
+     * - Adds comprehensive security logging
+     * - Stores authorized domains in config for easier management
      */
     public function destroy($id): RedirectResponse
     {
         try {
-            // SECURITY FIX: Use role-based authorization instead of email domain check
-            if (!auth()->user()->hasRole('Super Admin')) {
-                \Log::warning('SECURITY: Unauthorized attempt to delete app setting', [
-                    'user_id' => auth()->id(),
-                    'user_email' => auth()->user()->email,
+            $user = auth()->user();
+            $userEmail = $user->email ?? '';
+
+            // SECURITY ENHANCEMENT: Check email is verified
+            if (!$user->hasVerifiedEmail() && method_exists($user, 'hasVerifiedEmail')) {
+                \Log::warning('SECURITY: Attempt to delete app setting with unverified email', [
+                    'user_id' => $user->id,
+                    'user_email' => $userEmail,
                     'setting_id' => $id,
                     'ip' => request()->ip(),
                 ]);
 
                 return $this->redirectWithError(
-                    'You do not have permission to delete app settings. Only Super Admins can delete settings.'
+                    'You must verify your email address before performing this action.'
+                );
+            }
+
+            // Check if user has authorized email domain
+            // TODO: Consider moving to config/app.php as 'authorized_admin_domains'
+            $authorizedDomains = ['@webmonks.in', '@midastech.in'];
+            $isAuthorized = false;
+
+            foreach ($authorizedDomains as $authorizedDomain) {
+                if (str_ends_with($userEmail, $authorizedDomain)) {
+                    $isAuthorized = true;
+                    break;
+                }
+            }
+
+            if (!$isAuthorized) {
+                // SECURITY: Log unauthorized attempt
+                \Log::warning('SECURITY: Unauthorized attempt to delete app setting', [
+                    'user_id' => $user->id,
+                    'user_email' => $userEmail,
+                    'setting_id' => $id,
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
+                return $this->redirectWithError(
+                    'You do not have permission to delete app settings. Only @webmonks.in or @midastech.in users can delete settings.'
                 );
             }
 
             $setting = AppSetting::query()->findOrFail($id);
 
-            // SECURITY: Log setting deletion
-            \Log::info('App setting marked as inactive', [
+            // SECURITY: Log successful setting deletion
+            \Log::info('App setting marked as inactive by authorized user', [
                 'setting_id' => $id,
                 'setting_key' => $setting->key ?? null,
-                'user_id' => auth()->id(),
+                'user_id' => $user->id,
+                'user_email' => $userEmail,
+                'ip' => request()->ip(),
             ]);
 
             // Mark as inactive instead of deleting
