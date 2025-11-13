@@ -355,9 +355,14 @@ class AppSettingController extends AbstractBaseCrudController
      * @param  int  $id
      */
     /**
-     * SECURITY FIX #11: Email domain authorization with security logging
-     * - Keeps @webmonks.in and @midastech.in domain authorization (user requirement)
-     * - Adds security logging for audit trail
+     * Deactivate an application setting after verifying the current user's email domain and logging the action.
+     *
+     * Verifies that the authenticated user's email ends with either "@webmonks.in" or "@midastech.in"; if not authorized,
+     * logs a security warning and returns an error redirect. When authorized, marks the setting's `is_active` flag as 0,
+     * logs the successful action, clears the app settings cache, and returns a success redirect.
+     *
+     * @param int|string $id The identifier of the AppSetting to deactivate.
+     * @return \Illuminate\Http\RedirectResponse Redirect to the app settings index on success or back with an error message on failure.
      */
     public function destroy($id): RedirectResponse
     {
