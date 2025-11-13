@@ -386,30 +386,47 @@ class CustomerDeviceApiController extends Controller
     /**
      * Deactivate a specific device
      *
-     * POST /api/customer/device/{device}/deactivate
+     * POST /api/customer/device/{deviceId}/deactivate
+     *
+     * SECURITY FIX #12: IDOR protection with explicit ownership check in query
+     * - Changed from route model binding to explicit ID parameter
+     * - Uses ->where('customer_id', $customerId) in query to prevent IDOR
+     * - Never fetches devices that don't belong to authenticated customer
      *
      * Marks a device as inactive. Useful for:
      * - User wanting to stop notifications on specific device
      * - Device management UI in app settings
      *
-     * @urlParam device required Device ID
+     * @urlParam deviceId required Device ID
      *
      * @response 200 {
      *   "success": true,
      *   "message": "Device deactivated successfully"
      * }
      */
-    public function deactivate(CustomerDevice $device): JsonResponse
+    public function deactivate(int $deviceId): JsonResponse
     {
         try {
             $customerId = auth('sanctum')->id();
 
-            // Ensure device belongs to authenticated customer
-            if ($device->customer_id !== $customerId) {
+            // SECURITY FIX: Explicit ownership check in query itself
+            // Only fetch devices that belong to the authenticated customer
+            $device = CustomerDevice::where('id', $deviceId)
+                ->where('customer_id', $customerId)
+                ->first();
+
+            if (!$device) {
+                // SECURITY: Log potential IDOR attempt
+                Log::warning('SECURITY: Attempted to deactivate device belonging to another customer', [
+                    'attempted_device_id' => $deviceId,
+                    'customer_id' => $customerId,
+                    'ip' => request()->ip(),
+                ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized - device does not belong to you',
-                ], 403);
+                    'message' => 'Device not found',
+                ], 404);
             }
 
             $device->update(['is_active' => false]);
@@ -426,14 +443,14 @@ class CustomerDeviceApiController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Device deactivation failed', [
-                'device_id' => $device->id,
+                'device_id' => $deviceId ?? null,
+                'customer_id' => auth('sanctum')->id(),
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to deactivate device',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }

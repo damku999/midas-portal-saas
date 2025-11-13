@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 | with the backend for customer-specific operations including device
 | registration for push notifications.
 |
+| SECURITY FIX #9: Added rate limiting to prevent API abuse
+|
 */
 
 Route::prefix('customer')->name('api.customer.')->group(function () {
@@ -40,40 +42,53 @@ Route::prefix('customer')->name('api.customer.')->group(function () {
         // DEVICE MANAGEMENT (Push Notifications)
         // ==========================================
 
+        // SECURITY: Strict rate limiting for device registration (10 requests per minute)
         // Register device for push notifications
         Route::post('/device/register', [CustomerDeviceApiController::class, 'register'])
+            ->middleware('throttle:10,1')
             ->name('device.register');
 
+        // SECURITY: Standard rate limiting for device operations (60 requests per minute)
         // Unregister device from push notifications
         Route::post('/device/unregister', [CustomerDeviceApiController::class, 'unregister'])
+            ->middleware('throttle:60,1')
             ->name('device.unregister');
 
         // Update device information
         Route::put('/device/update', [CustomerDeviceApiController::class, 'update'])
+            ->middleware('throttle:60,1')
             ->name('device.update');
 
         // Get all registered devices for customer
         Route::get('/devices', [CustomerDeviceApiController::class, 'index'])
+            ->middleware('throttle:60,1')
             ->name('devices.index');
 
-        // Deactivate specific device
-        Route::post('/device/{device}/deactivate', [CustomerDeviceApiController::class, 'deactivate'])
+        // Deactivate specific device (SECURITY FIX #12: Changed parameter name for explicit IDOR protection)
+        Route::post('/device/{deviceId}/deactivate', [CustomerDeviceApiController::class, 'deactivate'])
+            ->middleware('throttle:60,1')
             ->name('device.deactivate');
 
+        // SECURITY: Higher rate limit for heartbeat (120 requests per minute)
         // Send heartbeat to keep device active
         Route::post('/device/heartbeat', [CustomerDeviceApiController::class, 'heartbeat'])
+            ->middleware('throttle:120,1')
             ->name('device.heartbeat');
 
         // ==========================================
         // FUTURE: Customer Profile, Policies, etc.
         // ==========================================
 
-        // Additional customer API endpoints can be added here
+        // Additional customer API endpoints can be added here with appropriate rate limiting
         // Examples:
-        // Route::get('/profile', [CustomerApiController::class, 'profile']);
-        // Route::get('/policies', [CustomerPolicyApiController::class, 'index']);
-        // Route::get('/quotations', [CustomerQuotationApiController::class, 'index']);
-        // Route::get('/claims', [CustomerClaimApiController::class, 'index']);
+        // Route::get('/profile', [CustomerApiController::class, 'profile'])
+        //     ->middleware('throttle:60,1');
+        // Route::get('/policies', [CustomerPolicyApiController::class, 'index'])
+        //     ->middleware('throttle:60,1');
+        // Route::get('/quotations', [CustomerQuotationApiController::class, 'index'])
+        //     ->middleware('throttle:60,1');
+        // Route::get('/claims', [CustomerClaimApiController::class, 'index'])
+        //     ->middleware('throttle:60,1');
 
     });
 

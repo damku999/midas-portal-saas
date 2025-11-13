@@ -171,6 +171,8 @@ class SubscriptionController extends Controller
 
     /**
      * Verify payment after gateway callback.
+     *
+     * SECURITY FIX: Added tenant ownership verification to prevent payment verification bypass
      */
     public function verifyPayment(Request $request)
     {
@@ -182,20 +184,51 @@ class SubscriptionController extends Controller
         ]);
 
         try {
+            // SECURITY FIX: Verify payment belongs to current tenant
+            $payment = \App\Models\Central\Payment::where('id', $validated['payment_id'])
+                ->where('tenant_id', tenant()->id)
+                ->firstOrFail();
+
+            // SECURITY: Log payment verification attempt
+            \Log::info('Payment verification attempt', [
+                'payment_id' => $validated['payment_id'],
+                'tenant_id' => tenant()->id,
+                'ip' => $request->ip(),
+            ]);
+
             $result = $this->paymentService->verifyPayment(
                 $validated['payment_id'],
                 $request->all()
             );
 
             if ($result['success']) {
-                // Update subscription status to active
-                $payment = \App\Models\Central\Payment::find($validated['payment_id']);
+                // Verify subscription also belongs to the same tenant
                 $subscription = $payment->subscription;
 
+                if (!$subscription) {
+                    \Log::error('SECURITY: Payment verification failed - no subscription found', [
+                        'payment_id' => $validated['payment_id'],
+                        'tenant_id' => tenant()->id,
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Subscription not found',
+                    ], 404);
+                }
+
+                // Update subscription status to active
                 $subscription->update([
                     'status' => 'active',
                     'is_trial' => false,
                     'trial_ends_at' => null,
+                ]);
+
+                // SECURITY: Log successful payment verification
+                \Log::info('Payment verified successfully', [
+                    'payment_id' => $validated['payment_id'],
+                    'subscription_id' => $subscription->id,
+                    'tenant_id' => tenant()->id,
                 ]);
 
                 return response()->json([
@@ -205,15 +238,41 @@ class SubscriptionController extends Controller
                 ]);
             }
 
+            // SECURITY: Log failed verification
+            \Log::warning('Payment verification failed', [
+                'payment_id' => $validated['payment_id'],
+                'tenant_id' => tenant()->id,
+                'error' => $result['error'] ?? 'Unknown error',
+            ]);
+
             return response()->json([
                 'success' => false,
                 'error' => $result['error'] ?? 'Payment verification failed',
             ], 400);
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // SECURITY: Log potential cross-tenant access attempt
+            \Log::warning('SECURITY: Payment verification attempt with invalid payment_id', [
+                'payment_id' => $validated['payment_id'],
+                'tenant_id' => tenant()->id,
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'success' => false,
+                'error' => 'Payment not found',
+            ], 404);
+
+        } catch (\Exception $e) {
+            \Log::error('Payment verification error', [
+                'payment_id' => $validated['payment_id'],
                 'error' => $e->getMessage(),
+                'tenant_id' => tenant()->id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Payment verification failed',
             ], 500);
         }
     }

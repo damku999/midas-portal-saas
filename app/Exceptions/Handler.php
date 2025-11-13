@@ -59,9 +59,49 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
+     *
+     * SECURITY FIX #17: Prevent verbose error messages in production
+     * - Returns generic error messages in production to prevent information disclosure
+     * - Logs full error details for debugging
+     * - Generates error_id for support reference
      */
     public function render($request, Throwable $e): Response
     {
+        // SECURITY: In production, hide detailed error messages from users
+        if (!config('app.debug') && !$this->shouldntReport($e)) {
+            // Generate unique error ID for support reference
+            $errorId = uniqid('err_', true);
+
+            // Log full error details with error ID
+            Log::error('Application error', [
+                'error_id' => $errorId,
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'user_id' => auth()->id(),
+            ]);
+
+            // Return generic error message to user
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while processing your request.',
+                    'error_id' => $errorId,
+                ], 500);
+            }
+
+            // For web requests, show generic error view
+            return response()->view('errors.500', [
+                'error_id' => $errorId,
+                'message' => 'An error occurred while processing your request. Please contact support with error ID: ' . $errorId,
+            ], 500);
+        }
+
         return parent::render($request, $e);
     }
 }

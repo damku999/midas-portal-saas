@@ -127,6 +127,9 @@ class PaymentService
 
     /**
      * Create bank transfer order.
+     *
+     * SECURITY FIX #8: Removed hardcoded bank details
+     * Bank details are now loaded from config/payment.php
      */
     private function createBankTransferOrder(Payment $payment): array
     {
@@ -136,11 +139,11 @@ class PaymentService
             'currency' => $payment->currency,
             'gateway' => 'bank_transfer',
             'bank_details' => [
-                'account_name' => 'Midas Portal Pvt Ltd',
-                'account_number' => 'XXXXXXXXXX',
-                'ifsc_code' => 'XXXXXXXX',
-                'bank_name' => 'State Bank of India',
-                'branch' => 'Mumbai Main Branch',
+                'account_name' => config('payment.bank.account_name'),
+                'account_number' => config('payment.bank.account_number'),
+                'ifsc_code' => config('payment.bank.ifsc_code'),
+                'bank_name' => config('payment.bank.bank_name'),
+                'branch' => config('payment.bank.branch'),
             ],
         ];
     }

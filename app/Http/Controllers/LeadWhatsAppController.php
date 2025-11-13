@@ -569,6 +569,8 @@ class LeadWhatsAppController extends Controller
     /**
      * Webhook handler for WhatsApp delivery status updates
      * This should be called by your WhatsApp API provider
+     *
+     * SECURITY FIX: Added input validation to prevent SQL injection
      */
     public function webhookDeliveryStatus(Request $request)
     {
@@ -582,6 +584,20 @@ class LeadWhatsAppController extends Controller
             $leadMobile = $request->input('mobile');
             $errorMessage = $request->input('error_message');
 
+            // SECURITY FIX: Validate messageId format to prevent SQL injection
+            // Only allow alphanumeric characters, dashes, and underscores
+            if ($messageId && !preg_match('/^[a-zA-Z0-9\-_]+$/', $messageId)) {
+                Log::warning('SECURITY: Invalid messageId format in WhatsApp webhook', [
+                    'message_id' => $messageId,
+                    'ip' => $request->ip(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid message ID format',
+                ], 400);
+            }
+
             if (! $messageId && ! $leadMobile) {
                 return response()->json([
                     'success' => false,
@@ -593,6 +609,7 @@ class LeadWhatsAppController extends Controller
             $query = LeadWhatsAppMessage::query();
 
             if ($messageId) {
+                // SECURITY: messageId is now validated above, safe to use in whereRaw
                 $query->whereRaw("JSON_EXTRACT(api_response, '$.message_id') = ?", [$messageId]);
             } else {
                 // Find by mobile number and most recent pending/sent message
