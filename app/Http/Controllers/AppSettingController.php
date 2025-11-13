@@ -355,35 +355,47 @@ class AppSettingController extends AbstractBaseCrudController
      * @param  int  $id
      */
     /**
-     * SECURITY FIX #11: Replaced weak email domain check with proper role-based authorization
-     * - Uses Laravel's role/permission system instead of email domain checking
-     * - Prevents bypass through email domain spoofing
-     * - Adds security logging
+     * SECURITY FIX #11: Email domain authorization with security logging
+     * - Keeps @webmonks.in and @midastech.in domain authorization (user requirement)
+     * - Adds security logging for audit trail
      */
     public function destroy($id): RedirectResponse
     {
         try {
-            // SECURITY FIX: Use role-based authorization instead of email domain check
-            if (!auth()->user()->hasRole('Super Admin')) {
+            // Check if user has authorized email domain
+            $userEmail = auth()->user()->email ?? '';
+            $authorizedDomains = ['@webmonks.in', '@midastech.in'];
+            $isAuthorized = false;
+
+            foreach ($authorizedDomains as $authorizedDomain) {
+                if (str_ends_with($userEmail, $authorizedDomain)) {
+                    $isAuthorized = true;
+                    break;
+                }
+            }
+
+            if (!$isAuthorized) {
+                // SECURITY: Log unauthorized attempt
                 \Log::warning('SECURITY: Unauthorized attempt to delete app setting', [
                     'user_id' => auth()->id(),
-                    'user_email' => auth()->user()->email,
+                    'user_email' => $userEmail,
                     'setting_id' => $id,
                     'ip' => request()->ip(),
                 ]);
 
                 return $this->redirectWithError(
-                    'You do not have permission to delete app settings. Only Super Admins can delete settings.'
+                    'You do not have permission to delete app settings. Only @webmonks.in or @midastech.in users can delete settings.'
                 );
             }
 
             $setting = AppSetting::query()->findOrFail($id);
 
-            // SECURITY: Log setting deletion
-            \Log::info('App setting marked as inactive', [
+            // SECURITY: Log successful setting deletion
+            \Log::info('App setting marked as inactive by authorized user', [
                 'setting_id' => $id,
                 'setting_key' => $setting->key ?? null,
                 'user_id' => auth()->id(),
+                'user_email' => $userEmail,
             ]);
 
             // Mark as inactive instead of deleting
