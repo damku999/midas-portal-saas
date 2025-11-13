@@ -139,6 +139,10 @@ class TenantController extends Controller
             'db_run_seeders' => 'nullable|boolean',
         ]);
 
+        $tenant = null;
+        $databaseCreated = false;
+        $dbName = null;
+
         DB::connection('central')->beginTransaction();
 
         try {
@@ -200,17 +204,24 @@ class TenantController extends Controller
                 $tenant->setInternal('db_port', $validated['db_port']);
             }
 
-            // Store configuration flags in data column
+            // Store create_database as internal key (Stancl CreateDatabase job checks this)
+            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            $tenant->setInternal('create_database', $dbCreateEnabled);
+
+            // Store other configuration flags in data column
             $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
-            $tenant->db_create_database = $validated['db_create_database'] ?? true;
             $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
             $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
             $tenant->save();
 
-            // Run tenant migrations and seed default data
-            // NOTE: Database creation and migration happen automatically via TenancyServiceProvider events
-            // The flags above can be used to conditionally control these operations in the future
-            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            // Track database creation for rollback
+            if ($dbCreateEnabled) {
+                $dbName = $tenant->getInternal('db_name') ?? config('tenancy.database.prefix', '') . $tenant->id;
+                sleep(1); // Give time for database creation
+                $databaseCreated = true;
+            }
+
+            // Get configuration flags for conditional processing
             $migrationsEnabled = $validated['db_run_migrations'] ?? true;
             $seedersEnabled = $validated['db_run_seeders'] ?? true;
 
@@ -261,7 +272,21 @@ class TenantController extends Controller
                 ->with('success', 'Tenant created successfully!');
 
         } catch (\Exception $e) {
+            // Rollback central database transaction
             DB::connection('central')->rollBack();
+
+            // CRITICAL: Clean up the physical tenant database if it was created
+            if ($databaseCreated && $dbName && $tenant) {
+                try {
+                    DB::connection('central')->statement("DROP DATABASE IF EXISTS `{$dbName}`");
+                } catch (\Exception $dbEx) {
+                    \Log::error('Failed to delete tenant database during rollback', [
+                        'tenant_id' => $tenant?->id,
+                        'database_name' => $dbName,
+                        'error' => $dbEx->getMessage(),
+                    ]);
+                }
+            }
 
             return back()
                 ->withInput()
