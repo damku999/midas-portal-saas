@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\AuditLog;
+use App\Models\Central\Payment;
 use App\Models\Central\Plan;
 use App\Models\Central\Subscription;
 use App\Models\Central\Tenant;
+use App\Services\InvoiceService;
 use App\Services\TenantCreationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -304,13 +306,26 @@ class TenantController extends Controller
      */
     public function show(Tenant $tenant)
     {
-        $tenant->load(['subscription.plan', 'domains', 'auditLogs' => function ($query) {
-            $query->latest()->limit(20);
-        }]);
+        $tenant->load([
+            'subscription.plan',
+            'subscription.payments' => function ($query) {
+                $query->latest()->limit(50);
+            },
+            'subscription.invoices' => function ($query) {
+                $query->latest()->limit(50);
+            },
+            'domains',
+            'auditLogs' => function ($query) {
+                $query->latest()->limit(20);
+            }
+        ]);
 
         $recentActivity = $tenant->auditLogs;
+        $payments = $tenant->subscription?->payments ?? collect();
+        $invoices = $tenant->subscription?->invoices ?? collect();
+        $plans = Plan::active()->ordered()->get();
 
-        return view('central.tenants.show', compact('tenant', 'recentActivity'));
+        return view('central.tenants.show', compact('tenant', 'recentActivity', 'payments', 'invoices', 'plans'));
     }
 
     /**
@@ -862,6 +877,127 @@ class TenantController extends Controller
         $service = new TenantCreationService(str_replace('tenant_creation_progress_', '', $progressKey));
 
         return response()->json($service->getProgress());
+    }
+
+    /**
+     * Change tenant subscription plan.
+     */
+    public function changePlan(Request $request, Tenant $tenant)
+    {
+        $validated = $request->validate([
+            'new_plan_id' => 'required|exists:plans,id',
+            'change_reason' => 'nullable|string|max:500',
+        ]);
+
+        if (!$tenant->subscription) {
+            return back()->with('error', 'This tenant has no active subscription.');
+        }
+
+        DB::connection('central')->beginTransaction();
+
+        try {
+            $oldPlan = $tenant->subscription->plan;
+            $newPlan = Plan::findOrFail($validated['new_plan_id']);
+
+            // Update subscription
+            $tenant->subscription->update([
+                'plan_id' => $newPlan->id,
+                'mrr' => $newPlan->price,
+            ]);
+
+            // Log the change
+            AuditLog::log(
+                'tenant.plan_changed',
+                "Changed plan from {$oldPlan->name} to {$newPlan->name}",
+                auth('central')->user(),
+                $tenant->id,
+                [
+                    'old_plan' => $oldPlan->name,
+                    'new_plan' => $newPlan->name,
+                    'old_price' => $oldPlan->price,
+                    'new_price' => $newPlan->price,
+                    'reason' => $validated['change_reason'] ?? null,
+                ]
+            );
+
+            DB::connection('central')->commit();
+
+            return redirect()
+                ->route('central.tenants.show', $tenant)
+                ->with('success', "Subscription plan changed from {$oldPlan->name} to {$newPlan->name} successfully!");
+
+        } catch (\Exception $e) {
+            DB::connection('central')->rollBack();
+            return back()->with('error', 'Failed to change plan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Record a manual payment for tenant.
+     */
+    public function recordPayment(Request $request, Tenant $tenant)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_gateway' => 'required|string|in:cash,bank_transfer,cheque,razorpay,other',
+            'gateway_payment_id' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'paid_at' => 'nullable|date',
+        ]);
+
+        if (!$tenant->subscription) {
+            return back()->with('error', 'This tenant has no active subscription.');
+        }
+
+        DB::connection('central')->beginTransaction();
+
+        try {
+            // Create payment record
+            $payment = Payment::create([
+                'tenant_id' => $tenant->id,
+                'subscription_id' => $tenant->subscription->id,
+                'payment_gateway' => $validated['payment_gateway'],
+                'gateway_payment_id' => $validated['gateway_payment_id'] ?? 'MANUAL-' . time(),
+                'amount' => $validated['amount'],
+                'currency' => 'INR',
+                'status' => 'completed',
+                'type' => 'manual',
+                'description' => $validated['description'] ?? 'Manual payment recorded',
+                'paid_at' => $validated['paid_at'] ?? now(),
+            ]);
+
+            // Generate invoice for this payment
+            $invoiceService = new InvoiceService();
+            $invoice = $invoiceService->generateInvoiceForPayment(
+                $payment,
+                $validated['description'] ?? null
+            );
+
+            // Log the payment
+            AuditLog::log(
+                'payment.recorded',
+                "Manual payment of ₹{$validated['amount']} recorded with invoice {$invoice->invoice_number}",
+                auth('central')->user(),
+                $tenant->id,
+                [
+                    'amount' => $validated['amount'],
+                    'payment_method' => $validated['payment_gateway'],
+                    'payment_id' => $payment->id,
+                    'invoice_id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                ]
+            );
+
+            DB::connection('central')->commit();
+
+            return redirect()
+                ->route('central.tenants.show', $tenant)
+                ->with('success', 'Payment of ₹' . number_format($validated['amount'], 2) . ' recorded successfully! Invoice ' . $invoice->invoice_number . ' generated.');
+
+        } catch (\Exception $e) {
+            DB::connection('central')->rollBack();
+            return back()->with('error', 'Failed to record payment: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -78,6 +78,22 @@ class Subscription extends Model
     }
 
     /**
+     * Get all payments for the subscription.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get all invoices for the subscription.
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class)->orderBy('invoice_date', 'desc');
+    }
+
+    /**
      * Check if subscription is active.
      * Includes trials that haven't expired yet.
      */

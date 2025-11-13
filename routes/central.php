@@ -4,6 +4,7 @@ use App\Http\Controllers\Central\AuthController;
 use App\Http\Controllers\Central\BlogPostController;
 use App\Http\Controllers\Central\ContactSubmissionController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\InvoiceController;
 use App\Http\Controllers\Central\NewsletterSubscriberController;
 use App\Http\Controllers\Central\PlanController;
 use App\Http\Controllers\Central\TenantController;
@@ -52,6 +53,10 @@ Route::middleware(['central.auth'])->group(function () {
         Route::post('/{tenant}/suspend', [TenantController::class, 'suspend'])->name('suspend');
         Route::post('/{tenant}/activate', [TenantController::class, 'activate'])->name('activate');
         Route::post('/{tenant}/end-trial', [TenantController::class, 'endTrial'])->name('end-trial');
+
+        // Subscription & Payment Management
+        Route::post('/{tenant}/change-plan', [TenantController::class, 'changePlan'])->name('change-plan');
+        Route::post('/{tenant}/record-payment', [TenantController::class, 'recordPayment'])->name('record-payment');
     });
 
     // Plans Management
@@ -119,4 +124,12 @@ Route::middleware(['central.auth'])->group(function () {
     // Tenant Usage Management
     Route::get('/tenants/{tenant}/usage', [UsageAlertController::class, 'tenantUsage'])->name('central.tenants.usage');
     Route::post('/tenants/{tenant}/thresholds', [UsageAlertController::class, 'updateThresholds'])->name('central.tenants.thresholds');
+
+    // Invoice Management
+    Route::prefix('invoices')->name('central.invoices.')->group(function () {
+        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/download', [InvoiceController::class, 'download'])->name('download');
+        Route::get('/{invoice}/stream', [InvoiceController::class, 'stream'])->name('stream');
+        Route::post('/{invoice}/send-email', [InvoiceController::class, 'sendEmail'])->name('send-email');
+    });
 });

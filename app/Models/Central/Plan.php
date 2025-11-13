@@ -96,6 +96,46 @@ class Plan extends Model
     }
 
     /**
+     * Get price with GST (18%).
+     */
+    public function getPriceWithGstAttribute(): float
+    {
+        return round($this->price * 1.18, 2);
+    }
+
+    /**
+     * Get CGST amount (9%).
+     */
+    public function getCgstAmountAttribute(): float
+    {
+        return round($this->price * 0.09, 2);
+    }
+
+    /**
+     * Get SGST amount (9%).
+     */
+    public function getSgstAmountAttribute(): float
+    {
+        return round($this->price * 0.09, 2);
+    }
+
+    /**
+     * Get total GST amount (18%).
+     */
+    public function getTotalGstAttribute(): float
+    {
+        return round($this->price * 0.18, 2);
+    }
+
+    /**
+     * Get formatted price with GST.
+     */
+    public function getFormattedPriceWithGstAttribute(): string
+    {
+        return '₹'.number_format($this->price_with_gst, 2);
+    }
+
+    /**
      * Get human-readable billing interval.
      */
     public function getBillingIntervalLabelAttribute(): string

@@ -73,6 +73,14 @@ class Payment extends Model
     }
 
     /**
+     * Get the invoice for this payment.
+     */
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    /**
      * Mark payment as completed.
      */
     public function markAsCompleted(string $gatewayPaymentId, array $gatewayResponse = []): bool
