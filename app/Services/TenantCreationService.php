@@ -33,6 +33,10 @@ class TenantCreationService
     {
         $this->initializeProgress();
 
+        $tenant = null;
+        $databaseCreated = false;
+        $dbName = null;
+
         try {
             DB::connection('central')->beginTransaction();
 
@@ -114,14 +118,18 @@ class TenantCreationService
                 $tenant->setInternal('db_port', $validated['db_port']);
             }
 
-            // Store configuration flags in data column (not internal keys)
+            // Store create_database as internal key (Stancl CreateDatabase job checks this)
+            // If set to false, the CreateDatabase job will skip database creation
+            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            $tenant->setInternal('create_database', $dbCreateEnabled);
+
+            // Store other configuration flags in data column
             $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
-            $tenant->db_create_database = $validated['db_create_database'] ?? true;
             $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
             $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
             $tenant->save();
 
-            $dbCreateEnabled = $validated['db_create_database'] ?? true;
+            // Get configuration flags for conditional processing
             $migrationsEnabled = $validated['db_run_migrations'] ?? true;
             $seedersEnabled = $validated['db_run_seeders'] ?? true;
 
@@ -129,8 +137,11 @@ class TenantCreationService
             if ($dbCreateEnabled) {
                 $this->updateProgress(6, 'Creating tenant database...', 'running');
                 // Database creation happens automatically via TenancyServiceProvider events
+                // Track the database name for potential rollback
+                $dbName = $tenant->getInternal('db_name') ?? config('tenancy.database.prefix', '') . $tenant->id;
                 // We just need to give it a moment
                 sleep(1);
+                $databaseCreated = true;
                 $this->updateProgress(6, '✓ Tenant database created', 'completed');
             } else {
                 $this->updateProgress(6, '⊘ Database creation skipped (disabled)', 'skipped');
@@ -289,7 +300,53 @@ class TenantCreationService
             ];
 
         } catch (\Exception $e) {
+            // Rollback central database transaction (tenant record, subscription, etc.)
             DB::connection('central')->rollBack();
+
+            // CRITICAL: Clean up the physical tenant database if it was created
+            // Since database creation happens outside the transaction via events,
+            // we must manually delete it to ensure complete rollback
+            if ($databaseCreated && $dbName && $tenant) {
+                try {
+                    $this->updateProgress($this->currentStep + 1, 'Rolling back: Deleting tenant database...', 'running');
+
+                    // Get database connection details
+                    $dbConfig = config('tenancy.database');
+                    $dbHost = $tenant->getInternal('db_host') ?? $dbConfig['host'] ?? config('database.connections.mysql.host');
+                    $dbUsername = $tenant->getInternal('db_username') ?? $dbConfig['username'] ?? config('database.connections.mysql.username');
+                    $dbPassword = $tenant->getInternal('db_password') ?? $dbConfig['password'] ?? config('database.connections.mysql.password');
+
+                    // Drop the database using central connection with raw SQL
+                    DB::connection('central')->statement("DROP DATABASE IF EXISTS `{$dbName}`");
+
+                    $this->updateProgress($this->currentStep + 1, '✓ Tenant database deleted (rollback)', 'completed');
+                } catch (\Exception $dbEx) {
+                    // Log database cleanup failure but don't throw - the main error is more important
+                    \Log::error('Failed to delete tenant database during rollback', [
+                        'tenant_id' => $tenant?->id,
+                        'database_name' => $dbName,
+                        'error' => $dbEx->getMessage(),
+                    ]);
+                    $this->updateProgress($this->currentStep + 1, '⚠ Failed to delete database: ' . $dbEx->getMessage(), 'failed');
+                }
+            }
+
+            // Delete uploaded files (logo) if any
+            if ($tenant && !empty($validated['company_logo'])) {
+                try {
+                    $logoPath = $validated['company_logo'];
+                    $centralFullPath = storage_path('app/public/' . $logoPath);
+                    if (file_exists($centralFullPath)) {
+                        unlink($centralFullPath);
+                    }
+                } catch (\Exception $fileEx) {
+                    // Log but don't throw
+                    \Log::warning('Failed to delete uploaded logo during rollback', [
+                        'file' => $validated['company_logo'] ?? 'unknown',
+                        'error' => $fileEx->getMessage(),
+                    ]);
+                }
+            }
 
             $this->updateProgress($this->currentStep, '✗ Error: ' . $e->getMessage(), 'failed');
             $this->markFailed($e->getMessage());
