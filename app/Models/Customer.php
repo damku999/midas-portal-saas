@@ -543,10 +543,47 @@ class Customer extends Authenticatable
 
     /**
      * Generate a random password for the customer.
+     *
+     * SECURITY FIX #14: Improved password generation
+     * - Increased length to 12 characters (from 8)
+     * - Added lowercase letters, uppercase letters, numbers, and special characters
+     * - Ensures at least one of each character type
+     * - Uses random_int() for cryptographically secure randomness
      */
     public static function generateDefaultPassword(): string
     {
-        return substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+        // Define character sets
+        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers = '0123456789';
+        $special = '!@#$%^&*-_=+';
+
+        // Ensure at least one character from each set
+        $password = '';
+        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
+        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
+        $password .= $special[random_int(0, strlen($special) - 1)];
+
+        // Fill remaining characters (12 - 4 = 8) with random selection from all sets
+        $allCharacters = $uppercase . $lowercase . $numbers . $special;
+        $remainingLength = 12 - 4;
+
+        for ($i = 0; $i < $remainingLength; $i++) {
+            $password .= $allCharacters[random_int(0, strlen($allCharacters) - 1)];
+        }
+
+        // Shuffle the password to mix the guaranteed characters with random ones
+        $passwordArray = str_split($password);
+        for ($i = count($passwordArray) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            // Swap
+            $temp = $passwordArray[$i];
+            $passwordArray[$i] = $passwordArray[$j];
+            $passwordArray[$j] = $temp;
+        }
+
+        return implode('', $passwordArray);
     }
 
     /**

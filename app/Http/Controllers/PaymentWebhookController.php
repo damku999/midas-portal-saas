@@ -92,6 +92,11 @@ class PaymentWebhookController extends Controller
 
     /**
      * Handle Stripe webhook.
+     *
+     * SECURITY FIX #10: Implemented Stripe webhook signature verification
+     * - Verifies webhook authenticity using Stripe signature
+     * - Prevents fake webhook attacks
+     * - Adds comprehensive security logging
      */
     public function stripe(Request $request)
     {
@@ -100,37 +105,94 @@ class PaymentWebhookController extends Controller
             $signature = $request->header('Stripe-Signature');
             $payload = $request->getContent();
 
-            // TODO: Verify Stripe signature
-            // \Stripe\Webhook::constructEvent($payload, $signature, $webhookSecret);
+            // SECURITY: Verify webhook is from Stripe (not a fake request)
+            if (!$webhookSecret) {
+                Log::error('SECURITY: Stripe webhook secret not configured');
 
-            $event = json_decode($payload, true);
-            $eventType = $event['type'] ?? null;
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Webhook configuration error',
+                ], 500);
+            }
 
-            Log::info('Stripe webhook received', [
+            if (!$signature) {
+                Log::warning('SECURITY: Stripe webhook received without signature', [
+                    'ip' => $request->ip(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Invalid webhook signature',
+                ], 400);
+            }
+
+            try {
+                // SECURITY FIX: Verify Stripe signature to ensure webhook authenticity
+                $event = \Stripe\Webhook::constructEvent(
+                    $payload,
+                    $signature,
+                    $webhookSecret
+                );
+            } catch (\UnexpectedValueException $e) {
+                // Invalid payload
+                Log::warning('SECURITY: Invalid Stripe webhook payload', [
+                    'error' => $e->getMessage(),
+                    'ip' => $request->ip(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Invalid payload',
+                ], 400);
+            } catch (\Stripe\Exception\SignatureVerificationException $e) {
+                // Invalid signature
+                Log::warning('SECURITY: Invalid Stripe webhook signature - possible attack attempt', [
+                    'error' => $e->getMessage(),
+                    'ip' => $request->ip(),
+                    'signature' => substr($signature, 0, 20) . '...', // Log partial signature
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Invalid signature',
+                ], 400);
+            }
+
+            $eventType = $event->type ?? null;
+
+            // SECURITY: Log verified webhook receipt
+            Log::info('Stripe webhook received and verified', [
                 'event' => $eventType,
-                'payload' => $event,
+                'event_id' => $event->id ?? null,
             ]);
 
             // Handle different webhook events
             switch ($eventType) {
                 case 'payment_intent.succeeded':
                     // Handle successful payment
+                    Log::info('Stripe payment succeeded', ['event_id' => $event->id]);
                     break;
 
                 case 'payment_intent.payment_failed':
                     // Handle failed payment
+                    Log::info('Stripe payment failed', ['event_id' => $event->id]);
                     break;
 
                 case 'customer.subscription.created':
                     // Handle subscription created
+                    Log::info('Stripe subscription created', ['event_id' => $event->id]);
                     break;
 
                 case 'customer.subscription.deleted':
                     // Handle subscription cancelled
+                    Log::info('Stripe subscription deleted', ['event_id' => $event->id]);
                     break;
 
                 default:
-                    Log::info('Unhandled Stripe webhook event', ['event' => $eventType]);
+                    Log::info('Unhandled Stripe webhook event', [
+                        'event' => $eventType,
+                        'event_id' => $event->id ?? null,
+                    ]);
             }
 
             return response()->json(['success' => true]);
@@ -138,6 +200,7 @@ class PaymentWebhookController extends Controller
         } catch (\Exception $e) {
             Log::error('Stripe webhook processing failed', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([

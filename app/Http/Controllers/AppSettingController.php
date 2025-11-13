@@ -354,28 +354,37 @@ class AppSettingController extends AbstractBaseCrudController
      *
      * @param  int  $id
      */
+    /**
+     * SECURITY FIX #11: Replaced weak email domain check with proper role-based authorization
+     * - Uses Laravel's role/permission system instead of email domain checking
+     * - Prevents bypass through email domain spoofing
+     * - Adds security logging
+     */
     public function destroy($id): RedirectResponse
     {
         try {
-            // Check if user has authorized email domain
-            $userEmail = auth()->user()->email ?? '';
-            $authorizedDomains = ['@webmonks.in', '@midastech.in'];
-            $isAuthorized = false;
+            // SECURITY FIX: Use role-based authorization instead of email domain check
+            if (!auth()->user()->hasRole('Super Admin')) {
+                \Log::warning('SECURITY: Unauthorized attempt to delete app setting', [
+                    'user_id' => auth()->id(),
+                    'user_email' => auth()->user()->email,
+                    'setting_id' => $id,
+                    'ip' => request()->ip(),
+                ]);
 
-            foreach ($authorizedDomains as $authorizedDomain) {
-                if (str_ends_with($userEmail, $authorizedDomain)) {
-                    $isAuthorized = true;
-                    break;
-                }
-            }
-
-            if (! $isAuthorized) {
                 return $this->redirectWithError(
-                    'You do not have permission to delete app settings. Only @webmonks.in or @midastech.in users can delete settings.'
+                    'You do not have permission to delete app settings. Only Super Admins can delete settings.'
                 );
             }
 
             $setting = AppSetting::query()->findOrFail($id);
+
+            // SECURITY: Log setting deletion
+            \Log::info('App setting marked as inactive', [
+                'setting_id' => $id,
+                'setting_key' => $setting->key ?? null,
+                'user_id' => auth()->id(),
+            ]);
 
             // Mark as inactive instead of deleting
             $setting->update(['is_active' => 0]);

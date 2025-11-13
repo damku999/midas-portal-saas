@@ -70,7 +70,15 @@ class Report extends Authenticatable
     use SoftDeletes;
     use TableRecordObserver;
 
-    protected $guarded = [];
+    /**
+     * SECURITY FIX: Mass assignment protection
+     * Only allow name and selected_columns to be mass-assigned
+     * Protecting: id, user_id, created_by, updated_by, deleted_by, timestamps
+     */
+    protected $fillable = [
+        'name',
+        'selected_columns',
+    ];
 
     protected static $logName = 'User Reports';
 

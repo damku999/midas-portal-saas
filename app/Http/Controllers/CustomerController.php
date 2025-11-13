@@ -35,6 +35,11 @@ class CustomerController extends AbstractBaseCrudController
      *
      * @author Darshan Baraiya
      */
+    /**
+     * SECURITY FIX #15: Added search input sanitization
+     * - Sanitizes search input to prevent SQL injection and XSS
+     * - Uses proper query grouping to prevent OR clause issues
+     */
     public function index(Request $request)
     {
         try {
@@ -45,9 +50,15 @@ class CustomerController extends AbstractBaseCrudController
                 $query = Customer::query()->select('id', 'name');
 
                 if ($search) {
-                    $query->where('name', 'LIKE', sprintf('%%%s%%', $search))
-                        ->orWhere('email', 'LIKE', sprintf('%%%s%%', $search))
-                        ->orWhere('mobile', 'LIKE', sprintf('%%%s%%', $search));
+                    // SECURITY: Sanitize search input - only allow alphanumeric, spaces, @, ., _, -
+                    $sanitizedSearch = preg_replace('/[^a-zA-Z0-9\s@._-]/', '', $search);
+
+                    // SECURITY: Proper query grouping to prevent OR clause logic issues
+                    $query->where(function ($q) use ($sanitizedSearch) {
+                        $q->where('name', 'LIKE', sprintf('%%%s%%', $sanitizedSearch))
+                            ->orWhere('email', 'LIKE', sprintf('%%%s%%', $sanitizedSearch))
+                            ->orWhere('mobile', 'LIKE', sprintf('%%%s%%', $sanitizedSearch));
+                    });
                 }
 
                 $customers = $query->orderBy('name', 'asc')
