@@ -601,6 +601,8 @@
                             <label class="form-label">Database Setup Options</label>
 
                             <div class="form-check mb-2">
+                                <!-- Hidden field ensures false value is sent when checkbox is unchecked -->
+                                <input type="hidden" name="db_create_database" value="0">
                                 <input class="form-check-input"
                                        type="checkbox"
                                        id="db_create_database"
@@ -610,11 +612,13 @@
                                 <label class="form-check-label" for="db_create_database">
                                     <strong>Create Database</strong>
                                     <br>
-                                    <small class="text-muted">Create a new database for this tenant (recommended)</small>
+                                    <small class="text-muted">Create a new database for this tenant (recommended). Uncheck if using an existing database.</small>
                                 </label>
                             </div>
 
                             <div class="form-check mb-2">
+                                <!-- Hidden field ensures false value is sent when checkbox is unchecked -->
+                                <input type="hidden" name="db_run_migrations" value="0">
                                 <input class="form-check-input"
                                        type="checkbox"
                                        id="db_run_migrations"
@@ -629,6 +633,8 @@
                             </div>
 
                             <div class="form-check mb-2">
+                                <!-- Hidden field ensures false value is sent when checkbox is unchecked -->
+                                <input type="hidden" name="db_run_seeders" value="0">
                                 <input class="form-check-input"
                                        type="checkbox"
                                        id="db_run_seeders"
@@ -757,7 +763,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary d-none" id="closeModalBtn" onclick="redirectToTenant()">
+                <button type="button" class="btn btn-danger d-none" id="closeErrorBtn" onclick="closeModal()">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-success d-none" id="viewTenantBtn" onclick="redirectToTenant()">
                     <i class="fas fa-external-link-alt me-2"></i>View Tenant
                 </button>
             </div>
@@ -977,7 +986,7 @@
                 progressText.textContent = 'Complete!';
 
                 successDisplay.classList.remove('d-none');
-                closeModalBtn.classList.remove('d-none');
+                viewTenantBtn.classList.remove('d-none');
 
                 // Store redirect URL if provided
                 if (progress.redirect_url) {
@@ -1002,16 +1011,46 @@
     function showError(message) {
         errorMessage.textContent = message;
         errorDisplay.classList.remove('d-none');
-        closeModalBtn.classList.remove('d-none');
-        closeModalBtn.textContent = 'Close';
-        closeModalBtn.onclick = () => location.reload();
+        closeErrorBtn.classList.remove('d-none');
+
+        // Re-enable submit button so user can try again with same data
         createBtn.disabled = false;
         createBtn.innerHTML = '<i class="fas fa-save me-2"></i>Create Tenant';
+
         progressBar.classList.remove('progress-bar-animated');
         progressBar.classList.add('bg-danger');
     }
 
+    function closeModal() {
+        // Close modal WITHOUT reloading page - preserves form data
+        progressModal.hide();
+
+        // Reset modal state for next attempt
+        errorDisplay.classList.add('d-none');
+        successDisplay.classList.add('d-none');
+        closeErrorBtn.classList.add('d-none');
+        viewTenantBtn.classList.add('d-none');
+        progressBar.classList.remove('bg-danger', 'bg-success');
+        progressBar.classList.add('progress-bar-animated');
+        progressBar.style.width = '0%';
+        progressPercentage.textContent = '0%';
+        progressText.textContent = 'Starting...';
+        progressSteps.innerHTML = '<p class="text-muted mb-2"><small><i class="fas fa-info-circle"></i> Detailed logs will appear here...</small></p>';
+
+        // Clear progress interval if still running
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+
+        // Re-enable modal closing
+        const modalElement = document.getElementById('progressModal');
+        modalElement.setAttribute('data-bs-backdrop', 'static');
+        modalElement.setAttribute('data-bs-keyboard', 'false');
+    }
+
     function redirectToTenant() {
+        // Only redirect on success - clear form is not needed as user is leaving page
         if (redirectUrl) {
             window.location.href = redirectUrl;
         } else {

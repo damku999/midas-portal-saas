@@ -146,10 +146,42 @@ class TenantController extends Controller
         DB::connection('central')->beginTransaction();
 
         try {
-            // Create tenant
-            $tenant = Tenant::create([
+            // IMPORTANT: Create tenant WITHOUT triggering TenantCreated event yet
+            // We need to configure database settings BEFORE the event fires
+            $tenant = new Tenant([
                 'id' => Str::uuid()->toString(),
             ]);
+
+            // Configure database settings BEFORE saving (prevents auto-creation)
+            // Store database configuration options using setInternal() for tenancy package compatibility
+            if (!empty($validated['db_name'])) {
+                $tenant->setInternal('db_name', $validated['db_name']);
+            }
+            if (!empty($validated['db_username'])) {
+                $tenant->setInternal('db_username', $validated['db_username']);
+            }
+            if (!empty($validated['db_password'])) {
+                $tenant->setInternal('db_password', $validated['db_password']);
+            }
+            if (!empty($validated['db_host'])) {
+                $tenant->setInternal('db_host', $validated['db_host']);
+            }
+            if (!empty($validated['db_port'])) {
+                $tenant->setInternal('db_port', $validated['db_port']);
+            }
+
+            // Store create_database flag BEFORE saving (critical for CreateDatabase job)
+            // Convert string "0"/"1" from form to boolean
+            $dbCreateEnabled = filter_var($validated['db_create_database'] ?? true, FILTER_VALIDATE_BOOLEAN);
+            $tenant->setInternal('create_database', $dbCreateEnabled);
+
+            // Store other configuration flags in data column
+            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
+            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
+            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
+
+            // NOW save the tenant (this triggers TenantCreated event with proper config)
+            $tenant->save();
 
             // Create domain
             $domain = $validated['subdomain'].'.'.$validated['domain'];
@@ -187,34 +219,7 @@ class TenantController extends Controller
                 'mrr' => $plan->price,
             ]);
 
-            // Store database configuration options using setInternal() for tenancy package compatibility
-            if (!empty($validated['db_name'])) {
-                $tenant->setInternal('db_name', $validated['db_name']);
-            }
-            if (!empty($validated['db_username'])) {
-                $tenant->setInternal('db_username', $validated['db_username']);
-            }
-            if (!empty($validated['db_password'])) {
-                $tenant->setInternal('db_password', $validated['db_password']);
-            }
-            if (!empty($validated['db_host'])) {
-                $tenant->setInternal('db_host', $validated['db_host']);
-            }
-            if (!empty($validated['db_port'])) {
-                $tenant->setInternal('db_port', $validated['db_port']);
-            }
-
-            // Store create_database as internal key (Stancl CreateDatabase job checks this)
-            $dbCreateEnabled = $validated['db_create_database'] ?? true;
-            $tenant->setInternal('create_database', $dbCreateEnabled);
-
-            // Store other configuration flags in data column
-            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
-            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
-            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
-            $tenant->save();
-
-            // Track database creation for rollback
+            // Track database creation for rollback (flag was already set before tenant was saved)
             if ($dbCreateEnabled) {
                 $dbName = $tenant->getInternal('db_name') ?? config('tenancy.database.prefix', '') . $tenant->id;
                 sleep(1); // Give time for database creation

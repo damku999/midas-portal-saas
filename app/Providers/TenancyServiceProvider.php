@@ -30,7 +30,7 @@ class TenancyServiceProvider extends ServiceProvider
                 })->shouldBeQueued(false), // Set to true for production with queue workers
             ],
 
-            // Tenant Deleted - Delete database (unless preserve_database flag is set)
+            // Tenant Deleted - Delete database (unless preserve_database or create_database was false)
             Events\TenantDeleted::class => [
                 function (Events\TenantDeleted $event) {
                     $tenant = $event->tenant;
@@ -38,7 +38,11 @@ class TenancyServiceProvider extends ServiceProvider
                     // Check if database should be preserved
                     $preserveDatabase = $tenant->data['preserve_database'] ?? false;
 
-                    if (!$preserveDatabase) {
+                    // Also check if database was never created in the first place
+                    $databaseWasCreated = $tenant->getInternal('create_database') ?? true;
+
+                    // Only delete database if it was created and not marked for preservation
+                    if (!$preserveDatabase && $databaseWasCreated) {
                         // Delete the tenant database
                         JobPipeline::make([
                             Jobs\DeleteDatabase::class,

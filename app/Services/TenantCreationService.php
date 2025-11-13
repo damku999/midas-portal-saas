@@ -51,9 +51,44 @@ class TenantCreationService
 
             // Step 2: Create tenant record
             $this->updateProgress(2, 'Creating tenant record...', 'running');
-            $tenant = Tenant::create([
+
+            // IMPORTANT: Create tenant WITHOUT triggering TenantCreated event yet
+            // We need to configure database settings BEFORE the event fires
+            $tenant = new Tenant([
                 'id' => Str::uuid()->toString(),
             ]);
+
+            // Configure database settings BEFORE saving (prevents auto-creation)
+            // Store database configuration options using setInternal() for tenancy package compatibility
+            if (!empty($validated['db_name'])) {
+                $tenant->setInternal('db_name', $validated['db_name']);
+            }
+            if (!empty($validated['db_username'])) {
+                $tenant->setInternal('db_username', $validated['db_username']);
+            }
+            if (!empty($validated['db_password'])) {
+                $tenant->setInternal('db_password', $validated['db_password']);
+            }
+            if (!empty($validated['db_host'])) {
+                $tenant->setInternal('db_host', $validated['db_host']);
+            }
+            if (!empty($validated['db_port'])) {
+                $tenant->setInternal('db_port', $validated['db_port']);
+            }
+
+            // Store create_database flag BEFORE saving (critical for CreateDatabase job)
+            // Convert string "0"/"1" from form to boolean
+            $dbCreateEnabled = filter_var($validated['db_create_database'] ?? true, FILTER_VALIDATE_BOOLEAN);
+            $tenant->setInternal('create_database', $dbCreateEnabled);
+
+            // Store other configuration flags in data column
+            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
+            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
+            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
+
+            // NOW save the tenant (this triggers TenantCreated event with proper config)
+            $tenant->save();
+
             $this->updateProgress(2, "✓ Tenant record created (ID: {$tenant->id})", 'completed');
 
             // Step 3: Register domain
@@ -100,36 +135,7 @@ class TenantCreationService
             $statusText = $isTrial ? "trial ({$trialDays} days)" : 'paid';
             $this->updateProgress(5, "✓ Subscription created ({$plan->name}, {$statusText})", 'completed');
 
-            // Store database configuration options using setInternal() for tenancy package compatibility
-            // The package looks for 'tenancy_db_*' keys via getInternal() method
-            if (!empty($validated['db_name'])) {
-                $tenant->setInternal('db_name', $validated['db_name']);
-            }
-            if (!empty($validated['db_username'])) {
-                $tenant->setInternal('db_username', $validated['db_username']);
-            }
-            if (!empty($validated['db_password'])) {
-                $tenant->setInternal('db_password', $validated['db_password']);
-            }
-            if (!empty($validated['db_host'])) {
-                $tenant->setInternal('db_host', $validated['db_host']);
-            }
-            if (!empty($validated['db_port'])) {
-                $tenant->setInternal('db_port', $validated['db_port']);
-            }
-
-            // Store create_database as internal key (Stancl CreateDatabase job checks this)
-            // If set to false, the CreateDatabase job will skip database creation
-            $dbCreateEnabled = $validated['db_create_database'] ?? true;
-            $tenant->setInternal('create_database', $dbCreateEnabled);
-
-            // Store other configuration flags in data column
-            $tenant->db_prefix = $validated['db_prefix'] ?? 'tenant_';
-            $tenant->db_run_migrations = $validated['db_run_migrations'] ?? true;
-            $tenant->db_run_seeders = $validated['db_run_seeders'] ?? true;
-            $tenant->save();
-
-            // Get configuration flags for conditional processing
+            // Get configuration flags for conditional processing (already set in step 2)
             $migrationsEnabled = $validated['db_run_migrations'] ?? true;
             $seedersEnabled = $validated['db_run_seeders'] ?? true;
 
