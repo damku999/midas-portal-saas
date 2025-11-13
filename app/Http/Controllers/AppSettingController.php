@@ -355,34 +355,15 @@ class AppSettingController extends AbstractBaseCrudController
      * @param  int  $id
      */
     /**
-     * SECURITY FIX #11: Enhanced email domain authorization with security improvements
+     * SECURITY FIX #11: Email domain authorization with security logging
      * - Keeps @webmonks.in and @midastech.in domain authorization (user requirement)
-     * - Adds email verification check to prevent email spoofing
-     * - Adds comprehensive security logging
-     * - Stores authorized domains in config for easier management
+     * - Adds security logging for audit trail
      */
     public function destroy($id): RedirectResponse
     {
         try {
-            $user = auth()->user();
-            $userEmail = $user->email ?? '';
-
-            // SECURITY ENHANCEMENT: Check email is verified
-            if (!$user->hasVerifiedEmail() && method_exists($user, 'hasVerifiedEmail')) {
-                \Log::warning('SECURITY: Attempt to delete app setting with unverified email', [
-                    'user_id' => $user->id,
-                    'user_email' => $userEmail,
-                    'setting_id' => $id,
-                    'ip' => request()->ip(),
-                ]);
-
-                return $this->redirectWithError(
-                    'You must verify your email address before performing this action.'
-                );
-            }
-
             // Check if user has authorized email domain
-            // TODO: Consider moving to config/app.php as 'authorized_admin_domains'
+            $userEmail = auth()->user()->email ?? '';
             $authorizedDomains = ['@webmonks.in', '@midastech.in'];
             $isAuthorized = false;
 
@@ -396,11 +377,10 @@ class AppSettingController extends AbstractBaseCrudController
             if (!$isAuthorized) {
                 // SECURITY: Log unauthorized attempt
                 \Log::warning('SECURITY: Unauthorized attempt to delete app setting', [
-                    'user_id' => $user->id,
+                    'user_id' => auth()->id(),
                     'user_email' => $userEmail,
                     'setting_id' => $id,
                     'ip' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
                 ]);
 
                 return $this->redirectWithError(
@@ -414,9 +394,8 @@ class AppSettingController extends AbstractBaseCrudController
             \Log::info('App setting marked as inactive by authorized user', [
                 'setting_id' => $id,
                 'setting_key' => $setting->key ?? null,
-                'user_id' => $user->id,
+                'user_id' => auth()->id(),
                 'user_email' => $userEmail,
-                'ip' => request()->ip(),
             ]);
 
             // Mark as inactive instead of deleting
