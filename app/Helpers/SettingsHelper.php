@@ -296,7 +296,15 @@ if (! function_exists('company_logo_asset')) {
      */
     function company_logo_asset(): string
     {
-        return asset(company_logo());
+        $logoPath = company_logo();
+
+        // For tenant context, use Storage::url() to get proper tenant-scoped URL
+        if (tenancy()->initialized && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($logoPath);
+        }
+
+        // Fallback to asset() for central/non-tenant context
+        return asset($logoPath);
     }
 }
 
@@ -317,7 +325,15 @@ if (! function_exists('company_favicon_asset')) {
      */
     function company_favicon_asset(): string
     {
-        return asset(company_favicon());
+        $faviconPath = company_favicon();
+
+        // For tenant context, use Storage::url() to get proper tenant-scoped URL
+        if (tenancy()->initialized && \Illuminate\Support\Facades\Storage::disk('public')->exists($faviconPath)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($faviconPath);
+        }
+
+        // Fallback to asset() for central/non-tenant context
+        return asset($faviconPath);
     }
 }
 
