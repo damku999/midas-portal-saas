@@ -45,7 +45,8 @@
                             @enderror
                         </div>
 
-                        <!-- Cloudflare Turnstile -->
+                        <!-- Cloudflare Turnstile - Only in Production -->
+                        @if(app()->environment('production'))
                         <div class="mb-3">
                             <x-turnstile />
                             @error('cf-turnstile-response')
@@ -54,6 +55,7 @@
                                 </div>
                             @enderror
                         </div>
+                        @endif
 
                         <button type="submit" class="btn btn-webmonks w-100 mb-3">
                             Send Password Reset Link

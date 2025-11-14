@@ -30,8 +30,9 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(125);
 
         // Configure asset URL for subdirectory installation
-        if (env('ASSET_URL')) {
-            URL::forceRootUrl(env('ASSET_URL'));
+        $assetUrl = config('app.asset_url');
+        if ($assetUrl) {
+            URL::forceRootUrl($assetUrl);
         }
     }
 }

@@ -42,6 +42,8 @@ class SubscriptionController extends Controller
 
     /**
      * Show available plans for upgrade.
+     * Note: This route uses ensure.auth middleware to manually authenticate from session
+     * to avoid redirect loops while still having auth context for sidebar.
      */
     public function plans()
     {

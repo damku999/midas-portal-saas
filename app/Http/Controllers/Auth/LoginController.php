@@ -46,11 +46,17 @@ class LoginController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        $request->validate([
+        $rules = [
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'cf-turnstile-response' => ['required', Rule::turnstile()],
-        ]);
+        ];
+
+        // Only require CAPTCHA in production environment
+        if (app()->environment('production')) {
+            $rules['cf-turnstile-response'] = ['required', Rule::turnstile()];
+        }
+
+        $request->validate($rules);
     }
 
     /**

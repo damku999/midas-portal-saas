@@ -112,23 +112,34 @@ class CheckSubscriptionStatus
                 ->with('error', 'Your subscription has expired. Please renew your plan to continue.');
         }
 
-        // Trial expired - but check if they have an active paid subscription
+        // Trial expired - ALLOW ACCESS but set warning flag
         if ($subscription->trialEnded()) {
-            // If status is 'active', they have converted to paid - allow access
+            // If they have converted to active paid subscription, allow access normally
             if ($subscription->status === 'active') {
                 return $next($request);
             }
 
-            // Trial expired and no paid subscription - block access
+            // Trial expired but not converted - ALLOW ACCESS with warning
+            // Set a session flag that views can check to show upgrade banner
+            $request->session()->flash('trial_expired_warning',
+                'Your trial period has expired. Please upgrade your plan to continue using all features.'
+            );
+
+            \Log::info('Trial expired - allowing access with warning', [
+                'tenant_id' => $tenant->id,
+                'trial_ends_at' => $subscription->trial_ends_at,
+                'status' => $subscription->status,
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json([
-                    'error' => 'Trial expired',
+                    'warning' => 'Trial expired',
                     'message' => 'Your trial period has expired. Please upgrade to continue.',
-                ], 403);
+                ], 200); // 200 instead of 403 to allow access
             }
 
-            return redirect()->route('subscription.plans')
-                ->with('warning', 'Your trial period has expired. Please upgrade your plan to continue using all features.');
+            // Allow access - warning will be shown in layout
+            return $next($request);
         }
 
         return $next($request);

@@ -62,7 +62,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
 Auth::routes(['register' => false]);
 
 // Tenant Staff Dashboard
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(['auth', 'usage.alerts']);
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(['auth', 'subscription.status', 'usage.alerts']);
 
 /*
 |--------------------------------------------------------------------------
@@ -70,17 +70,19 @@ Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(
 |--------------------------------------------------------------------------
 */
 
-// Subscription & Billing Routes
+// Subscription & Billing Routes (with status checks)
 Route::middleware(['auth', 'subscription.status'])->prefix('subscription')->name('subscription.')->group(function () {
     Route::get('/', [App\Http\Controllers\SubscriptionController::class, 'index'])->name('index');
-    Route::get('/plans', [App\Http\Controllers\SubscriptionController::class, 'plans'])->name('plans');
     Route::get('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'upgrade'])->name('upgrade');
     Route::post('/upgrade/{plan}', [App\Http\Controllers\SubscriptionController::class, 'processUpgrade'])->name('process-upgrade');
     Route::post('/verify-payment', [App\Http\Controllers\SubscriptionController::class, 'verifyPayment'])->name('verify-payment');
     Route::get('/usage', [App\Http\Controllers\SubscriptionController::class, 'usage'])->name('usage');
 });
 
-// Subscription status pages (no subscription.status middleware to avoid redirect loop)
+// Subscription plans page (accessible to authenticated users with expired trials)
+Route::middleware('auth')->get('/subscription/plans', [App\Http\Controllers\SubscriptionController::class, 'plans'])
+    ->name('subscription.plans');
+
 Route::middleware('auth')->group(function () {
     Route::get('/subscription/required', [App\Http\Controllers\SubscriptionController::class, 'required'])->name('subscription.required');
     Route::get('/subscription/suspended', [App\Http\Controllers\SubscriptionController::class, 'suspended'])->name('subscription.suspended');

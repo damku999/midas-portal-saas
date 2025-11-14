@@ -86,7 +86,8 @@
                                        autocomplete="new-password">
                             </div>
 
-                            <!-- Cloudflare Turnstile -->
+                            <!-- Cloudflare Turnstile - Only in Production -->
+                            @if(app()->environment('production'))
                             <div class="form-group">
                                 <x-turnstile />
                                 @error('cf-turnstile-response')
@@ -95,6 +96,7 @@
                                     </div>
                                 @enderror
                             </div>
+                            @endif
 
                             <button type="submit" class="btn btn-primary w-100 mb-4">
                                 <i class="fas fa-key me-2"></i>Reset Password

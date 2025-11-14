@@ -135,11 +135,17 @@ class CustomerAuthController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        $request->validate([
+        $rules = [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
-            'cf-turnstile-response' => ['required', Rule::turnstile()],
-        ]);
+        ];
+
+        // Only require CAPTCHA in production environment
+        if (app()->environment('production')) {
+            $rules['cf-turnstile-response'] = ['required', Rule::turnstile()];
+        }
+
+        $request->validate($rules);
     }
 
     /**
@@ -533,10 +539,16 @@ class CustomerAuthController extends Controller
      */
     public function sendPasswordResetLink(Request $request)
     {
-        $request->validate([
+        $rules = [
             'email' => 'required|email',
-            'cf-turnstile-response' => ['required', Rule::turnstile()],
-        ]);
+        ];
+
+        // Only require CAPTCHA in production environment
+        if (app()->environment('production')) {
+            $rules['cf-turnstile-response'] = ['required', Rule::turnstile()];
+        }
+
+        $request->validate($rules);
 
         $customer = Customer::query()->where('email', $request->email)->first();
 
@@ -592,11 +604,17 @@ class CustomerAuthController extends Controller
      */
     public function resetPassword(Request $request)
     {
-        $request->validate([
+        $rules = [
             'token' => 'required',
             'password' => 'required|string|min:8|confirmed',
-            'cf-turnstile-response' => ['required', Rule::turnstile()],
-        ]);
+        ];
+
+        // Only require CAPTCHA in production environment
+        if (app()->environment('production')) {
+            $rules['cf-turnstile-response'] = ['required', Rule::turnstile()];
+        }
+
+        $request->validate($rules);
 
         $customer = Customer::query()->where('password_reset_token', $request->token)->first();
 

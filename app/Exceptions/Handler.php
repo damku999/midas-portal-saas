@@ -73,7 +73,7 @@ class Handler extends ExceptionHandler
             $errorId = uniqid('err_', true);
 
             // Log full error details with error ID
-            Log::error('Application error', [
+            $logData = [
                 'error_id' => $errorId,
                 'exception' => get_class($e),
                 'message' => $e->getMessage(),
@@ -83,8 +83,18 @@ class Handler extends ExceptionHandler
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
                 'ip' => $request->ip(),
-                'user_id' => auth()->id(),
-            ]);
+            ];
+
+            // Safely get user ID if auth is available
+            try {
+                if (app()->bound('auth')) {
+                    $logData['user_id'] = optional(auth()->user())->id;
+                }
+            } catch (\Exception $authEx) {
+                // Auth not available yet, skip user_id
+            }
+
+            Log::error('Application error', $logData);
 
             // Return generic error message to user
             if ($request->expectsJson()) {

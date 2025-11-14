@@ -35,6 +35,7 @@ return [
         Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
         Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper::class,
         App\Tenancy\Bootstrappers\DynamicConfigBootstrapper::class, // Load tenant-specific configs from app_settings
+        App\Tenancy\Bootstrappers\UrlBootstrapper::class, // Ensure URLs include port number
         // Stancl\Tenancy\Bootstrappers\RedisTenancyBootstrapper::class, // Note: phpredis is needed
     ],
 
